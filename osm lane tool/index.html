@@ -15,27 +15,25 @@ Please visit <b><a href="https://kallejre.github.io/geo/osm%20lane%20tool/">http
 
 <style>
 table { border-collapse: collapse; }
-table, td {border:1px solid ; padding:0px;}
+table, td {border:1px solid ; padding:0px; }
 td > button {
    display: inline-block;
-   width: 100%;       /* set to 100% */
-   height: 100%;}
-   
+   width: 100%;
+   height: 100%; }
+
 td > div > img {
     position:absolute;
     vertical-align:middle;
-top: 0px;
-}
+    top: 0px; }
 li {font-family: monospace;}
 #main-lanes-row td {
   vertical-align: bottom; 
-  display: table-cell;
-}
+  display: table-cell; }
+.destiation_input {width: 100%; }
 td > div {
-height:69px;
-/*display:inline-block;*/
-    position:relative;}
-.hide {display:none;}
+    height:69px;
+    position:relative; }
+.hide {display:none; }
 </style>
 <button type="button" onclick="addColumn()">Add lane</button>
 <button type="button" title="Broken" onclick="exportOSM()">Export</button>
@@ -81,20 +79,18 @@ height:69px;
   function deleteByID(ide) {
     console.log("Deleting by ID");
     console.log(ide);
-
-    /*
-        // Unhide lane change button
-        var tmp=row.getElementsByClassName("lanechange_btn")
-        if (tmp.length>1){
-        tmp[tmp.length-2].classList.remove("hide")}*/
-
     //var elem = document.getElementById(ide);
     if (typeof(ide) == "string") {
       var ide = document.getElementById(ide);
     }
     ide.parentNode.removeChild(ide);
+    var tmp = row.getElementsByClassName("lanechange_btn")
+    if (ide.id.includes("lane_")) {
+      tmp[tmp.length - 1].classList.add("hide")
+    }
     return false;
   }
+
   //document.getElementById("template1").innerHTML.replace("{{lane_id}}", "5")
   function genereateID() {
     // 86400000=1000*3600*24
@@ -113,9 +109,7 @@ height:69px;
       }
     } else {
       for (i = 1; i < 9; i++) {
-
         document.getElementById("arrow_" + ide + "_img_" + i).classList.add("hide")
-
       }
     }
   }
@@ -161,6 +155,7 @@ height:69px;
   }
 
   function copyLeft(ide) {
+    alert("You shouldn't see this message")
     var new_id = genereateID()
     console.log(new_id)
     console.log(ide)
@@ -313,10 +308,7 @@ height:69px;
   // document.querySelector('button').onclick = addColumn
 
   function lane_test(ide) {
-    //broken()
-    //return
     btn = document.getElementById("change_lane_" + ide);
-
     if (btn.innerHTML == "Allow lane change?") {
       btn.innerHTML = "Can't change lane"
     } else if (btn.innerHTML == "Can't change lane") {
@@ -355,6 +347,7 @@ Known bugs, wishlist and changelog:
 </li><li><s>New lane destination field is created only on-click (not on-input).</s>
 </li><li><s>Changelog too long, moved to hidden section.</s>
 </li><li><s>Relocated hosting to github.  Added dynamic warning when visiting old site.</s>
+</li><li><s>Adding new destination field preservers key.</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Import capability needed
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
@@ -477,7 +470,7 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
 <h4>Destinations:</h4>
 <table id="test table" border=1 width=390px>
  <tr id=template4>
-  <td>
+  <td width=140px>
     <select name="selection_{lane_id}_{dest_row_id}" id="selection_{lane_id}_{dest_row_id}">
       <option value="" disabled selected>Type of destination</option>
       <option value="destination">Destination</option>
@@ -488,9 +481,9 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
     </select>
   </td>
   <td >
-    <input width=100% name="input_{lane_id}_{dest_row_id}" id="input_{lane_id}_{dest_row_id}" placeholder="Click to add new" onclick="new_destination('{lane_id}')" oninput="new_destination('{lane_id}')"></input>
+    <input  name="input_{lane_id}_{dest_row_id}" id="input_{lane_id}_{dest_row_id}" placeholder="Click to add new" onclick="new_destination('{lane_id}', document.getElementById( 'selection_{lane_id}_{dest_row_id}').value)" oninput="new_destination('{lane_id}', document.getElementById( 'selection_{lane_id}_{dest_row_id}').value)" class="destiation_input"></input>
   </td>
-  <td>
+  <td width=45px>
     <button onclick="deleteByID(dest_row_{dest_row_id})" class="hide" title="Delete row">❌</button>
   </td>
  </tr>
