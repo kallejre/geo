@@ -42,265 +42,295 @@ height:69px;
 <button type="button" title="Very broken" onclick="broken()">Import</button>
 <button type="button" title="Very broken" onclick="broken()">Switch forward/backward</button>
     <script type="text/javascript">
-function addColumn() {
+  function addColumn() {
+    row = document.getElementById('main-lanes-row');
+    var temp_lane_id = genereateID();
+    var cell = document.createElement("td");
+    cell.setAttribute("id", "lane_" + temp_lane_id);
 
-    row=document.getElementById('main-lanes-row');
-        var temp_lane_id= genereateID();
-        var cell = document.createElement("td");
-        cell.setAttribute("id", "lane_"+temp_lane_id);
-        
-        var htm=document.getElementById("template1").innerHTML;
-        htm=htm.replaceAll("{lane_id}", temp_lane_id);
-        cell.innerHTML=htm;
-        console.log("Created "+ temp_lane_id);
-        row.appendChild(cell);
+    var htm = document.getElementById("template1").innerHTML;
+    htm = htm.replaceAll("{lane_id}", temp_lane_id);
+    cell.innerHTML = htm;
+    console.log("Created " + temp_lane_id);
+    row.appendChild(cell);
 
-        // Add destination module
-        // lane=document.getElementById("lane_"+temp_lane_id);
-        dest_cell=document.getElementById("dest_cell_"+temp_lane_id);
-        var htm=document.getElementById("template2").innerHTML;
-        dest_cell.innerHTML=htm.replaceAll("{lane_id}", temp_lane_id);
-        //.replaceAll("{dest_table_id}", "dest_table_"+temp_lane_id);
-        //   .replaceAll("{dest_row_id}", "dest_row_"+temp_row_id);
-        
-        // Add arrow module
-        // lane=document.getElementById("lane_"+temp_lane_id);
-        arrow_cell=document.getElementById("arrow_cell_"+temp_lane_id);
-        var htm=document.getElementById("template3").innerHTML;
-        arrow_cell.innerHTML=htm.replaceAll("{lane_id}", temp_lane_id);
-        
-    document.getElementById("dest_table_"+temp_lane_id).innerHTML="";
+    // Add destination module
+    // lane=document.getElementById("lane_"+temp_lane_id);
+    dest_cell = document.getElementById("dest_cell_" + temp_lane_id);
+    var htm = document.getElementById("template2").innerHTML;
+    dest_cell.innerHTML = htm.replaceAll("{lane_id}", temp_lane_id);
+    //.replaceAll("{dest_table_id}", "dest_table_"+temp_lane_id);
+    //   .replaceAll("{dest_row_id}", "dest_row_"+temp_row_id);
+
+    // Add arrow module
+    // lane=document.getElementById("lane_"+temp_lane_id);
+    arrow_cell = document.getElementById("arrow_cell_" + temp_lane_id);
+    var htm = document.getElementById("template3").innerHTML;
+    arrow_cell.innerHTML = htm.replaceAll("{lane_id}", temp_lane_id);
+
+    // Unhide lane change button
+    var tmp = row.getElementsByClassName("lanechange_btn")
+    if (tmp.length > 1) {
+      tmp[tmp.length - 2].classList.remove("hide")
+    }
+
+    document.getElementById("dest_table_" + temp_lane_id).innerHTML = "";
     new_destination(temp_lane_id)
-}
+  }
 
-function deleteByID(ide) {
+  function deleteByID(ide) {
     console.log("Deleting by ID");
     console.log(ide);
+
+    /*
+        // Unhide lane change button
+        var tmp=row.getElementsByClassName("lanechange_btn")
+        if (tmp.length>1){
+        tmp[tmp.length-2].classList.remove("hide")}*/
+
     //var elem = document.getElementById(ide);
     if (typeof(ide) == "string") {
-        var ide = document.getElementById(ide);
+      var ide = document.getElementById(ide);
     }
     ide.parentNode.removeChild(ide);
     return false;
-}
-//document.getElementById("template1").innerHTML.replace("{{lane_id}}", "5")
-function genereateID() {
+  }
+  //document.getElementById("template1").innerHTML.replace("{{lane_id}}", "5")
+  function genereateID() {
     // 86400000=1000*3600*24
     var timestamp = Date.now() % 86400000;
     return timestamp.toString(34);
-}
+  }
 
-function update_arrow_image(ide) {
-  if (!document.getElementById("arrow_" + ide + "_9").checked) {
-    for (i = 1; i < 9; i++) {
-      if (document.getElementById("arrow_" + ide + "_" + i).checked) {
-        document.getElementById("arrow_" + ide + "_img_" + i).classList.remove("hide")
-      } else {
+  function update_arrow_image(ide) {
+    if (!document.getElementById("arrow_" + ide + "_9").checked) {
+      for (i = 1; i < 9; i++) {
+        if (document.getElementById("arrow_" + ide + "_" + i).checked) {
+          document.getElementById("arrow_" + ide + "_img_" + i).classList.remove("hide")
+        } else {
+          document.getElementById("arrow_" + ide + "_img_" + i).classList.add("hide")
+        }
+      }
+    } else {
+      for (i = 1; i < 9; i++) {
+
         document.getElementById("arrow_" + ide + "_img_" + i).classList.add("hide")
+
       }
     }
-  } else {
-    for (i = 1; i < 9; i++) {
+  }
 
-      document.getElementById("arrow_" + ide + "_img_" + i).classList.add("hide")
-
+  function update_arrow(ide) {
+    // console.log(ide)
+    if (document.getElementById("arrow_" + ide + "_9").checked) {
+      document.getElementById("arrow_" + ide + "_9").checked = false;
     }
+    update_arrow_image(ide)
   }
-}
 
-function update_arrow(ide) {
-  // console.log(ide)
-  if (document.getElementById("arrow_" + ide + "_9").checked) {
-    document.getElementById("arrow_" + ide + "_9").checked = false;
-  }
-  update_arrow_image(ide)
-}
-
-function update_arrow_2(ide) {
-  // Ainult clear
-  // console.log(ide)
-  if (document.getElementById("arrow_" + ide + "_9").checked) {
-    for (i = 1; i < 9; i++) {
-      document.getElementById("arrow_" + ide + "_" + i).checked = false;
+  function update_arrow_2(ide) {
+    // Ainult clear
+    // console.log(ide)
+    if (document.getElementById("arrow_" + ide + "_9").checked) {
+      for (i = 1; i < 9; i++) {
+        document.getElementById("arrow_" + ide + "_" + i).checked = false;
+      }
     }
+    update_arrow_image(ide);
   }
-  update_arrow_image(ide);
-}
 
-function new_destination(ide, drop_val="", input_val="") {
-    var dest_table=document.getElementById("dest_table_" + ide)
-    var temp_dest_id= genereateID();
+  function new_destination(ide, drop_val = "", input_val = "") {
+    var dest_table = document.getElementById("dest_table_" + ide)
+    var temp_dest_id = genereateID();
     var row = document.createElement("tr");
-    row.setAttribute("id", "dest_row_"+temp_dest_id);
-    var htm=document.getElementById("template4").innerHTML;
-    htm=htm.replaceAll("{dest_row_id}", temp_dest_id).replaceAll("{lane_id}", ide);
-    row.innerHTML=htm;
-    var last_element=document.getElementById("dest_table_" + ide).lastChild;
-    if (document.getElementById("dest_table_" + ide).children.length>0){
-        last_element.getElementsByTagName("input")[0].removeAttribute("onclick")
-        last_element.getElementsByTagName("input")[0].removeAttribute("oninput")
-        last_element.getElementsByTagName("button")[0].classList.remove("hide")
-        last_element.getElementsByTagName("input")[0].setAttribute("placeholder","Destination tag value")
+    row.setAttribute("id", "dest_row_" + temp_dest_id);
+    var htm = document.getElementById("template4").innerHTML;
+    htm = htm.replaceAll("{dest_row_id}", temp_dest_id).replaceAll("{lane_id}", ide);
+    row.innerHTML = htm;
+    var last_element = document.getElementById("dest_table_" + ide).lastChild;
+    if (document.getElementById("dest_table_" + ide).children.length > 0) {
+      last_element.getElementsByTagName("input")[0].removeAttribute("onclick")
+      last_element.getElementsByTagName("input")[0].removeAttribute("oninput")
+      last_element.getElementsByTagName("button")[0].classList.remove("hide")
+      last_element.getElementsByTagName("input")[0].setAttribute("placeholder", "Destination tag value")
     }
-    row.getElementsByTagName("input")[0].value=input_val
-    row.getElementsByTagName("select")[0].value=drop_val
+    row.getElementsByTagName("input")[0].value = input_val
+    row.getElementsByTagName("select")[0].value = drop_val
     dest_table.appendChild(row);
     //console.log(htm);
-}
+  }
 
-function copyLeft(ide) {
-    var new_id=genereateID()
+  function copyLeft(ide) {
+    var new_id = genereateID()
     console.log(new_id)
     console.log(ide)
-    var source=document.getElementById('lane_'+ide)
+    var source = document.getElementById('lane_' + ide)
     source.insertAdjacentHTML('beforebegin', source.outerHTML.replaceAll(ide, new_id))
     for (i = 1; i < 10; i++) {
-      document.getElementById("arrow_" + new_id + "_" + i).checked=document.getElementById("arrow_" + ide + "_" + i).checked  }
-      
-    document.getElementById("change_lane_"+new_id).classList.remove("hide")
-    document.getElementById("dest_table_"+new_id).innerHTML="";
-    [...document.getElementById("dest_cell_"+ide).getElementsByTagName("tr")].forEach((row) => {
-    console.log(row)
-        drop=row.getElementsByTagName("select")[0].value
-        sel=row.getElementsByTagName("input")[0].value
-        new_destination(new_id, drop, sel);
+      document.getElementById("arrow_" + new_id + "_" + i).checked = document.getElementById("arrow_" + ide +
+        "_" + i).checked
+    }
+
+    document.getElementById("change_lane_" + new_id).classList.remove("hide")
+    document.getElementById("dest_table_" + new_id).innerHTML = "";
+    [...document.getElementById("dest_cell_" + ide).getElementsByTagName("tr")].forEach((row) => {
+      console.log(row)
+      drop = row.getElementsByTagName("select")[0].value
+      sel = row.getElementsByTagName("input")[0].value
+      new_destination(new_id, drop, sel);
     })
-}
-function copyRight(ide) {
-    var new_id=genereateID()
+  }
+
+  function copyRight(ide) {
+    var new_id = genereateID()
     console.log(new_id)
     console.log(ide)
-    var source=document.getElementById('lane_'+ide)
+    var source = document.getElementById('lane_' + ide)
     source.insertAdjacentHTML('afterend', source.outerHTML.replaceAll(ide, new_id))
     for (i = 1; i < 10; i++) {
-      document.getElementById("arrow_" + new_id + "_" + i).checked=document.getElementById("arrow_" + ide + "_" + i).checked  }
-    document.getElementById("change_lane_"+ide).classList.remove("hide")
-    document.getElementById("dest_table_"+new_id).innerHTML="";
-    [...document.getElementById("dest_cell_"+ide).getElementsByTagName("tr")].forEach((row) => {
-        drop=row.getElementsByTagName("select")[0].value
-        sel=row.getElementsByTagName("input")[0].value
-        new_destination(new_id, drop, sel);
+      document.getElementById("arrow_" + new_id + "_" + i).checked = document.getElementById("arrow_" + ide +
+        "_" + i).checked
+    }
+    document.getElementById("change_lane_" + ide).classList.remove("hide")
+    document.getElementById("dest_table_" + new_id).innerHTML = "";
+    [...document.getElementById("dest_cell_" + ide).getElementsByTagName("tr")].forEach((row) => {
+      drop = row.getElementsByTagName("select")[0].value
+      sel = row.getElementsByTagName("input")[0].value
+      new_destination(new_id, drop, sel);
     })
-}
-function exportOSM() {
-  //alert("Broken (Not implemented)")
+  }
 
-  document.getElementById("out-pre").innerHTML = "Export failed."
-  var lane_suffix = ":lanes"
-  var all_lanes = document.getElementById("main-lanes-row")
-  var lane_count = all_lanes.childElementCount;
-  if (lane_count == 0) {
-    alert("No lanes to export. \n Click \"Add lane\" to add lane.");
-    return;
-  } else if (lane_count == 1) {
-    lane_suffix = ""
-  }
-  all_keys = new Set();
-  var output_keys = {
-    "turn:lanes": 0
-  };
-  output_keys["turn:lanes"] = Array();
-  for (var e = 0; e < lane_count; e++) {
-    output_keys["turn:lanes"].push([])
-  }
-  var lanes = all_lanes.children;
-  for (var i = 0; i < lane_count; i++) {
-    var lane = lanes[i]; // Iter over all lanes to find unique keys.
-    var selections = lane.getElementsByTagName("select") // Drop-down lists.
-    for (var j = 0; j < selections.length; j++) {
-      var val = selections[j].value
-      if (val != "") {
-        all_keys.add(val);
-        output_keys[val + lane_suffix] = Array()
-        for (var e = 0; e < lane_count; e++) {
-          output_keys[val + lane_suffix].push([])
+  function exportOSM() {
+    //alert("Broken (Not implemented)")
+
+    document.getElementById("out-pre").innerHTML = "Export failed."
+    var lane_suffix = ":lanes"
+    var all_lanes = document.getElementById("main-lanes-row")
+    var lane_count = all_lanes.childElementCount;
+    if (lane_count == 0) {
+      alert("No lanes to export. \n Click \"Add lane\" to add lane.");
+      return;
+    } else if (lane_count == 1) {
+      lane_suffix = ""
+    }
+    all_keys = new Set();
+    var output_keys = {
+      "turn:lanes": 0
+    };
+    output_keys["turn:lanes"] = Array();
+    for (var e = 0; e < lane_count; e++) {
+      output_keys["turn:lanes"].push([])
+    }
+    var lanes = all_lanes.children;
+    for (var i = 0; i < lane_count; i++) {
+      var lane = lanes[i]; // Iter over all lanes to find unique keys.
+      var selections = lane.getElementsByTagName("select") // Drop-down lists.
+      for (var j = 0; j < selections.length; j++) {
+        var val = selections[j].value
+        if (val != "") {
+          all_keys.add(val);
+          output_keys[val + lane_suffix] = Array()
+          for (var e = 0; e < lane_count; e++) {
+            output_keys[val + lane_suffix].push([])
+          }
         }
       }
+      console.log(lane)
+      /*if (lane.getElementByClassName("lanechange_btn")[0].innerHTML!="Allow lane change?") {
+        output_keys["change:lanes"] = Array()
+          for (var e = 0; e < lane_count; e++) {
+            output_keys[val + lane_suffix].push([])
+          }
+      } // if ("change:lanes" in output_keys)*/
     }
-    console.log(lane)
-    /*if (lane.getElementByClassName("lanechange_btn")[0].innerHTML!="Allow lane change?") {
-      output_keys["change:lanes"] = Array()
-        for (var e = 0; e < lane_count; e++) {
-          output_keys[val + lane_suffix].push([])
-        }
-    } // if ("change:lanes" in output_keys)*/
-  }
 
-  for (var i = 0; i < lane_count; i++) {// Iter over all lanes to find values.
-    var lane = lanes[i]; 
-    // Destinations
-    var selections = lane.getElementsByTagName("select") // Drop-down lists.
-    var inputs = lane.getElementsByTagName("input") // Contains checkboxes and textboxes.
-    for (var j = 0; j < selections.length; j++) {
-      id = selections[j].id
-      var textbox = document.getElementById("input_" + id.split('_')[1] + "_" + id.split('_')[2])
-      if (selections[j].value != "" && textbox.value != "") {
-        output_keys[selections[j].value + lane_suffix][i].push(textbox.value)
-      }
-    }
-    // Lane change
-    if ("change:lanes" in output_keys) {
-      
-    }
-    
-    // Lane arrows
-    var temp_arrows = []
-    for (var j = 0; j < inputs.length; j++) {
-      if (inputs[j].type == "checkbox") {
-        // Proccess checboxes.
-        if (inputs[j].checked) {
-          console.log(inputs[j].value, inputs[j].checked)
-
-          temp_arrows.push(inputs[j].value)
+    for (var i = 0; i < lane_count; i++) { // Iter over all lanes to find values.
+      var lane = lanes[i];
+      // Destinations
+      var selections = lane.getElementsByTagName("select") // Drop-down lists.
+      var inputs = lane.getElementsByTagName("input") // Contains checkboxes and textboxes.
+      for (var j = 0; j < selections.length; j++) {
+        id = selections[j].id
+        var textbox = document.getElementById("input_" + id.split('_')[1] + "_" + id.split('_')[2])
+        if (selections[j].value != "" && textbox.value != "") {
+          output_keys[selections[j].value + lane_suffix][i].push(textbox.value)
         }
       }
-    }
-    if (temp_arrows.length == 0) {
-      temp_arrows.push("none")
-    }
-    console.log(temp_arrows)
-    output_keys["turn:lanes"][i] = temp_arrows;
-  }
-  console.log(output_keys)
+      // Lane change
+      if ("change:lanes" in output_keys) {
 
-  // Formatting output
-  var output_str = Array();
-  Object.keys(output_keys).forEach(function(value) {
-    console.log(output_keys[value])
-    output_keys[value].map(function(x) {
-      return x.join(";")
+      }
+
+      // Lane arrows
+      var temp_arrows = []
+      for (var j = 0; j < inputs.length; j++) {
+        if (inputs[j].type == "checkbox") {
+          // Proccess checboxes.
+          if (inputs[j].checked) {
+            console.log(inputs[j].value, inputs[j].checked)
+
+            temp_arrows.push(inputs[j].value)
+          }
+        }
+      }
+      if (temp_arrows.length == 0) {
+        temp_arrows.push("none")
+      }
+      console.log(temp_arrows)
+      output_keys["turn:lanes"][i] = temp_arrows;
+    }
+    console.log(output_keys)
+
+    // Formatting output
+    var output_str = Array();
+    Object.keys(output_keys).forEach(function(value) {
+      console.log(output_keys[value])
+      output_keys[value].map(function(x) {
+        return x.join(";")
+      })
+
+      var valuelist = output_keys[value].map(function(item) {
+        return item.join(";")
+      }).join("|");
+      output_str.push(value + "=" + valuelist)
     })
+    output_str.push("lanes=" + lane_count)
+    output_str.sort();
+    output_str = output_str.join("\n")
+    document.getElementById("out-pre").value = output_str.replaceAll(";;", ";").replaceAll(";;", ";")
+      .replaceAll(";|", "|").replaceAll("|;", "|");
+  }
 
-    var valuelist = output_keys[value].map(function(item) {
-      return item.join(";")
-    }).join("|");
-    output_str.push(value + "=" + valuelist)
-  })
-  output_str.push("lanes=" + lane_count)
-  output_str.sort();
-  output_str = output_str.join("\n")
-  document.getElementById("out-pre").value = output_str.replaceAll(";;", ";").replaceAll(";;", ";").replaceAll(";|", "|").replaceAll("|;", "|");
-}
-function importOSM(){ 
+  function importOSM() {
 
-alert("This placeholder button is broken (not implemented yet)")
+    alert("This placeholder button is broken (not implemented yet)")
 
-}
-function broken(){ alert("This placeholder button is broken (not implemented yet)")}
-// document.querySelector('button').onclick = addColumn
+  }
 
-function lane_test(ide) {
-broken()
-return
-btn=document.getElementById("change_lane_"+ide);
+  function broken() {
+    alert("This placeholder button is broken (not implemented yet)")
+  }
+  // document.querySelector('button').onclick = addColumn
 
-if (btn.innerHTML=="Allow lane change?") {btn.innerHTML="Can't change lane"}
-else if (btn.innerHTML=="Can't change lane") {btn.innerHTML="Can change lane"}
-else {btn.innerHTML="Allow lane change?"}
-}
-function toggle_warning(){ // Warning about closing enos.
-if (window.location.href.includes("enos")){document.getElementById("warning").classList.toggle("hide")};}
+  function lane_test(ide) {
+    //broken()
+    //return
+    btn = document.getElementById("change_lane_" + ide);
 
+    if (btn.innerHTML == "Allow lane change?") {
+      btn.innerHTML = "Can't change lane"
+    } else if (btn.innerHTML == "Can't change lane") {
+      btn.innerHTML = "Can change lane"
+    } else {
+      btn.innerHTML = "Allow lane change?"
+    }
+  }
+
+  function toggle_warning() { // Warning about closing enos.
+    if (window.location.href.includes("enos")) {
+      document.getElementById("warning").classList.toggle("hide")
+    };
+  }
     </script>
 <table id=main-lanes  border=1 >
  <tr id="main-lanes-row" >
@@ -317,19 +347,21 @@ And in far future input too.</textarea>
   <label for="tristate" ><tt>3-state checkbox test</tt></label>
   <br>
 
-Known bugs and changelog:
+Known bugs, wishlist and changelog:
 <ul ><li><s>Copying lane destinations along with lanes</s>
 </li><li><s>First row of destinations can't be deleted, but shows button</s>
 </li><li><s>This webpage is utterly useless as there's no export functionality</s>
 </li><li><s>Formatting support for changelog</s>
 </li><li><s>New lane destination field is created only on-click (not on-input).</s>
 </li><li><s>Changelog too long, moved to hidden section.</s>
+</li><li><s>Relocated hosting to github.  Added dynamic warning when visiting old site.</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Import capability needed
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
 </li><li>Add custom UI for LHT (steering wheel on right side) roads.
 </li><li>Wip. Add lane changing tags. Todo for that: <s>Figure out UI and tri-state checkboxes.</s> Update export function. <b>Scrap and remake</b>
 </li><li>Css styling should use classes
+</li><li>Draggable lanes
 </li><li>...and many more
 </li></ul>
 <h2>Templates for js to generate new lanes.</h2>
