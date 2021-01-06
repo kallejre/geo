@@ -39,6 +39,8 @@ td > div {
 <button type="button" title="Broken" onclick="exportOSM()">Export</button>
 <button type="button" title="Very broken" onclick="broken()">Import</button>
 <button type="button" title="Very broken" onclick="broken()">Switch forward/backward</button>
+<button type="button" title="Very broken" onclick="broken()">Switch LHD/RHD</button>
+<!-- Switching function needs at least 3 new classes and custom variables for image URL. -->
     <script type="text/javascript">
   function addColumn() {
     row = document.getElementById('main-lanes-row');
@@ -231,12 +233,12 @@ td > div {
         }
       }
       console.log(lane)
-      /*if (lane.getElementByClassName("lanechange_btn")[0].innerHTML!="Allow lane change?") {
+      if (lane.getElementsByClassName("lanechange_btn")[0].innerHTML!="Allow lane change?") {
         output_keys["change:lanes"] = Array()
-          for (var e = 0; e < lane_count; e++) {
+          /*for (var e = 0; e < lane_count; e++) {
             output_keys[val + lane_suffix].push([])
-          }
-      } // if ("change:lanes" in output_keys)*/
+          }*/
+      } // if ("change:lanes" in output_keys)  */
     }
 
     for (var i = 0; i < lane_count; i++) { // Iter over all lanes to find values.
@@ -252,8 +254,17 @@ td > div {
         }
       }
       // Lane change
-      if ("change:lanes" in output_keys) {
-
+      if ("change:lanes" in output_keys && i!=lane_count-1) {
+        switch(lane.getElementsByClassName("lanechange_btn")[0].innerHTML) {
+          case "Can't change lane":
+            output_keys["change:lanes"].push("no")
+            break;
+          case "Can change lane":
+            output_keys["change:lanes"].push("yes")
+            break;
+          default:  // "Allow lane change?"
+            output_keys["change:lanes"].push("none")
+        }
       }
 
       // Lane arrows
@@ -275,7 +286,32 @@ td > div {
       output_keys["turn:lanes"][i] = temp_arrows;
     }
     console.log(output_keys)
-
+    // Fix lane changes
+    if (output_keys.hasOwnProperty("change:lanes")) {
+      var tmp = Array()
+      var tmp1 = output_keys["change:lanes"]
+      console.log(tmp1)
+      tmp.push([tmp1[0]])
+      for (var i = 1; i < tmp1.length; i++) {
+               if (tmp1[i-1] == 'no' && tmp1[i]== 'no') {  tmp.push(['no'])}
+        else if (tmp1[i-1] == 'no' && tmp1[i]== 'yes') {   tmp.push(['not_left'])}
+        else if (tmp1[i-1] == 'no' && tmp1[i]== 'none') {  tmp.push(['not_left'])}
+        else if (tmp1[i-1] == 'yes' && tmp1[i]== 'no') {   tmp.push(['not_right'])}
+        else if (tmp1[i-1] == 'yes' && tmp1[i]== 'yes') {  tmp.push(['yes'])}
+        else if (tmp1[i-1] == 'yes' && tmp1[i]== 'none') { tmp.push(['yes'])}
+        else if (tmp1[i-1] == 'none' && tmp1[i]== 'no') {  tmp.push(['not_right'])}
+        else if (tmp1[i-1] == 'none' && tmp1[i]== 'yes') { tmp.push(['yes'])}
+        else if (tmp1[i-1] == 'none' && tmp1[i]== 'none') {tmp.push(['none'])}
+        
+      }
+      tmp.push([tmp1[tmp1.length-1]])
+      output_keys["change:lanes"]=tmp;
+      //console.log(output_keys["change:lanes"])
+    }
+    
+      console.log("Final output!")
+      console.log(output_keys)
+    
     // Formatting output
     var output_str = Array();
     Object.keys(output_keys).forEach(function(value) {
@@ -324,9 +360,12 @@ td > div {
     };
   }
     </script>
+
+
 <table id=main-lanes  border=1 >
- <tr id="main-lanes-row" >
- </tr>
+  <tr id="main-lanes-row" >
+    <!-- This is here where all the lanes will be shown. -->
+  </tr>
 </table>
 
 <div id=out-div><br><br>
@@ -335,9 +374,6 @@ And in far future input too.</textarea>
 </div>
 <button onclick="document.getElementById('All-templates').classList.toggle('hide')">Do not click here. (debug)</button>
 <div id=All-templates class=hide>
-<input type="checkbox" id="tristate"  name="tristate" value="tristate" onclick='lane_test()' >
-  <label for="tristate" ><tt>3-state checkbox test</tt></label>
-  <br>
 
 Known bugs, wishlist and changelog:
 <ul ><li><s>Copying lane destinations along with lanes</s>
@@ -348,11 +384,12 @@ Known bugs, wishlist and changelog:
 </li><li><s>Changelog too long, moved to hidden section.</s>
 </li><li><s>Relocated hosting to github.  Added dynamic warning when visiting old site.</s>
 </li><li><s>Adding new destination field preservers key.</s>
+</li><li><s>Add lane changing tags. Todo for that: Update export function.</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Import capability needed
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
 </li><li>Add custom UI for LHT (steering wheel on right side) roads.
-</li><li>Wip. Add lane changing tags. Todo for that: <s>Figure out UI and tri-state checkboxes.</s> Update export function. <b>Scrap and remake</b>
+</li><li>Pressing enter adds new field
 </li><li>Css styling should use classes
 </li><li>Draggable lanes
 </li><li>...and many more
