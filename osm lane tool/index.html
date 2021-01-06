@@ -3,10 +3,15 @@
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <title>test</title>
 </head>
-<body lang=ET>
+<body lang=ET onload="toggle_warning()">
 <h2>Lanes</h2>
 
 Warning very buggy. Bugs are mostly in js, css and html.<br>
+<div class=hide id=warning>
+<h3>Tool on this website probably isn't maintained.</h3>
+<p style="color:red">(As of 6th Jan 2021). <br>
+Please visit <b><a href="https://kallejre.github.io/geo/osm%20lane%20tool/">https://kallejre.github.io/geo/osm lane tool/</a></b> instead.<br> This site will be taken down by July 2021.
+</p></div>
 
 <style>
 table { border-collapse: collapse; }
@@ -293,6 +298,9 @@ if (btn.innerHTML=="Allow lane change?") {btn.innerHTML="Can't change lane"}
 else if (btn.innerHTML=="Can't change lane") {btn.innerHTML="Can change lane"}
 else {btn.innerHTML="Allow lane change?"}
 }
+function toggle_warning(){ // Warning about closing enos.
+if (window.location.href.includes("enos")){document.getElementById("warning").classList.toggle("hide")};}
+
     </script>
 <table id=main-lanes  border=1 >
  <tr id="main-lanes-row" >
