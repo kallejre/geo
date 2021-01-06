@@ -2,10 +2,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Leaflet Preview</title>
+  <title>Maa-amet custom render</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="content_origin" content="2020-08-07"/>
+    <meta name="minor_updates" content="2021-01-06"/>
     <meta property="og:image" content="favico.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
@@ -29,7 +30,7 @@
   <script>
     var basemaps = {};
     var optional = {};
-    var map = L.map('map').setView([58.5912993910308, 24.966502138274244], 9.0);
+    var map = L.map('map').setView([58.754, 24.966], 8.0);
     basemaps.kaart = L.tileLayer('https://tiles.maaamet.ee/tm/tms/1.0.0/kaart@GMC/{z}/{x}/{y}.jpg', {
       minZoom: 1,
       maxZoom: 17,
