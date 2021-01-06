@@ -1,3 +1,4 @@
+var global_id_counter=0;  // Used to workaround quick id generation bug.
 function addColumn() {
     row = document.getElementById('main-lanes-row');
     var temp_lane_id = genereateID();
@@ -52,7 +53,8 @@ function deleteByID(ide) {
 //document.getElementById("template1").innerHTML.replace("{{lane_id}}", "5")
 function genereateID() {
     // 86400000=1000*3600*24
-    var timestamp = Date.now() % 86400000;
+    global_id_counter++;
+    var timestamp = Date.now() % 86400000 + global_id_counter;
     return timestamp.toString(34);
 }
 

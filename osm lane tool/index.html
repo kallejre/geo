@@ -49,7 +49,7 @@ td > div {
 }
 </style>
 <button type="button" onclick="addColumn()">Add lane</button>
-<button type="button" title="Broken" onclick="exportOSM()">Export</button>
+<button type="button" title="Outputs tags for OSM" onclick="exportOSM()">Export</button>
 <button type="button" title="Very broken" onclick="broken()">Import</button>
 <button type="button" title="Very broken" onclick="broken()">Switch forward/backward</button>
 <button type="button" title="Very broken" onclick="broken()">Switch LHD/RHD</button>
@@ -80,12 +80,15 @@ Known bugs, wishlist and changelog:
 </li><li><s>Adding new destination field preservers key.</s>
 </li><li><s>Add lane changing tags. Todo for that: Update export function.</s>
 </li><li><s>First lane is automatically added when page loads.</s>
+</li><li><s>Bug caused duplicate tagging when lane was copied because of duplicate IDs, when new elements were generated too quickly.</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Import capability needed
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
 </li><li>Add custom UI for LHT (steering wheel on right side) roads.
-</li><li>Pressing enter adds new field
+</li><li>Pressing enter could add new field
+</li><li>Keys with no value are sometimes generated; Missing "none" for empty lanes.
 </li><li>Css styling should use classes
+</li><li>Auto-updating export box would be cool.
 </li><li>Draggable lanes
 </li><li>...and many more
 </li></ul>
