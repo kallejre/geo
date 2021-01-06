@@ -1,0 +1,460 @@
+<html>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<title>test</title>
+</head>
+<body lang=ET>
+<h2>Lanes</h2>
+
+Warning very buggy. Bugs are mostly in js, css and html.<br>
+
+<style>
+table { border-collapse: collapse; }
+table, td {border:1px solid ; padding:0px;}
+td > button {
+   display: inline-block;
+   width: 100%;       /* set to 100% */
+   height: 100%;}
+   
+td > div > img {
+    position:absolute;
+    vertical-align:middle;
+top: 0px;
+}
+li {font-family: monospace;}
+#main-lanes-row td {
+  vertical-align: bottom; 
+  display: table-cell;
+}
+td > div {
+height:69px;
+/*display:inline-block;*/
+    position:relative;}
+.hide {display:none;}
+</style>
+<button type="button" onclick="addColumn()">Add lane</button>
+<button type="button" title="Broken" onclick="exportOSM()">Export</button>
+<button type="button" title="Very broken" onclick="broken()">Import</button>
+<button type="button" title="Very broken" onclick="broken()">Switch forward/backward</button>
+    <script type="text/javascript">
+function addColumn() {
+
+    row=document.getElementById('main-lanes-row');
+        var temp_lane_id= genereateID();
+        var cell = document.createElement("td");
+        cell.setAttribute("id", "lane_"+temp_lane_id);
+        
+        var htm=document.getElementById("template1").innerHTML;
+        htm=htm.replaceAll("{lane_id}", temp_lane_id);
+        cell.innerHTML=htm;
+        console.log("Created "+ temp_lane_id);
+        row.appendChild(cell);
+
+        // Add destination module
+        // lane=document.getElementById("lane_"+temp_lane_id);
+        dest_cell=document.getElementById("dest_cell_"+temp_lane_id);
+        var htm=document.getElementById("template2").innerHTML;
+        dest_cell.innerHTML=htm.replaceAll("{lane_id}", temp_lane_id);
+        //.replaceAll("{dest_table_id}", "dest_table_"+temp_lane_id);
+        //   .replaceAll("{dest_row_id}", "dest_row_"+temp_row_id);
+        
+        // Add arrow module
+        // lane=document.getElementById("lane_"+temp_lane_id);
+        arrow_cell=document.getElementById("arrow_cell_"+temp_lane_id);
+        var htm=document.getElementById("template3").innerHTML;
+        arrow_cell.innerHTML=htm.replaceAll("{lane_id}", temp_lane_id);
+        
+    document.getElementById("dest_table_"+temp_lane_id).innerHTML="";
+    new_destination(temp_lane_id)
+}
+
+function deleteByID(ide) {
+    console.log("Deleting by ID");
+    console.log(ide);
+    //var elem = document.getElementById(ide);
+    if (typeof(ide) == "string") {
+        var ide = document.getElementById(ide);
+    }
+    ide.parentNode.removeChild(ide);
+    return false;
+}
+//document.getElementById("template1").innerHTML.replace("{{lane_id}}", "5")
+function genereateID() {
+    // 86400000=1000*3600*24
+    var timestamp = Date.now() % 86400000;
+    return timestamp.toString(34);
+}
+
+function update_arrow_image(ide) {
+  if (!document.getElementById("arrow_" + ide + "_9").checked) {
+    for (i = 1; i < 9; i++) {
+      if (document.getElementById("arrow_" + ide + "_" + i).checked) {
+        document.getElementById("arrow_" + ide + "_img_" + i).classList.remove("hide")
+      } else {
+        document.getElementById("arrow_" + ide + "_img_" + i).classList.add("hide")
+      }
+    }
+  } else {
+    for (i = 1; i < 9; i++) {
+
+      document.getElementById("arrow_" + ide + "_img_" + i).classList.add("hide")
+
+    }
+  }
+}
+
+function update_arrow(ide) {
+  // console.log(ide)
+  if (document.getElementById("arrow_" + ide + "_9").checked) {
+    document.getElementById("arrow_" + ide + "_9").checked = false;
+  }
+  update_arrow_image(ide)
+}
+
+function update_arrow_2(ide) {
+  // Ainult clear
+  // console.log(ide)
+  if (document.getElementById("arrow_" + ide + "_9").checked) {
+    for (i = 1; i < 9; i++) {
+      document.getElementById("arrow_" + ide + "_" + i).checked = false;
+    }
+  }
+  update_arrow_image(ide);
+}
+
+function new_destination(ide, drop_val="", input_val="") {
+    var dest_table=document.getElementById("dest_table_" + ide)
+    var temp_dest_id= genereateID();
+    var row = document.createElement("tr");
+    row.setAttribute("id", "dest_row_"+temp_dest_id);
+    var htm=document.getElementById("template4").innerHTML;
+    htm=htm.replaceAll("{dest_row_id}", temp_dest_id).replaceAll("{lane_id}", ide);
+    row.innerHTML=htm;
+    var last_element=document.getElementById("dest_table_" + ide).lastChild;
+    if (document.getElementById("dest_table_" + ide).children.length>0){
+        last_element.getElementsByTagName("input")[0].removeAttribute("onclick")
+        last_element.getElementsByTagName("input")[0].removeAttribute("oninput")
+        last_element.getElementsByTagName("button")[0].classList.remove("hide")
+        last_element.getElementsByTagName("input")[0].setAttribute("placeholder","Destination tag value")
+    }
+    row.getElementsByTagName("input")[0].value=input_val
+    row.getElementsByTagName("select")[0].value=drop_val
+    dest_table.appendChild(row);
+    //console.log(htm);
+}
+
+function copyLeft(ide) {
+    var new_id=genereateID()
+    console.log(new_id)
+    console.log(ide)
+    var source=document.getElementById('lane_'+ide)
+    source.insertAdjacentHTML('beforebegin', source.outerHTML.replaceAll(ide, new_id))
+    for (i = 1; i < 10; i++) {
+      document.getElementById("arrow_" + new_id + "_" + i).checked=document.getElementById("arrow_" + ide + "_" + i).checked  }
+      
+    document.getElementById("change_lane_"+new_id).classList.remove("hide")
+    document.getElementById("dest_table_"+new_id).innerHTML="";
+    [...document.getElementById("dest_cell_"+ide).getElementsByTagName("tr")].forEach((row) => {
+    console.log(row)
+        drop=row.getElementsByTagName("select")[0].value
+        sel=row.getElementsByTagName("input")[0].value
+        new_destination(new_id, drop, sel);
+    })
+}
+function copyRight(ide) {
+    var new_id=genereateID()
+    console.log(new_id)
+    console.log(ide)
+    var source=document.getElementById('lane_'+ide)
+    source.insertAdjacentHTML('afterend', source.outerHTML.replaceAll(ide, new_id))
+    for (i = 1; i < 10; i++) {
+      document.getElementById("arrow_" + new_id + "_" + i).checked=document.getElementById("arrow_" + ide + "_" + i).checked  }
+    document.getElementById("change_lane_"+ide).classList.remove("hide")
+    document.getElementById("dest_table_"+new_id).innerHTML="";
+    [...document.getElementById("dest_cell_"+ide).getElementsByTagName("tr")].forEach((row) => {
+        drop=row.getElementsByTagName("select")[0].value
+        sel=row.getElementsByTagName("input")[0].value
+        new_destination(new_id, drop, sel);
+    })
+}
+function exportOSM() {
+  //alert("Broken (Not implemented)")
+
+  document.getElementById("out-pre").innerHTML = "Export failed."
+  var lane_suffix = ":lanes"
+  var all_lanes = document.getElementById("main-lanes-row")
+  var lane_count = all_lanes.childElementCount;
+  if (lane_count == 0) {
+    alert("No lanes to export. \n Click \"Add lane\" to add lane.");
+    return;
+  } else if (lane_count == 1) {
+    lane_suffix = ""
+  }
+  all_keys = new Set();
+  var output_keys = {
+    "turn:lanes": 0
+  };
+  output_keys["turn:lanes"] = Array();
+  for (var e = 0; e < lane_count; e++) {
+    output_keys["turn:lanes"].push([])
+  }
+  var lanes = all_lanes.children;
+  for (var i = 0; i < lane_count; i++) {
+    var lane = lanes[i]; // Iter over all lanes to find unique keys.
+    var selections = lane.getElementsByTagName("select") // Drop-down lists.
+    for (var j = 0; j < selections.length; j++) {
+      var val = selections[j].value
+      if (val != "") {
+        all_keys.add(val);
+        output_keys[val + lane_suffix] = Array()
+        for (var e = 0; e < lane_count; e++) {
+          output_keys[val + lane_suffix].push([])
+        }
+      }
+    }
+    console.log(lane)
+    /*if (lane.getElementByClassName("lanechange_btn")[0].innerHTML!="Allow lane change?") {
+      output_keys["change:lanes"] = Array()
+        for (var e = 0; e < lane_count; e++) {
+          output_keys[val + lane_suffix].push([])
+        }
+    } // if ("change:lanes" in output_keys)*/
+  }
+
+  for (var i = 0; i < lane_count; i++) {// Iter over all lanes to find values.
+    var lane = lanes[i]; 
+    // Destinations
+    var selections = lane.getElementsByTagName("select") // Drop-down lists.
+    var inputs = lane.getElementsByTagName("input") // Contains checkboxes and textboxes.
+    for (var j = 0; j < selections.length; j++) {
+      id = selections[j].id
+      var textbox = document.getElementById("input_" + id.split('_')[1] + "_" + id.split('_')[2])
+      if (selections[j].value != "" && textbox.value != "") {
+        output_keys[selections[j].value + lane_suffix][i].push(textbox.value)
+      }
+    }
+    // Lane change
+    if ("change:lanes" in output_keys) {
+      
+    }
+    
+    // Lane arrows
+    var temp_arrows = []
+    for (var j = 0; j < inputs.length; j++) {
+      if (inputs[j].type == "checkbox") {
+        // Proccess checboxes.
+        if (inputs[j].checked) {
+          console.log(inputs[j].value, inputs[j].checked)
+
+          temp_arrows.push(inputs[j].value)
+        }
+      }
+    }
+    if (temp_arrows.length == 0) {
+      temp_arrows.push("none")
+    }
+    console.log(temp_arrows)
+    output_keys["turn:lanes"][i] = temp_arrows;
+  }
+  console.log(output_keys)
+
+  // Formatting output
+  var output_str = Array();
+  Object.keys(output_keys).forEach(function(value) {
+    console.log(output_keys[value])
+    output_keys[value].map(function(x) {
+      return x.join(";")
+    })
+
+    var valuelist = output_keys[value].map(function(item) {
+      return item.join(";")
+    }).join("|");
+    output_str.push(value + "=" + valuelist)
+  })
+  output_str.push("lanes=" + lane_count)
+  output_str.sort();
+  output_str = output_str.join("\n")
+  document.getElementById("out-pre").value = output_str.replaceAll(";;", ";").replaceAll(";;", ";").replaceAll(";|", "|").replaceAll("|;", "|");
+}
+function importOSM(){ 
+
+alert("This placeholder button is broken (not implemented yet)")
+
+}
+function broken(){ alert("This placeholder button is broken (not implemented yet)")}
+// document.querySelector('button').onclick = addColumn
+
+function lane_test(ide) {
+broken()
+return
+btn=document.getElementById("change_lane_"+ide);
+
+if (btn.innerHTML=="Allow lane change?") {btn.innerHTML="Can't change lane"}
+else if (btn.innerHTML=="Can't change lane") {btn.innerHTML="Can change lane"}
+else {btn.innerHTML="Allow lane change?"}
+}
+    </script>
+<table id=main-lanes  border=1 >
+ <tr id="main-lanes-row" >
+ </tr>
+</table>
+
+<div id=out-div><br><br>
+<textarea id=out-pre>Output will come here. 
+And in far future input too.</textarea>
+</div>
+<button onclick="document.getElementById('All-templates').classList.toggle('hide')">Do not click here. (debug)</button>
+<div id=All-templates class=hide>
+<input type="checkbox" id="tristate"  name="tristate" value="tristate" onclick='lane_test()' >
+  <label for="tristate" ><tt>3-state checkbox test</tt></label>
+  <br>
+
+Known bugs and changelog:
+<ul ><li><s>Copying lane destinations along with lanes</s>
+</li><li><s>First row of destinations can't be deleted, but shows button</s>
+</li><li><s>This webpage is utterly useless as there's no export functionality</s>
+</li><li><s>Formatting support for changelog</s>
+</li><li><s>New lane destination field is created only on-click (not on-input).</s>
+</li><li><s>Changelog too long, moved to hidden section.</s>
+</li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
+</li><li>Import capability needed
+</li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
+</li><li>Add custom UI for LHT (steering wheel on right side) roads.
+</li><li>Wip. Add lane changing tags. Todo for that: <s>Figure out UI and tri-state checkboxes.</s> Update export function. <b>Scrap and remake</b>
+</li><li>Css styling should use classes
+</li><li>...and many more
+</li></ul>
+<h2>Templates for js to generate new lanes.</h2>
+Please avoid touching tables below as they are used to generate new lanes.<br> This tool is open-source. To view source, right-click and select "View page source" :-P
+<h3>Lanes</h3>
+<div id=template1 >
+<table id="{lane_id}" border=1 width=390px>
+ <tr>
+  <td colspan=3 id="dest_cell_{lane_id}">
+  Reserved for <i>destination field selector {lane_id}</i>
+  </td>
+ </tr>
+ <tr>
+  <td colspan=3 id="arrow_cell_{lane_id}">
+  Reserved for <i>Lane arrows selection tool</i>
+  </td>
+ </tr>
+ <tr>
+  <td width=140px><button onclick="copyRight('{lane_id}')">Copy lane</button></td>
+  <td width=110px><button onclick="deleteByID(lane_{lane_id})">Delete lane</button></td>
+  <td width=140px><button class="lanechange_btn hide" id="change_lane_{lane_id}" onclick="lane_test('{lane_id}')">Allow lane change?</button></td>
+ </tr>
+</table>
+</div>
+
+<h4>Destination field selector</h4>
+<div id=template2 >
+<table id="dest_table_{lane_id}" border=1 width=390px>
+ <tr id="dest_row_{dest_row_id}">
+  <td>
+    <select name="cars" id="cars">
+      <option value="" disabled selected>Type of destination</option>
+      <option value="destination">Destination</option>
+      <option value="destination:ref">Ref</option>
+      <option value="destination:int_ref">Int_ref</option>
+      <option value="destination:street">Street</option>
+    </select>
+  </td>
+  <td >
+    <input width=100% placeholder="Destination tag value" onclick="new_destination('{lane_id}')" oninput="new_destination('{lane_id}')"></input>
+  </td>
+  <td>
+    <button onclick="deleteByID(dest_row_{dest_row_id})"  class="hide" title="Delete row">❌</button>
+  </td>
+ </tr>
+</table>
+</div>
+
+<h4>Lane arrows selection tool</h4>
+<div id=template3 >
+<table id="arrow_table_{lane_id}" border=1 width=390px>
+ <tr style='page-break-inside:avoid'>
+  <td width=140px>
+  <input type="checkbox" id="arrow_{lane_id}_1" name="arrow_{lane_id}" value="merge_to_left" onclick='update_arrow("{lane_id}");' >
+  <label for="arrow_{lane_id}_1"><tt>merge_to_left</tt></label>
+  </td>
+  <td width=110 valign=top style=' '>
+  
+  <input type="checkbox" id="arrow_{lane_id}_2"  name="arrow_{lane_id}" value="through" onclick='update_arrow("{lane_id}");' >
+  <label for="arrow_{lane_id}_2"><tt>through</tt></label>
+  </td>
+  <td width=140px>
+  <input type="checkbox" id="arrow_{lane_id}_3"  name="arrow_{lane_id}" value="merge_to_right" onclick='update_arrow("{lane_id}");' >
+  <label for="arrow_{lane_id}_3"><tt>merge_to_right</tt></label>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td>
+  <input type="checkbox" id="arrow_{lane_id}_4"  name="arrow_{lane_id}" value="slight_left" onclick='update_arrow("{lane_id}");' >
+  <label for="arrow_{lane_id}_4"><tt>slight_left</tt></label>
+  </td>
+  <td rowspan=3 id="arrows_{lane_id}" style="vertical-align: top;" >
+  <div>
+<img id="arrow_{lane_id}_img_6" class=hide width=97 height=69 src="Left.png">
+<img id="arrow_{lane_id}_img_1" class=hide width=97 height=69 src="Merge-left.png">
+<img id="arrow_{lane_id}_img_3" class=hide width=97 height=69 src="Merge-right.png">
+<img id="arrow_{lane_id}_img_7" class=hide width=97 height=69 src="Right.png">
+<img id="arrow_{lane_id}_img_4" class=hide width=97 height=69 src="Slight-left.png">
+<img id="arrow_{lane_id}_img_5" class=hide width=97 height=69 src="Slight-right.png">
+<img id="arrow_{lane_id}_img_2" class=hide width=97 height=69 src="Through.png">
+<img id="arrow_{lane_id}_img_8" class=hide width=97 height=69 src="U.png">
+<!--img id="arrow_{lane_id}_img_9" width=97 height=69 src="U-lht.png"-->
+  </div>
+  </td>
+  <td>
+  <input type="checkbox" id="arrow_{lane_id}_5"  name="arrow_{lane_id}" value="slight_right" onclick='update_arrow("{lane_id}");' >
+  <label for="arrow_{lane_id}_5"><tt>slight_right</tt></label>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td>
+  <input type="checkbox" id="arrow_{lane_id}_6"  name="arrow_{lane_id}" value="left" onclick='update_arrow("{lane_id}");' >
+  <label for="arrow_{lane_id}_6"><tt>Left</tt></label>
+  </td>
+  <td>
+  <input type="checkbox" id="arrow_{lane_id}_7"  name="arrow_{lane_id}" value="right" onclick='update_arrow("{lane_id}");' >
+  <label for="arrow_{lane_id}_7"><tt>Right</tt></label>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td>
+  <input type="checkbox" id="arrow_{lane_id}_8"  name="arrow_{lane_id}" value="reverse" onclick='update_arrow("{lane_id}");' >
+  <label for="arrow_{lane_id}_8"><tt>Reverse</tt></label>
+  </td>
+  <td>
+  <input type="checkbox" id="arrow_{lane_id}_9"  name="arrow_{lane_id}" value="none" onclick='update_arrow_2("{lane_id}");' >
+  <label for="arrow_{lane_id}_9"><tt>None</tt></label>
+  </td>
+ </tr>
+</table>
+</div>
+
+<h4>Destinations:</h4>
+<table id="test table" border=1 width=390px>
+ <tr id=template4>
+  <td>
+    <select name="selection_{lane_id}_{dest_row_id}" id="selection_{lane_id}_{dest_row_id}">
+      <option value="" disabled selected>Type of destination</option>
+      <option value="destination">Destination</option>
+      <option value="destination:ref">Ref</option>
+      <option value="destination:int_ref">Int_ref</option>
+      <option value="destination:street">Street</option>
+      <option value="destination:symbol">Symbol</option>
+    </select>
+  </td>
+  <td >
+    <input width=100% name="input_{lane_id}_{dest_row_id}" id="input_{lane_id}_{dest_row_id}" placeholder="Click to add new" onclick="new_destination('{lane_id}')" oninput="new_destination('{lane_id}')"></input>
+  </td>
+  <td>
+    <button onclick="deleteByID(dest_row_{dest_row_id})" class="hide" title="Delete row">❌</button>
+  </td>
+ </tr>
+</table>
+</div>
+</body>
+</html>
