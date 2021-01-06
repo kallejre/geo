@@ -358,6 +358,7 @@ td > div {
     if (window.location.href.includes("enos")) {
       document.getElementById("warning").classList.toggle("hide")
     };
+    addColumn();
   }
     </script>
 
@@ -385,6 +386,7 @@ Known bugs, wishlist and changelog:
 </li><li><s>Relocated hosting to github.  Added dynamic warning when visiting old site.</s>
 </li><li><s>Adding new destination field preservers key.</s>
 </li><li><s>Add lane changing tags. Todo for that: Update export function.</s>
+</li><li><s>First lane is automatically added when page loads.</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Import capability needed
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
@@ -410,9 +412,9 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
   </td>
  </tr>
  <tr>
-  <td width=140px><button onclick="copyRight('{lane_id}')">Copy lane</button></td>
-  <td width=110px><button onclick="deleteByID(lane_{lane_id})">Delete lane</button></td>
-  <td width=140px><button class="lanechange_btn hide" id="change_lane_{lane_id}" onclick="lane_test('{lane_id}')">Allow lane change?</button></td>
+  <td width=140px><button onclick="copyRight('{lane_id}')" title="Duplicates lane with current setting">Copy lane</button></td>
+  <td width=110px><button onclick="deleteByID(lane_{lane_id})" title="This deletes the current lane. If you have no more lanes, you can add more from button above">Delete lane</button></td>
+  <td width=140px><button class="lanechange_btn hide" id="change_lane_{lane_id}" onclick="lane_test('{lane_id}')" title="This lane change applies to changing to the lane on right side. &#013;For lane on the left, see column on the left.&#013;Clicking this button cycles through 3 states: none (default), no and yes.">Allow lane change?</button></td>
  </tr>
 </table>
 </div>
