@@ -87,8 +87,7 @@ function update_arrow(ide) {
 }
 
 function update_arrow_2(ide) {
-    // Ainult clear
-    // console.log(ide)
+    // Used only when selecting turn=none
     if (document.getElementById("arrow_" + ide + "_9").checked) {
         for (i = 1; i < 9; i++) {
             document.getElementById("arrow_" + ide + "_" + i).checked = false;
@@ -98,6 +97,7 @@ function update_arrow_2(ide) {
 }
 
 function new_destination(ide, drop_val = "", input_val = "") {
+    // Generates new field for destinations list.
     var dest_table = document.getElementById("dest_table_" + ide)
     var temp_dest_id = genereateID();
     var row = document.createElement("tr");
@@ -119,6 +119,7 @@ function new_destination(ide, drop_val = "", input_val = "") {
 }
 
 function copyLeft(ide) {
+    // Leftover function covered by copyRight()
     alert("You shouldn't see this message")
     var new_id = genereateID()
     console.log(new_id)
@@ -142,6 +143,8 @@ function copyLeft(ide) {
 }
 
 function copyRight(ide) {
+    // Copies lane to the right side of current
+    // Left or right is basically meaningless, because both will result in two identical lanes next to each other.
     var new_id = genereateID()
     console.log(new_id)
     console.log(ide)
@@ -162,31 +165,40 @@ function copyRight(ide) {
 }
 
 function exportOSM() {
-    document.getElementById("out-pre").innerHTML = "Export failed."
+    // Maine feature of the website. Rather buggy
+    document.getElementById("out-pre").innerHTML = "Export failed."  // Fallback in case export fails...
+    document.getElementById("out-pre").value = "Export failed."
     var lane_suffix = ":lanes"
     var all_lanes = document.getElementById("main-lanes-row")
     var lane_count = all_lanes.childElementCount;
     if (lane_count == 0) {
-        alert("No lanes to export. \n Click \"Add lane\" to add lane.");
+        alert("No lanes to export. \n Click \"Add lane\" to add lane."); // ... such as in this situation
         return;
     } else if (lane_count == 1) {
-        lane_suffix = ""
+        lane_suffix = ""  // No need for ":lanes" suffix, if there's no lanes.
     }
     all_keys = new Set();
     var output_keys = {
-        "turn:lanes": 0
+        "turn:lanes": Array()
     };
-    output_keys["turn:lanes"] = Array();
     for (var e = 0; e < lane_count; e++) {
-        output_keys["turn:lanes"].push([])
+        output_keys["turn:lanes"].push([])  // Generate sublist for each lane
     }
+    /*
+      Main procedure idea in this export is to generate 2D array, for lanes and for different values,
+      which are later merged together with text joining operators.
+      Lane arrows and lane changing have some extra steps, but final step is same.
+    */
     var lanes = all_lanes.children;
+    // First, it iters over all lanes to find unique keys.
     for (var i = 0; i < lane_count; i++) {
-        var lane = lanes[i]; // Iter over all lanes to find unique keys.
+        var lane = lanes[i];
         var selections = lane.getElementsByTagName("select") // Drop-down lists.
+        var inputs = lane.getElementsByTagName("input") // Drop-down lists.
         for (var j = 0; j < selections.length; j++) {
             var val = selections[j].value
-            if (val != "") {
+            if (val != "" && inputs[j].value!="") {
+                // Potential optimizations in future (add check if key is already present)
                 all_keys.add(val);
                 output_keys[val + lane_suffix] = Array()
                 for (var e = 0; e < lane_count; e++) {
@@ -209,10 +221,8 @@ function exportOSM() {
         var selections = lane.getElementsByTagName("select") // Drop-down lists.
         var inputs = lane.getElementsByTagName("input") // Contains checkboxes and textboxes.
         for (var j = 0; j < selections.length; j++) {
-            id = selections[j].id
-            var textbox = document.getElementById("input_" + id.split('_')[1] + "_" + id.split('_')[2])
-            if (selections[j].value != "" && textbox.value != "") {
-                output_keys[selections[j].value + lane_suffix][i].push(textbox.value)
+            if (selections[j].value != "" && inputs[j].value != "") {
+                output_keys[selections[j].value + lane_suffix][i].push(inputs[j].value)
             }
         }
 
@@ -284,12 +294,9 @@ function exportOSM() {
     // Formatting output
     var output_str = Array();
     Object.keys(output_keys).forEach(function(value) {
-        console.log(output_keys[value])
-        output_keys[value].map(function(x) {
-            return x.join(";")
-        })
-
+        console.log(value, output_keys[value])
         var valuelist = output_keys[value].map(function(item) {
+            if (item.length==0) {return "none"}
             return item.join(";")
         }).join("|");
         output_str.push(value + "=" + valuelist)
