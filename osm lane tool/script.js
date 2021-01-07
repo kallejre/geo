@@ -1,4 +1,8 @@
 var global_id_counter=0;  // Used to workaround quick id generation bug.
+var lane_change_str={"none": "Allow lane change? 🟧",  // Last character is yellow square emoji
+    "no": "Can't change lane 🟥",  // Last character is red square emoji
+    "yes": "Can change lane 🟩"};  // Last character is green square emoji
+
 function addColumn() {
     row = document.getElementById('main-lanes-row');
     var temp_lane_id = genereateID();
@@ -191,7 +195,7 @@ function exportOSM() {
             }
         }
         console.log(lane)
-        if (lane.getElementsByClassName("lanechange_btn")[0].innerHTML != "Allow lane change?") {
+        if (lane.getElementsByClassName("lanechange_btn")[0].innerHTML != lane_change_str.none) {
             output_keys["change:lanes"] = Array()
             /*for (var e = 0; e < lane_count; e++) {
               output_keys[val + lane_suffix].push([])
@@ -215,13 +219,13 @@ function exportOSM() {
         // Lane change
         if ("change:lanes" in output_keys && i != lane_count - 1) {
             switch (lane.getElementsByClassName("lanechange_btn")[0].innerHTML) {
-                case "Can't change lane":
+                case lane_change_str.no:
                     output_keys["change:lanes"].push("no")
                     break;
-                case "Can change lane":
+                case lane_change_str.yes:
                     output_keys["change:lanes"].push("yes")
                     break;
-                default: // "Allow lane change?"
+                default: // lane_change_str.none
                     output_keys["change:lanes"].push("none")
             }
         }
@@ -304,12 +308,12 @@ function broken() {
 
 function lane_test(ide) {
     btn = document.getElementById("change_lane_" + ide);
-    if (btn.innerHTML == "Allow lane change?") {
-        btn.innerHTML = "Can't change lane"
-    } else if (btn.innerHTML == "Can't change lane") {
-        btn.innerHTML = "Can change lane"
+    if (btn.innerHTML == lane_change_str.none) {
+        btn.innerHTML = lane_change_str.no
+    } else if (btn.innerHTML == lane_change_str.no) {
+        btn.innerHTML = lane_change_str.yes
     } else {
-        btn.innerHTML = "Allow lane change?"
+        btn.innerHTML = lane_change_str.none
     }
 }
 
