@@ -9,7 +9,7 @@
 <body lang=EN onload="toggle_warning()">
 <h2>Lanes</h2>
 Warning very buggy. Bugs are mostly in js, css and html.<br>
-Destination fields are now draggable.<br>
+Destination fields are now draggable. Best used with mouse.<br>
 <div class=hide id=warning style="color:red">
 <h3>Tool on this website probably isn't maintained.</h3>
 (As of 6th Jan 2021)<br>
@@ -57,7 +57,7 @@ td > div {
 </style>
 <button type="button" onclick="addColumn()">Add lane</button>
 <button type="button" title="Outputs tags for OSM" onclick="exportOSM()">Export</button>
-<button type="button" title="Very broken" onclick="broken()">Import</button>
+<button type="button" title="Very broken" onclick="importOSM()">Import</button>
 <button type="button" title="Very broken" onclick="broken()">Switch forward/backward</button>
 <button type="button" id="lhdrhd_button" title="This button has only cosmetic effect" onclick="lhdrhd()">Switch to LHT</button>
 <!-- Switching function needs at least 3 new classes and custom variables for image URL. -->

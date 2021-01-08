@@ -1,8 +1,10 @@
-var global_id_counter=0;  // Used to workaround quick id generation bug.
-var lht=false;  // Variable for left hand traffic.
-var lane_change_str={"none": "Allow lane change? 🟧",  // Last character is yellow square emoji
-    "no": "Can't change lane 🟥",  // Last character is red square emoji
-    "yes": "Can change lane 🟩"};  // Last character is green square emoji
+var global_id_counter = 0; // Used to workaround quick id generation bug.
+var lht = false; // Variable for left hand traffic.
+var lane_change_str = {
+    "none": "Allow lane change? 🟧", // Last character is yellow square emoji
+    "no": "Can't change lane 🟥", // Last character is red square emoji
+    "yes": "Can change lane 🟩" // Last character is green square emoji
+};
 
 function addColumn() {
     row = document.getElementById('main-lanes-row');
@@ -21,8 +23,8 @@ function addColumn() {
     dest_cell = document.getElementById("dest_cell_" + temp_lane_id);
     var htm = document.getElementById("template2").innerHTML;
     dest_cell.innerHTML = htm.replaceAll("{lane_id}", temp_lane_id);
-    //.replaceAll("{dest_table_id}", "dest_table_"+temp_lane_id);
-    //   .replaceAll("{dest_row_id}", "dest_row_"+temp_row_id);
+    // .replaceAll("{dest_table_id}", "dest_table_"+temp_lane_id);
+    // .replaceAll("{dest_row_id}", "dest_row_"+temp_row_id);
 
     // Add arrow module
     // lane=document.getElementById("lane_"+temp_lane_id);
@@ -37,6 +39,7 @@ function addColumn() {
     }
     document.getElementById("dest_table_" + temp_lane_id).innerHTML = "";
     new_destination(temp_lane_id)
+    return temp_lane_id;
 }
 
 function deleteByID(ide) {
@@ -107,10 +110,10 @@ function new_destination(ide, drop_val = "", input_val = "") {
     var htm = document.getElementById("template4").innerHTML;
     htm = htm.replaceAll("{dest_row_id}", temp_dest_id).replaceAll("{lane_id}", ide);
     row.innerHTML = htm;
-    var tmp=dest_table.parentElement.getElementsByClassName("exclude_drag")
+    var tmp = dest_table.parentElement.getElementsByClassName("exclude_drag")
     // document.getElementById("dest_table_" + ide).lastChild
     for (var i = 0; i < tmp.length; i++) {
-        last_element=tmp[i];
+        last_element = tmp[i];
         console.log(last_element)
         last_element.getElementsByTagName("input")[0].removeAttribute("onclick")
         last_element.getElementsByTagName("input")[0].removeAttribute("oninput")
@@ -122,13 +125,13 @@ function new_destination(ide, drop_val = "", input_val = "") {
     row.getElementsByTagName("select")[0].value = drop_val
     dest_table.appendChild(row);
     //console.log(htm);
-    
-      $( function() {
-        $( ".dest_table" ).sortable({
-          connectWith: ".dest_table",
-          cancel: '.destiation_input, .destiation_select, .exclude_drag' 
+
+    $(function() {
+        $(".dest_table").sortable({
+            connectWith: ".dest_table",
+            cancel: '.destiation_input, .destiation_select, .exclude_drag'
         }).disableSelection();
-      } );
+    });
 }
 
 
@@ -180,7 +183,7 @@ function copyRight(ide) {
 
 function exportOSM() {
     // Maine feature of the website. Rather buggy
-    document.getElementById("out-pre").innerHTML = "Export failed."  // Fallback in case export fails...
+    document.getElementById("out-pre").innerHTML = "Export failed." // Fallback in case export fails...
     document.getElementById("out-pre").value = "Export failed."
     var lane_suffix = ":lanes"
     var all_lanes = document.getElementById("main-lanes-row")
@@ -189,14 +192,14 @@ function exportOSM() {
         alert("No lanes to export. \n Click \"Add lane\" to add lane."); // ... such as in this situation
         return;
     } else if (lane_count == 1) {
-        lane_suffix = ""  // No need for ":lanes" suffix, if there's no lanes.
+        lane_suffix = "" // No need for ":lanes" suffix, if there's no lanes.
     }
     all_keys = new Set();
     var output_keys = {
         "turn:lanes": Array()
     };
     for (var e = 0; e < lane_count; e++) {
-        output_keys["turn:lanes"].push([])  // Generate sublist for each lane
+        output_keys["turn:lanes"].push([]) // Generate sublist for each lane
     }
     /*
       Main procedure idea in this export is to generate 2D array, for lanes and for different values,
@@ -211,7 +214,7 @@ function exportOSM() {
         var inputs = lane.getElementsByTagName("input") // Drop-down lists.
         for (var j = 0; j < selections.length; j++) {
             var val = selections[j].value
-            if (val != "" && inputs[j].value!="") {
+            if (val != "" && inputs[j].value != "") {
                 // Potential optimizations in future (add check if key is already present)
                 all_keys.add(val);
                 output_keys[val + lane_suffix] = Array()
@@ -221,7 +224,8 @@ function exportOSM() {
             }
         }
         console.log(lane)
-        if (lane.getElementsByClassName("lanechange_btn")[0].innerHTML != lane_change_str.none && !lane.getElementsByClassName("lanechange_btn")[0].classList.contains("hide") ) {
+        if (lane.getElementsByClassName("lanechange_btn")[0].innerHTML != lane_change_str.none && !lane
+            .getElementsByClassName("lanechange_btn")[0].classList.contains("hide")) {
             output_keys["change:lanes"] = Array()
             /*for (var e = 0; e < lane_count; e++) {
               output_keys[val + lane_suffix].push([])
@@ -310,7 +314,9 @@ function exportOSM() {
     Object.keys(output_keys).forEach(function(value) {
         console.log(value, output_keys[value])
         var valuelist = output_keys[value].map(function(item) {
-            if (item.length==0) {return "none"}
+            if (item.length == 0) {
+                return "none"
+            }
             return item.join(";")
         }).join("|");
         output_str.push(value + "=" + valuelist)
@@ -345,34 +351,79 @@ function toggle_warning() { // Warning about closing enos.
     };
     addColumn();
 }
+
 function lhdrhd() {
-    var revs=document.getElementsByClassName("Reverse_none")
-    var uturns=document.getElementsByClassName("uturn")
-    lht=!lht
+    var revs = document.getElementsByClassName("Reverse_none")
+    var uturns = document.getElementsByClassName("uturn")
+    lht = !lht
     if (lht) {
-       document.getElementById("lhdrhd_button").innerHTML="Switch to RHT"
+        document.getElementById("lhdrhd_button").innerHTML = "Switch to RHT"
     } else {
-       document.getElementById("lhdrhd_button").innerHTML="Switch to LHT"
+        document.getElementById("lhdrhd_button").innerHTML = "Switch to LHT"
     }
-    for (var i=0;i<uturns.length;i++) {
+    for (var i = 0; i < uturns.length; i++) {
         if (lht) {
-            uturns[i].src="U-lht.png"
+            uturns[i].src = "U-lht.png"
         } else {
-            uturns[i].src="U.png"
+            uturns[i].src = "U.png"
         }
     }
-    for (var i=0;i<revs.length;i++) {
+    for (var i = 0; i < revs.length; i++) {
         revs[i].insertBefore(revs[i].children[1], revs[i].children[0]);
     }
 }
 
 function importOSM() {
-    alert("This placeholder button is broken (not implemented yet)")
-    
+    if (!confirm(
+            "This function is very much work in progress and it WILL DELETE existing data, if you continue. \nImport supports only select destination tags and no arrows or lane changes.\nProceed to delete all data?"
+            )) {
+        return
+    }
     /*
-    out=dict()
-    for s in a.split('\n'):
-        x=s.split('=')
-        out[x[0]]=list(map(lambda y:y.split(';'),x[1].split('|')))
+        destination:int_ref:lanes=5|none
+        destination:lanes=5|none
+        destination:ref:lanes=5|8
+        destination:street:lanes=55|none
+        destination:symbol:lanes=5;4|none
+        lanes=2
+        turn:lanes=slight_left;slight_right|left;reverse
     */
+
+    var input = {};
+    inputs = document.getElementById("out-pre").value.trim().split(/\r?\n/)
+    inputs = inputs.map(function(x) {
+        if (!x) {
+            return
+        }
+        var x = x.split("=");
+        x[1] = x[1].split('|').map(function(z) {
+            return z.split(";")
+        })
+        input[x[0]] = x[1]
+        return x
+    })
+    document.getElementById("main-lanes-row").innerHTML = ""
+    var supported_fields = ['destination', 'destination:ref', 'destination:int_ref', 'destination:street',
+        'destination:symbol'
+    ]
+    for (var lane = 0; lane < input.lanes; lane++) {
+        var lane_id = addColumn()
+        document.getElementById("dest_table_" + lane_id).innerHTML = "";
+        supported_fields.forEach(function(key, j) {
+            var value = null;
+            if (input.hasOwnProperty(key + ":lanes")) {
+                value = input[key + ":lanes"][lane]
+            } else if (input.hasOwnProperty(key + ":lanes")) {
+                value = input[key]
+            }
+            if (value) {
+                value.forEach(function(valeu, i) {
+                    if (valeu && valeu != "none") {
+                        new_destination(lane_id, key, valeu)
+                    }
+                })
+            }
+        });
+        new_destination(lane_id)
+    }
 }
