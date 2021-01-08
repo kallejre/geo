@@ -54,6 +54,15 @@ td > div {
 .hide {
     display:none;
 }
+
+.speed_limit {
+  border-radius: 100px;
+  border: 10px solid #ff0000;
+  padding: 10px; 
+  width: 80px;
+  height: 80px;  
+  font-size: 60px; font: agency fb;
+  text-align: center;}
 </style>
 <button type="button" onclick="addColumn()">Add lane</button>
 <button type="button" title="Outputs tags for OSM" onclick="exportOSM()">Export</button>
@@ -106,11 +115,10 @@ Known bugs, wishlist and changelog:
 </li><li><s>Change:lanes=|, when using 1-lane road.</s>
 </li><li><s>Draggable destination fields</s>
 </li><li><s>Add custom UI for LHT (steering wheel on right side) roads.</s>
+</li><li><s>Import capability needed</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
-</li><li>Import capability needed
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
-</li><li>Pressing enter could add new field
-</li><li>Keys with no value are sometimes generated; Missing "none" for empty lanes.
+</li><li>Pressing enter could move cursor to new field
 </li><li>Css styling should use classes
 </li><li>Auto-updating export box would be cool.
 </li><li>Draggable lanes
