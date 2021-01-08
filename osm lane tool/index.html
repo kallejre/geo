@@ -59,7 +59,7 @@ td > div {
 <button type="button" title="Outputs tags for OSM" onclick="exportOSM()">Export</button>
 <button type="button" title="Very broken" onclick="broken()">Import</button>
 <button type="button" title="Very broken" onclick="broken()">Switch forward/backward</button>
-<button type="button" title="Very broken" onclick="broken()">Switch LHD/RHD</button>
+<button type="button" id="lhdrhd_button" title="This button has only cosmetic effect" onclick="lhdrhd()">Switch to LHT</button>
 <!-- Switching function needs at least 3 new classes and custom variables for image URL. -->
     <script type="text/javascript" src="script.js"></script>
     <link href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
@@ -103,10 +103,10 @@ Known bugs, wishlist and changelog:
 </li><li><s>Added none to empty destination lanes.</s>
 </li><li><s>Change:lanes=|, when using 1-lane road.</s>
 </li><li><s>Draggable destination fields</s>
+</li><li><s>Add custom UI for LHT (steering wheel on right side) roads.</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Import capability needed
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
-</li><li>Add custom UI for LHT (steering wheel on right side) roads.
 </li><li>Pressing enter could add new field
 </li><li>Keys with no value are sometimes generated; Missing "none" for empty lanes.
 </li><li>Css styling should use classes
@@ -132,7 +132,7 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
  <tr>
   <td width=140px><button onclick="copyRight('{lane_id}')" title="Duplicates lane with current setting">Copy lane</button></td>
   <td width=95px><button onclick="deleteByID(lane_{lane_id})" title="This deletes the current lane. If you have no more lanes, you can add more from button above">Delete lane</button></td>
-  <td width=155px><button class="lanechange_btn hide" id="change_lane_{lane_id}" onclick="lane_test('{lane_id}')" title="This lane change applies to changing BOTH to and from the lane on right side. &#013;For changing between lane on the left, see column on the left.&#013;Clicking this button cycles through 3 states: none (default), no and yes.&#013;More advanced lane changing options, such as can change from lane A to lane B, but not vice versa, are not supported.">Allow lane change? 🟧</button></td>
+  <td width=155px><button class="lanechange_btn hide" id="change_lane_{lane_id}" onclick="lane_test('{lane_id}')" title="This lane change applies to changing BOTH to and from the lane on RIGHT side. &#013;For changing between lane on the left, see column on the left.&#013;Clicking this button cycles through 3 states: none (default), no and yes.&#013;More advanced lane changing options, such as can change from lane A to lane B, but not vice versa, are not supported, but can be added manually after exporting.">Allow lane change? 🟧</button></td>
  </tr>
 </table>
 </div>
@@ -187,7 +187,7 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
 <img id="arrow_{lane_id}_img_4" class=hide width=97 height=69 src="Slight-left.png">
 <img id="arrow_{lane_id}_img_5" class=hide width=97 height=69 src="Slight-right.png">
 <img id="arrow_{lane_id}_img_2" class=hide width=97 height=69 src="Through.png">
-<img id="arrow_{lane_id}_img_8" class=hide width=97 height=69 src="U.png">
+<img id="arrow_{lane_id}_img_8" class="hide uturn" width=97 height=69 src="U.png">
 <!--img id="arrow_{lane_id}_img_9" width=97 height=69 src="U-lht.png"-->
   </div>
   </td>
@@ -206,7 +206,7 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
   <label for="arrow_{lane_id}_7"><tt>Right</tt></label>
   </td>
  </tr>
- <tr style='page-break-inside:avoid'>
+ <tr style='page-break-inside:avoid' class="Reverse_none">
   <td>
   <input type="checkbox" id="arrow_{lane_id}_8"  name="arrow_{lane_id}" value="reverse" onclick='update_arrow("{lane_id}");' >
   <label for="arrow_{lane_id}_8"><tt>Reverse</tt></label>

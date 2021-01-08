@@ -1,4 +1,5 @@
 var global_id_counter=0;  // Used to workaround quick id generation bug.
+var lht=false;  // Variable for left hand traffic.
 var lane_change_str={"none": "Allow lane change? 🟧",  // Last character is yellow square emoji
     "no": "Can't change lane 🟥",  // Last character is red square emoji
     "yes": "Can change lane 🟩"};  // Last character is green square emoji
@@ -327,6 +328,7 @@ function broken() {
 // document.querySelector('button').onclick = addColumn
 
 function lane_test(ide) {
+    // Cycles through 3 states of lane change possibility.
     btn = document.getElementById("change_lane_" + ide);
     if (btn.innerHTML == lane_change_str.none) {
         btn.innerHTML = lane_change_str.no
@@ -342,6 +344,26 @@ function toggle_warning() { // Warning about closing enos.
         document.getElementById("warning").classList.toggle("hide")
     };
     addColumn();
+}
+function lhdrhd() {
+    var revs=document.getElementsByClassName("Reverse_none")
+    var uturns=document.getElementsByClassName("uturn")
+    lht=!lht
+    if (lht) {
+       document.getElementById("lhdrhd_button").innerHTML="Switch to RHT"
+    } else {
+       document.getElementById("lhdrhd_button").innerHTML="Switch to LHT"
+    }
+    for (var i=0;i<uturns.length;i++) {
+        if (lht) {
+            uturns[i].src="U-lht.png"
+        } else {
+            uturns[i].src="U.png"
+        }
+    }
+    for (var i=0;i<revs.length;i++) {
+        revs[i].insertBefore(revs[i].children[1], revs[i].children[0]);
+    }
 }
 
 function importOSM() {
