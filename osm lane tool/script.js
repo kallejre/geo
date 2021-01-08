@@ -34,7 +34,6 @@ function addColumn() {
     if (tmp.length > 1) {
         tmp[tmp.length - 2].classList.remove("hide")
     }
-
     document.getElementById("dest_table_" + temp_lane_id).innerHTML = "";
     new_destination(temp_lane_id)
 }
@@ -102,21 +101,35 @@ function new_destination(ide, drop_val = "", input_val = "") {
     var temp_dest_id = genereateID();
     var row = document.createElement("tr");
     row.setAttribute("id", "dest_row_" + temp_dest_id);
+    row.setAttribute("class", "dest_row");
+    row.classList.add("exclude_drag");
     var htm = document.getElementById("template4").innerHTML;
     htm = htm.replaceAll("{dest_row_id}", temp_dest_id).replaceAll("{lane_id}", ide);
     row.innerHTML = htm;
-    var last_element = document.getElementById("dest_table_" + ide).lastChild;
-    if (document.getElementById("dest_table_" + ide).children.length > 0) {
+    var tmp=dest_table.parentElement.getElementsByClassName("exclude_drag")
+    // document.getElementById("dest_table_" + ide).lastChild
+    for (var i = 0; i < tmp.length; i++) {
+        last_element=tmp[i];
+        console.log(last_element)
         last_element.getElementsByTagName("input")[0].removeAttribute("onclick")
         last_element.getElementsByTagName("input")[0].removeAttribute("oninput")
         last_element.getElementsByTagName("button")[0].classList.remove("hide")
         last_element.getElementsByTagName("input")[0].setAttribute("placeholder", "Destination tag value")
+        last_element.classList.remove("exclude_drag")
     }
     row.getElementsByTagName("input")[0].value = input_val
     row.getElementsByTagName("select")[0].value = drop_val
     dest_table.appendChild(row);
     //console.log(htm);
+    
+      $( function() {
+        $( ".dest_table" ).sortable({
+          connectWith: ".dest_table",
+          cancel: '.destiation_input, .destiation_select, .exclude_drag' 
+        }).disableSelection();
+      } );
 }
+
 
 function copyLeft(ide) {
     // Leftover function covered by copyRight()
@@ -207,7 +220,7 @@ function exportOSM() {
             }
         }
         console.log(lane)
-        if (lane.getElementsByClassName("lanechange_btn")[0].innerHTML != lane_change_str.none) {
+        if (lane.getElementsByClassName("lanechange_btn")[0].innerHTML != lane_change_str.none && !lane.getElementsByClassName("lanechange_btn")[0].classList.contains("hide") ) {
             output_keys["change:lanes"] = Array()
             /*for (var e = 0; e < lane_count; e++) {
               output_keys[val + lane_suffix].push([])
@@ -333,4 +346,11 @@ function toggle_warning() { // Warning about closing enos.
 
 function importOSM() {
     alert("This placeholder button is broken (not implemented yet)")
+    
+    /*
+    out=dict()
+    for s in a.split('\n'):
+        x=s.split('=')
+        out[x[0]]=list(map(lambda y:y.split(';'),x[1].split('|')))
+    */
 }

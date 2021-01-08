@@ -9,6 +9,7 @@
 <body lang=EN onload="toggle_warning()">
 <h2>Lanes</h2>
 Warning very buggy. Bugs are mostly in js, css and html.<br>
+Destination fields are now draggable.<br>
 <div class=hide id=warning style="color:red">
 <h3>Tool on this website probably isn't maintained.</h3>
 (As of 6th Jan 2021)<br>
@@ -41,6 +42,9 @@ li {
     display: table-cell;
 }
 .destiation_input {
+    width: 86%;
+}
+.destiation_select {
     width: 100%;
 }
 td > div {
@@ -58,7 +62,18 @@ td > div {
 <button type="button" title="Very broken" onclick="broken()">Switch LHD/RHD</button>
 <!-- Switching function needs at least 3 new classes and custom variables for image URL. -->
     <script type="text/javascript" src="script.js"></script>
+    <link href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
+      <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/plugins/jquery.tablednd.js"></script>
 
+  <!--script type="text/javascript">
+  $(function() {
+    $( ".dest_table_body").sortable({
+      //connectWith: ".dest_table_body"
+    });
+  });
+  </script-->
 <table id=main-lanes  border=1 >
   <tr id="main-lanes-row" >
     <!-- This is here where all the lanes will be shown. -->
@@ -86,6 +101,8 @@ Known bugs, wishlist and changelog:
 </li><li><s>Bug caused duplicate tagging when lane was copied because of duplicate IDs, when new elements were generated too quickly.</s>
 </li><li><s>Added colored indicators for lane changing.</s>
 </li><li><s>Added none to empty destination lanes.</s>
+</li><li><s>Change:lanes=|, when using 1-lane road.</s>
+</li><li><s>Draggable destination fields</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Import capability needed
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
@@ -122,24 +139,19 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
 
 <h4>Destination field selector</h4>
 <div id=template2 >
-<table id="dest_table_{lane_id}" border=1 width=390px>
- <tr id="dest_row_{dest_row_id}">
+<table id="dest_table_{lane_id}" class="dest_table" border=1 width=390px >
+ <tr id="dest_row_{dest_row_id}" class="dest_row">
   <td>
-    <select name="cars" id="cars">
-      <option value="" disabled selected>Type of destination</option>
-      <option value="destination">Destination</option>
-      <option value="destination:ref">Ref</option>
-      <option value="destination:int_ref">Int_ref</option>
-      <option value="destination:street">Street</option>
-    </select>
+    selection list
   </td>
   <td >
-    <input width=100% placeholder="Destination tag value" onclick="new_destination('{lane_id}')" oninput="new_destination('{lane_id}')"></input>
+    input field
   </td>
   <td>
-    <button onclick="deleteByID(dest_row_{dest_row_id})"  class="hide" title="Delete row">❌</button>
+    delete button
   </td>
  </tr>
+ </tbody>
 </table>
 </div>
 
@@ -211,7 +223,7 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
 <table id="test table" border=1 width=390px>
  <tr id=template4>
   <td width=140px>
-    <select name="selection_{lane_id}_{dest_row_id}" id="selection_{lane_id}_{dest_row_id}">
+    <select name="selection_{lane_id}_{dest_row_id}" id="selection_{lane_id}_{dest_row_id}" class="destiation_select">
       <option value="" disabled selected>Type of destination</option>
       <option value="destination">Destination</option>
       <option value="destination:ref">Ref</option>
@@ -221,7 +233,7 @@ Please avoid touching tables below as they are used to generate new lanes.<br> T
     </select>
   </td>
   <td >
-    <input  name="input_{lane_id}_{dest_row_id}" id="input_{lane_id}_{dest_row_id}" placeholder="Click to add new" onclick="new_destination('{lane_id}', document.getElementById( 'selection_{lane_id}_{dest_row_id}').value)" oninput="new_destination('{lane_id}', document.getElementById( 'selection_{lane_id}_{dest_row_id}').value)" class="destiation_input"></input>
+    <input  name="input_{lane_id}_{dest_row_id}" id="input_{lane_id}_{dest_row_id}" placeholder="Click to add new" onclick="new_destination('{lane_id}', document.getElementById( 'selection_{lane_id}_{dest_row_id}').value)" oninput="new_destination('{lane_id}', document.getElementById( 'selection_{lane_id}_{dest_row_id}').value)" class="destiation_input"></input>░░
   </td>
   <td width=45px>
     <button onclick="deleteByID(dest_row_{dest_row_id})" class="hide" title="Delete row">❌</button>
