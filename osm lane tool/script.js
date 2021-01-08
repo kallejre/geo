@@ -388,7 +388,6 @@ function importOSM(append = false) {
         lanes=2
         turn:lanes=slight_left;slight_right|left;reverse
     */
-
     if (!append) {
         document.getElementById("main-lanes-row").innerHTML = ""
     }
@@ -409,15 +408,17 @@ function importOSM(append = false) {
         'destination:symbol'
     ]
     var enableRefSum = $("#refSum")[0].checked
-    for (var lane = 0; lane < input.lanes; lane++) {
+    var lane_count=parseInt(input.lanes[0][0])
+    console.log(input)
+    for (var lane = 0; lane < lane_count; lane++) {
         var lane_id = addColumn()
         document.getElementById("dest_table_" + lane_id).innerHTML = "";
         supported_fields.forEach(function(key, j) {
             var value = null;
             if (input.hasOwnProperty(key + ":lanes")) {
                 value = input[key + ":lanes"][lane]
-            } else if (input.hasOwnProperty(key + ":lanes")) {
-                value = input[key]
+            } else if (input.hasOwnProperty(key)) {
+                value = input[key][0]
             }
             if (value) {
                 if (key.includes("ref") && value.length != 0 && enableRefSum && value.join(";") !=
