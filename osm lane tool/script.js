@@ -373,10 +373,10 @@ function lhdrhd() {
     }
 }
 
-function importOSM() {
+function importOSM(append = false) {
     if (!confirm(
             "This function is very much work in progress and it WILL DELETE existing data, if you continue. \nImport supports only select destination tags and no arrows or lane changes.\nProceed to delete all data?"
-            )) {
+        )) {
         return
     }
     /*
@@ -389,6 +389,9 @@ function importOSM() {
         turn:lanes=slight_left;slight_right|left;reverse
     */
 
+    if (!append) {
+        document.getElementById("main-lanes-row").innerHTML = ""
+    }
     var input = {};
     inputs = document.getElementById("out-pre").value.trim().split(/\r?\n/)
     inputs = inputs.map(function(x) {
@@ -402,10 +405,10 @@ function importOSM() {
         input[x[0]] = x[1]
         return x
     })
-    document.getElementById("main-lanes-row").innerHTML = ""
     var supported_fields = ['destination', 'destination:ref', 'destination:int_ref', 'destination:street',
         'destination:symbol'
     ]
+    var enableRefSum = $("#refSum")[0].checked
     for (var lane = 0; lane < input.lanes; lane++) {
         var lane_id = addColumn()
         document.getElementById("dest_table_" + lane_id).innerHTML = "";
@@ -417,11 +420,16 @@ function importOSM() {
                 value = input[key]
             }
             if (value) {
-                value.forEach(function(valeu, i) {
-                    if (valeu && valeu != "none") {
-                        new_destination(lane_id, key, valeu)
-                    }
-                })
+                if (key.includes("ref") && value.length != 0 && enableRefSum && value.join(";") !=
+                    "none") {
+                    new_destination(lane_id, key, value.join(";"))
+                } else {
+                    value.forEach(function(valeu, i) {
+                        if (valeu && valeu != "none") {
+                            new_destination(lane_id, key, valeu)
+                        }
+                    })
+                }
             }
         });
         new_destination(lane_id)
