@@ -57,8 +57,9 @@ td > div {
 </style>
 <button type="button" onclick="addColumn()">Add lane</button>
 <button type="button" title="Outputs tags for OSM" onclick="exportOSM()">Export</button>
-<button type="button" title="Very broken" onclick="importOSM()">Import</button>
-<button type="button" title="Very broken" onclick="broken()">Switch forward/backward</button>
+<button type="button" title="Imports lane data" onclick="importOSM(false)">Import (overwrite)</button>
+<button type="button" title="Adds lane data to existing" onclick="importOSM(true)">Import (extend)</button>
+<button type="button" title="Very broken" disabled=true onclick="broken()">Switch forward/backward</button>
 <button type="button" id="lhdrhd_button" title="This button has only cosmetic effect" onclick="lhdrhd()">Switch to LHT</button>
 <input type="checkbox" checked=true id="refSum"/><label for="refSum">Consolidate ref-tags</label>
 <!-- Switching function needs at least 3 new classes and custom variables for image URL. -->

@@ -374,10 +374,13 @@ function lhdrhd() {
 }
 
 function importOSM(append = false) {
-    if (!confirm(
-            "This function is very much work in progress and it WILL DELETE existing data, if you continue. \nImport supports only select destination tags and no arrows or lane changes.\nProceed to delete all data?"
-        )) {
-        return
+    if (!append) {
+        if (!confirm(
+                "This function WILL DELETE existing data, if you continue. \nImport supports only select destination tags and no arrows or lane changes.\nProceed to delete all data?"
+            )) {
+            return
+        }
+        document.getElementById("main-lanes-row").innerHTML = ""
     }
     /*
         destination:int_ref:lanes=5|none
@@ -388,16 +391,13 @@ function importOSM(append = false) {
         lanes=2
         turn:lanes=slight_left;slight_right|left;reverse
     */
-    if (!append) {
-        document.getElementById("main-lanes-row").innerHTML = ""
-    }
     var input = {};
     inputs = document.getElementById("out-pre").value.trim().split(/\r?\n/)
     inputs = inputs.map(function(x) {
         if (!x) {
             return
         }
-        var x = x.split("=");
+        var x = x.trim().split("=");
         x[1] = x[1].split('|').map(function(z) {
             return z.split(";")
         })
@@ -407,10 +407,22 @@ function importOSM(append = false) {
     var supported_fields = ['destination', 'destination:ref', 'destination:int_ref', 'destination:street',
         'destination:symbol'
     ]
+    turns = {
+        "merge_to_left": "arrow_{lane_id}_1",
+        "through": "arrow_{lane_id}_2",
+        "merge_to_right": "arrow_{lane_id}_3",
+        "slight_left": "arrow_{lane_id}_4",
+        "slight_right": "arrow_{lane_id}_5",
+        "left": "arrow_{lane_id}_6",
+        "right": "arrow_{lane_id}_7",
+        "reverse": "arrow_{lane_id}_8",
+        "none": "arrow_{lane_id}_9"
+    }
     var enableRefSum = $("#refSum")[0].checked
-    var lane_count=parseInt(input.lanes[0][0])
+    var lane_count = parseInt(input.lanes[0][0])
     console.log(input)
     for (var lane = 0; lane < lane_count; lane++) {
+        // Destinations
         var lane_id = addColumn()
         document.getElementById("dest_table_" + lane_id).innerHTML = "";
         supported_fields.forEach(function(key, j) {
@@ -434,5 +446,35 @@ function importOSM(append = false) {
             }
         });
         new_destination(lane_id)
+        // Lane arrows
+        if (input.hasOwnProperty("turn:lanes")) {
+            input["turn:lanes"][lane].forEach(function(val, j) {
+                if (val == "") {
+                    val = "none"
+                }
+                if (turns[val]) {
+                    document.getElementById(turns[val].replace("{lane_id}", lane_id)).checked = true;
+                } else {
+                    alert("Lane " + (lane + 1) + " has incorrect turn arrow \"" + val +
+                        "\".\nArrow will be ignored.")
+                }
+            })
+        }
+        update_arrow_image(lane_id);
+        // Lane change
+        if (input.hasOwnProperty("change:lanes") && lane != lane_count - 1) {
+            val = input["change:lanes"][lane]
+            nxt = input["change:lanes"][lane + 1]
+            // This solution simulates user activity.
+            // It is not completely tested.
+            if (val == "no" || val == "not_right") {
+                lane_test(lane_id)
+            } else if (val == "not_left" && input["change:lanes"][lane + 1] == "none") {} else if ((val ==
+                    "yes" && nxt != "none") || (val == "not_left" && nxt == "not_right") || (val ==
+                    "not_left" && nxt == "yes")) {
+                lane_test(lane_id);
+                lane_test(lane_id)
+            }
+        }
     }
 }
