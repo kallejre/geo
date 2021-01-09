@@ -19,15 +19,11 @@ function addColumn() {
     row.appendChild(cell);
 
     // Add destination module
-    // lane=document.getElementById("lane_"+temp_lane_id);
     dest_cell = document.getElementById("dest_cell_" + temp_lane_id);
     var htm = document.getElementById("template2").innerHTML;
     dest_cell.innerHTML = htm.replaceAll("{lane_id}", temp_lane_id);
-    // .replaceAll("{dest_table_id}", "dest_table_"+temp_lane_id);
-    // .replaceAll("{dest_row_id}", "dest_row_"+temp_row_id);
 
     // Add arrow module
-    // lane=document.getElementById("lane_"+temp_lane_id);
     arrow_cell = document.getElementById("arrow_cell_" + temp_lane_id);
     var htm = document.getElementById("template3").innerHTML;
     arrow_cell.innerHTML = htm.replaceAll("{lane_id}", temp_lane_id);
@@ -44,13 +40,13 @@ function addColumn() {
 }
 
 function deleteByID(ide) {
-    console.log("Deleting by ID "+ide.id);
+    console.log("Deleting by ID " + ide.id);
     if (typeof(ide) == "string") {
         var ide = document.getElementById(ide);
     }
     ide.parentNode.removeChild(ide);
     var tmp = row.getElementsByClassName("lanechange_btn")
-    if (ide.id.includes("lane_") && tmp.length>0) {  // Error - cause: delete only lane
+    if (ide.id.includes("lane_") && tmp.length > 0) { // Error - cause: delete only lane
         tmp[tmp.length - 1].classList.add("hide")
     }
     return false;
@@ -63,10 +59,12 @@ function genereateID() {
     var timestamp = Date.now() % 86400000 + global_id_counter;
     return timestamp.toString(34);
 }
-function clearText(){
-    document.getElementById("out-pre").innerHTML=""
+
+function clearText() {
+    document.getElementById("out-pre").innerHTML = ""
     document.getElementById("out-pre").removeAttribute("onclick")
 }
+
 function update_arrow_image(ide) {
     if (!document.getElementById("arrow_" + ide + "_9").checked) {
         for (i = 1; i < 9; i++) {
@@ -144,19 +142,20 @@ function updateLaneDrag() {
     $("#main-lanes-row").sortable({
         cancel: '.dest_row , .exclude_drag',
         opacity: 0.5,
-        axis:"x",
+        axis: "x",
         revert: 50, // Revert key is animation duration for returning cell to table.
-        stop : updateLaneChangeBtns,
+        stop: updateLaneChangeBtns,
     }).disableSelection();
 };
 
-function updateLaneChangeBtns(event=null, ui=null){
-    var btns=document.getElementById("main-lanes-row").getElementsByClassName("lanechange_btn");
-    for (var i=0;i<btns.length-1;i++){
+function updateLaneChangeBtns(event = null, ui = null) {
+    var btns = document.getElementById("main-lanes-row").getElementsByClassName("lanechange_btn");
+    for (var i = 0; i < btns.length - 1; i++) {
         btns[i].classList.remove("hide");
     }
-    btns[btns.length-1].classList.add("hide");
+    btns[btns.length - 1].classList.add("hide");
 }
+
 function copyLeft(ide) {
     // Leftover function covered by copyRight()
     alert("You shouldn't see this message")
@@ -347,17 +346,16 @@ function exportOSM() {
     output_str.push("lanes=" + lane_count)
     output_str.sort();
     output_str = output_str.join("\n")
-    document.getElementById("out-pre").value = output_str.replaceAll(";;", ";").replaceAll(";;", ";")
-        .replaceAll(";|", "|").replaceAll("|;", "|");
+    document.getElementById("out-pre").value = output_str.replaceAll(/;+/ig, ";").replaceAll(/=;/ig, "=")
+        .replaceAll(/;\|/ig, "|").replaceAll(/\|;/ig, "|").replaceAll(/;\n/ig, "\n");
 }
 
 function broken() {
     alert("This placeholder button is broken (not implemented yet)")
 }
-// document.querySelector('button').onclick = addColumn
 
 function lane_test(ide) {
-    // Cycles through 3 states of lane change possibility.
+    // Cycles through 3 states of lane change possibility - none, no, yes.
     btn = document.getElementById("change_lane_" + ide);
     if (btn.innerHTML == lane_change_str.none) {
         btn.innerHTML = lane_change_str.no
@@ -368,7 +366,8 @@ function lane_test(ide) {
     }
 }
 
-function toggle_warning() { // Warning about closing enos.
+function toggle_warning() {
+    // Warning about closing enos.
     if (window.location.href.includes("enos")) {
         document.getElementById("warning").classList.toggle("hide")
     };
@@ -376,6 +375,7 @@ function toggle_warning() { // Warning about closing enos.
 }
 
 function lhdrhd() {
+    // Switch between LHT-RHT or LHD/RHD
     var revs = document.getElementsByClassName("Reverse_none")
     var uturns = document.getElementsByClassName("uturn")
     lht = !lht
@@ -399,7 +399,10 @@ function lhdrhd() {
 function importOSM(append = false) {
     if (!append) {
         if (!confirm(
-                "This function WILL DELETE existing data, if you continue. \nImport supports only lane arrows, few destination tags and basic lane change restrictions.\nOther tags pasted into textbox will be lost too (including oneway-tag and forward-backward keys).\nProceed to delete all data?"
+                "This function WILL DELETE existing data, if you continue. \n\
+Import supports only lane arrows, few destination tags and basic lane change restrictions.\n\
+Other tags pasted into textbox will be lost (including oneway-tag and forward-backward keys).\n\
+Proceed to delete all data?"
             )) {
             return
         }
@@ -491,9 +494,10 @@ function importOSM(append = false) {
             // It is not completely tested.
             if (val == "no" || val == "not_right") {
                 lane_test(lane_id)
-            } else if (val == "not_left" && input["change:lanes"][lane + 1] == "none") {} else if ((val ==
-                    "yes" && nxt != "none") || (val == "not_left" && nxt == "not_right") || (val ==
-                    "not_left" && nxt == "yes")) {
+            } else if (val == "not_left" && input["change:lanes"][lane + 1] == "none") {
+                //Skip
+            } else if ((val == "yes" && nxt != "none") || (val == "not_left" &&
+                        nxt == "not_right") || (val == "not_left" && nxt == "yes")) {
                 lane_test(lane_id);
                 lane_test(lane_id)
             }
