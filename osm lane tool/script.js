@@ -64,7 +64,10 @@ function genereateID() {
     var timestamp = Date.now() % 86400000 + global_id_counter;
     return timestamp.toString(34);
 }
-
+function clearText(){
+    document.getElementById("out-pre").innerHTML=""
+    document.getElementById("out-pre").removeAttribute("onclick")
+}
 function update_arrow_image(ide) {
     if (!document.getElementById("arrow_" + ide + "_9").checked) {
         for (i = 1; i < 9; i++) {
@@ -118,6 +121,7 @@ function new_destination(ide, drop_val = "", input_val = "") {
         last_element.getElementsByTagName("input")[0].removeAttribute("onclick")
         last_element.getElementsByTagName("input")[0].removeAttribute("oninput")
         last_element.getElementsByTagName("button")[0].classList.remove("hide")
+        last_element.getElementsByTagName("span")[0].classList.remove("hide")
         last_element.getElementsByTagName("input")[0].setAttribute("placeholder", "Destination tag value")
         last_element.classList.remove("exclude_drag")
     }
@@ -132,6 +136,18 @@ function new_destination(ide, drop_val = "", input_val = "") {
             cancel: '.destiation_input, .destiation_select, .exclude_drag'
         }).disableSelection();
     });
+    // Code sample for disabling drag-drop for first position. Needs to be modified for last position.
+    /*	$('#sortable').sortable({
+		placeholder: 'sortable_placeholder',
+		cancel: '.no_sort',
+		opacity: 0.5,
+		revert: 100,
+		change: function(event, ui) {
+			if (ui.placeholder.index() < 1) {
+				$('.sortable_first').after(ui.placeholder);
+			}
+		}
+	});*/
 }
 
 
@@ -376,7 +392,7 @@ function lhdrhd() {
 function importOSM(append = false) {
     if (!append) {
         if (!confirm(
-                "This function WILL DELETE existing data, if you continue. \nImport supports only select destination tags and no arrows or lane changes.\nProceed to delete all data?"
+                "This function WILL DELETE existing data, if you continue. \nImport supports only lane arrows, few destination tags and basic lane change restrictions.\nOther tags pasted into textbox will be lost too (including oneway-tag and forward-backward keys).\nProceed to delete all data?"
             )) {
             return
         }
@@ -433,8 +449,7 @@ function importOSM(append = false) {
                 value = input[key][0]
             }
             if (value) {
-                if (key.includes("ref") && value.length != 0 && enableRefSum && value.join(";") !=
-                    "none") {
+                if (key.includes("ref") && value.length != 0 && enableRefSum && value.join(";") != "none") {
                     new_destination(lane_id, key, value.join(";"))
                 } else {
                     value.forEach(function(valeu, i) {
