@@ -38,20 +38,19 @@ function addColumn() {
         tmp[tmp.length - 2].classList.remove("hide")
     }
     document.getElementById("dest_table_" + temp_lane_id).innerHTML = "";
-    new_destination(temp_lane_id)
+    new_destination(temp_lane_id);
+    updateLaneDrag();
     return temp_lane_id;
 }
 
 function deleteByID(ide) {
-    console.log("Deleting by ID");
-    console.log(ide);
-    //var elem = document.getElementById(ide);
+    console.log("Deleting by ID "+ide.id);
     if (typeof(ide) == "string") {
         var ide = document.getElementById(ide);
     }
     ide.parentNode.removeChild(ide);
     var tmp = row.getElementsByClassName("lanechange_btn")
-    if (ide.id.includes("lane_")) {
+    if (ide.id.includes("lane_") && tmp.length>0) {  // Error - cause: delete only lane
         tmp[tmp.length - 1].classList.add("hide")
     }
     return false;
@@ -129,28 +128,35 @@ function new_destination(ide, drop_val = "", input_val = "") {
     row.getElementsByTagName("select")[0].value = drop_val
     dest_table.appendChild(row);
     //console.log(htm);
-
-    $(function() {
-        $(".dest_table").sortable({
-            connectWith: ".dest_table",
-            cancel: '.destiation_input, .destiation_select, .exclude_drag'
-        }).disableSelection();
-    });
-    // Code sample for disabling drag-drop for first position. Needs to be modified for last position.
-    /*	$('#sortable').sortable({
-		placeholder: 'sortable_placeholder',
-		cancel: '.no_sort',
-		opacity: 0.5,
-		revert: 100,
-		change: function(event, ui) {
-			if (ui.placeholder.index() < 1) {
-				$('.sortable_first').after(ui.placeholder);
-			}
-		}
-	});*/
+    $(updateDestDrag());
 }
 
+function updateDestDrag() {
+    $(".dest_table").sortable({
+        connectWith: ".dest_table",
+        cancel: '.destiation_input, .destiation_select, .exclude_drag',
+        opacity: 0.5,
+        revert: 50 // Revert key is animation duration for returning cell to table.
+    }).disableSelection();
+};
 
+function updateLaneDrag() {
+    $("#main-lanes-row").sortable({
+        cancel: '.dest_row , .exclude_drag',
+        opacity: 0.5,
+        axis:"x",
+        revert: 50, // Revert key is animation duration for returning cell to table.
+        stop : updateLaneChangeBtns,
+    }).disableSelection();
+};
+
+function updateLaneChangeBtns(event=null, ui=null){
+    var btns=document.getElementById("main-lanes-row").getElementsByClassName("lanechange_btn");
+    for (var i=0;i<btns.length-1;i++){
+        btns[i].classList.remove("hide");
+    }
+    btns[btns.length-1].classList.add("hide");
+}
 function copyLeft(ide) {
     // Leftover function covered by copyRight()
     alert("You shouldn't see this message")
@@ -195,6 +201,7 @@ function copyRight(ide) {
         sel = row.getElementsByTagName("input")[0].value
         new_destination(new_id, drop, sel);
     })
+    updateLaneDrag();
 }
 
 function exportOSM() {

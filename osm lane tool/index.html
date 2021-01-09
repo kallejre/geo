@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <title>Lane change tool</title>
@@ -9,8 +10,8 @@
 <body lang=EN onload="toggle_warning()">
 <h2>OSM Lane Tool</h2>
 Warning this website <s>may contain</s> definitely contains bugs.<br>
-Destination fields are now draggable. Best used with mouse. Click and hold ░░ to drag fields between lanes.<br>
-Lanes themselves are not yet draggable.<br>
+Destination fields and lanes are now draggable. Best used with mouse.<br>
+Click and hold ░░ to drag fields. For lanes, click and drag anywhere in arrows section.<br>
 <div class=hide id=warning>
 <!-- special warning for old website-->
 <h3>Tool on this website isn't maintained.</h3>
@@ -52,12 +53,15 @@ li {
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
     */
 }
-#main-lanes-row td {
+#main-lanes-row > td {
     vertical-align: bottom;
     display: table-cell;
+    min-width:300px;
 }
+td {
+    display: table-cell;}
 .destiation_input {
-    width: 86%;
+    width: 83%;
 }
 .destiation_select {
     width: 100%;
@@ -142,14 +146,13 @@ after last of existing tags to update existing ones.</textarea>
 </li><li><s>Draggable destination fields</s>
 </li><li><s>Add custom UI for LHT (steering wheel on right side) roads.</s>
 </li><li><s>Import capability needed</s>
+</li><li><s>Draggable lanes</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
 </li><li>Pressing enter could move cursor to new field
 </li><li>Css styling should use classes
-</li><li>Destination field shouldn't be draggable to last position.
 </li><li>Auto-updating export box would be cool.
-</li><li>Draggable lanes
-</li><li>Destination field shouldn't be draggable to last position.
+</li><li>Destination field shouldn't be draggable to last position. - Fix made things worse
 </li><li>...and many more
 </li></ul>
 <h2>Templates for js to generate new lanes.</h2>
