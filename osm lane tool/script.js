@@ -203,7 +203,21 @@ function copyRight(ide) {
     updateLaneDrag();
 }
 
-function exportOSM() {
+function switch_direction() {
+    var btn=document.getElementById("exportBtn")
+    if (btn.innerHTML=="Export as :forward"){
+        btn.innerHTML="Export as :backward"
+        btn.onclick = function() { exportOSM(":backward"); };
+    } else if (btn.innerHTML=="Export as :backward") {
+        btn.innerHTML="Export"
+        btn.onclick = function() { exportOSM(); };
+    } else {
+        btn.innerHTML="Export as :forward"
+        btn.onclick = function() { exportOSM(":forward"); };
+    }
+}
+
+function exportOSM(direction_suffix="") {
     // Main feature of the website. Rather buggy
     document.getElementById("out-pre").innerHTML = "Export failed." // Fallback in case export fails...
     document.getElementById("out-pre").value = "Export failed."
@@ -217,11 +231,10 @@ function exportOSM() {
         lane_suffix = "" // No need for ":lanes" suffix, if there's no lanes.
     }
     all_keys = new Set();
-    var output_keys = {
-        "turn:lanes": Array()
-    };
+    var output_keys = {};
+    output_keys["turn:lanes"+direction_suffix]=Array()
     for (var e = 0; e < lane_count; e++) {
-        output_keys["turn:lanes"].push([]) // Generate sublist for each lane
+        output_keys["turn:lanes"+direction_suffix].push([]) // Generate sublist for each lane
     }
     /*
       Main procedure idea in this export is to generate 2D array, for lanes and for different values,
@@ -239,18 +252,18 @@ function exportOSM() {
             if (val != "" && inputs[j].value != "") {
                 // Potential optimizations in future (add check if key is already present)
                 all_keys.add(val);
-                output_keys[val + lane_suffix] = Array()
+                output_keys[val + lane_suffix+direction_suffix] = Array()
                 for (var e = 0; e < lane_count; e++) {
-                    output_keys[val + lane_suffix].push([])
+                    output_keys[val + lane_suffix+direction_suffix].push([])
                 }
             }
         }
         console.log(lane)
         if (lane.getElementsByClassName("lanechange_btn")[0].innerHTML != lane_change_str.none && !lane
             .getElementsByClassName("lanechange_btn")[0].classList.contains("hide")) {
-            output_keys["change:lanes"] = Array()
+            output_keys["change:lanes"+direction_suffix] = Array()
             /*for (var e = 0; e < lane_count; e++) {
-              output_keys[val + lane_suffix].push([])
+              output_keys[val + lane_suffix+direction_suffix].push([])
             }*/
         } // if ("change:lanes" in output_keys)  */
     }
@@ -262,21 +275,21 @@ function exportOSM() {
         var inputs = lane.getElementsByTagName("input") // Contains checkboxes and textboxes.
         for (var j = 0; j < selections.length; j++) {
             if (selections[j].value != "" && inputs[j].value != "") {
-                output_keys[selections[j].value + lane_suffix][i].push(inputs[j].value)
+                output_keys[selections[j].value + lane_suffix+direction_suffix][i].push(inputs[j].value)
             }
         }
 
         // Lane change
-        if ("change:lanes" in output_keys && i != lane_count - 1) {
+        if ("change:lanes"+direction_suffix in output_keys && i != lane_count - 1) {
             switch (lane.getElementsByClassName("lanechange_btn")[0].innerHTML) {
                 case lane_change_str.no:
-                    output_keys["change:lanes"].push("no")
+                    output_keys["change:lanes"+direction_suffix].push("no")
                     break;
                 case lane_change_str.yes:
-                    output_keys["change:lanes"].push("yes")
+                    output_keys["change:lanes"+direction_suffix].push("yes")
                     break;
                 default: // lane_change_str.none
-                    output_keys["change:lanes"].push("none")
+                    output_keys["change:lanes"+direction_suffix].push("none")
             }
         }
 
@@ -296,14 +309,14 @@ function exportOSM() {
             temp_arrows.push("none")
         }
         console.log(temp_arrows)
-        output_keys["turn:lanes"][i] = temp_arrows;
+        output_keys["turn:lanes"+direction_suffix][i] = temp_arrows;
     }
     
     console.log(output_keys)
     // Fix lane changes
-    if (output_keys.hasOwnProperty("change:lanes")) {
+    if (output_keys.hasOwnProperty("change:lanes"+direction_suffix)) {
         var tmp = Array()
-        var tmp1 = output_keys["change:lanes"]
+        var tmp1 = output_keys["change:lanes"+direction_suffix]
         console.log(tmp1)
         tmp.push([tmp1[0]])
         for (var i = 1; i < tmp1.length; i++) {
@@ -328,8 +341,8 @@ function exportOSM() {
             }
         }
         tmp.push([tmp1[tmp1.length - 1]])
-        output_keys["change:lanes"] = tmp;
-        //console.log(output_keys["change:lanes"])
+        output_keys["change:lanes"+direction_suffix] = tmp;
+        //console.log(output_keys["change:lanes"+direction_suffix])
     }
 
     // Formatting output
@@ -349,7 +362,7 @@ function exportOSM() {
         valuelist=valuelist.join("|");}
         output_str.push(value + "=" + valuelist)
     })
-    output_str.push("lanes=" + lane_count)
+    output_str.push("lanes"+direction_suffix+"=" + lane_count)
     output_str.sort();
     output_str = output_str.join("\n")
     // Regex to remove duplicate `;`-s
@@ -409,7 +422,8 @@ function importOSM(append = false) {
                 "This function WILL DELETE existing data, if you continue. \n\
 Import supports only lane arrows, few destination tags and basic lane change restrictions.\n\
 Other tags pasted into textbox will be lost (including oneway-tag and forward-backward keys).\n\
-Proceed to delete all data?"
+Proceed to delete all data?\n\
+Currently :forward/:backward are NOT SUPPORTED (make sure you have lanes=* key)."
             )) {
             return
         }

@@ -90,10 +90,11 @@ td > div {
 }
 </style>
 <button type="button" onclick="addColumn()">Add lane</button>
-<button type="button" title="Outputs tags for OSM" onclick="exportOSM()">Export</button>
+<button type="button" id="exportBtn" title="Outputs tags for OSM" onclick="exportOSM()">Export</button>
 <button type="button" title="Imports lane data" onclick="importOSM(false)">Import (overwrite)</button>
 <button type="button" title="Adds lane data to existing" onclick="importOSM(true)">Import (extend)</button>
-<button type="button" title="Very broken" disabled=true onclick="broken()">Switch forward/backward</button>
+<button type="button"  id="suffixExport" title="Adds forward/backward suffix to export" onclick="switch_direction()">Switch forward/backward</button>
+
 <button type="button" id="lhdrhd_button" title="This button has only cosmetic effect" onclick="lhdrhd()">Switch to LHT</button>
 <input type="checkbox" checked=true id="refSum"/><label for="refSum">Consolidate imported ref-tags</label>
 <!-- Switching function needs at least 3 new classes and custom variables for image URL. -->
@@ -148,9 +149,11 @@ after last of existing tags to update existing ones.</textarea>
 </li><li><s>Import capability needed</s>
 </li><li><s>Draggable lanes</s>
 </li><li><s>:lanes can be omitted, if all lanes have same value</s>
+</li><li><s>Option to export with suffixes</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
 </li><li>Pressing enter could move cursor to new field
+</li><li>Option to import with suffixes
 </li><li>Css styling should use classes
 </li><li>Auto-updating export box would be cool.
 </li><li>Destination field shouldn't be draggable to last position. - Fix made things worse
