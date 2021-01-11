@@ -204,7 +204,7 @@ function copyRight(ide) {
 }
 
 function exportOSM() {
-    // Maine feature of the website. Rather buggy
+    // Main feature of the website. Rather buggy
     document.getElementById("out-pre").innerHTML = "Export failed." // Fallback in case export fails...
     document.getElementById("out-pre").value = "Export failed."
     var lane_suffix = ":lanes"
@@ -298,6 +298,7 @@ function exportOSM() {
         console.log(temp_arrows)
         output_keys["turn:lanes"][i] = temp_arrows;
     }
+    
     console.log(output_keys)
     // Fix lane changes
     if (output_keys.hasOwnProperty("change:lanes")) {
@@ -340,12 +341,18 @@ function exportOSM() {
                 return "none"
             }
             return item.join(";")
-        }).join("|");
+        });
+        if(valuelist.every( (val, i, arr) => val === arr[0] ) ){
+            valuelist=valuelist[0];
+            value=value.replace(":lanes","")
+        } else{
+        valuelist=valuelist.join("|");}
         output_str.push(value + "=" + valuelist)
     })
     output_str.push("lanes=" + lane_count)
     output_str.sort();
     output_str = output_str.join("\n")
+    // Regex to remove duplicate `;`-s
     document.getElementById("out-pre").value = output_str.replaceAll(/;+/ig, ";").replaceAll(/=;/ig, "=")
         .replaceAll(/;\|/ig, "|").replaceAll(/\|;/ig, "|").replaceAll(/;\n/ig, "\n");
 }
