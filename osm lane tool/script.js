@@ -466,6 +466,7 @@ Currently :forward/:backward are NOT SUPPORTED (make sure you have lanes=* key).
         "none": "arrow_{lane_id}_9"
     }
     var enableRefSum = $("#refSum")[0].checked
+    if (!input.hasOwnProperty("lanes")){return alert("Lanes key is missing. (Crash)")}
     var lane_count = parseInt(input.lanes[0][0])
     console.log(input)
     for (var lane = 0; lane < lane_count; lane++) {
