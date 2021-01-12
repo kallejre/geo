@@ -355,7 +355,7 @@ function exportOSM(direction_suffix="") {
             }
             return item.join(";")
         });
-        if(valuelist.every( (val, i, arr) => val === arr[0] ) ){
+        if(value!="turn:lanes" && valuelist.every( (val, i, arr) => val === arr[0] ) ){
             valuelist=valuelist[0];
             value=value.replace(":lanes","")
         } else{
