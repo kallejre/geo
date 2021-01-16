@@ -41,6 +41,15 @@
       attribution: "Aluskaart: <a href='https://www.maaamet.ee/'>Maa-amet</a>",
     });
     basemaps.kaart.addTo(map);
+    basemaps.OSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      minZoom: 1,
+      maxZoom: 17,
+      tms: false,
+       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      updateWhenIdle: false,
+      attribution: "Aluskaart: <a href='https://www.maaamet.ee/'>Maa-amet</a>",
+    });
+    basemaps.OSM.addTo(map);
     basemaps.ortofoto = L.tileLayer('https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.jpg', {
       minZoom: 1,
       maxZoom: 17,
