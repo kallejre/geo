@@ -127,7 +127,7 @@ Later in your main editor, just paste output from this textbox
 after last of existing tags to update existing ones.</textarea>
 </div>
 <button onclick="document.getElementById('All-templates').classList.toggle('hide')">Do not click here. (debugging section)</button>
-<br><a href="https://wiki.openstreetmap.org/wiki/Proposed_features/Destination_details#destination:symbol">See supported values for <tt>destination:symbol</tt> tag</a>
+<br>See supported values for <tt>destination:symbol</tt> tag from <a href="https://wiki.openstreetmap.org/wiki/Proposed_features/Destination_details#destination:symbol">wiki</a> or <a href="https://taginfo.openstreetmap.org/keys/destination:symbol">Taginfo</a>. Or just use autocomplete, whopping 42 most common values included.
 <div id=All-templates class=hide>
 
 <h3>Known bugs, wishlist and changelog:</h3>
@@ -152,6 +152,7 @@ after last of existing tags to update existing ones.</textarea>
 </li><li><s>:lanes can be omitted, if all lanes have same value</s>
 </li><li><s>turn:lanes shouldn't be shortened</s>
 </li><li><s>Option to export with suffixes</s>
+</li><li><s>Autocomplete for symbol input</s>
 </li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
 </li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
 </li><li>Pressing enter could move cursor to new field
@@ -275,7 +276,7 @@ More advanced lane changing options, such as lane change from A to lane B, but n
 <table id="test table" border=1 width=390px>
  <tr id=template4>
   <td width=140px>
-    <select name="selection_{lane_id}_{dest_row_id}" id="selection_{lane_id}_{dest_row_id}" class="destiation_select">
+    <select name="selection_{lane_id}_{dest_row_id}" id="selection_{lane_id}_{dest_row_id}" class="destiation_select" onchange="update_input_autocomplete('{lane_id}_{dest_row_id}')">
       <option value="" disabled selected>Type of destination</option>
       <option value="destination">Destination</option>
       <option value="destination:ref">Ref</option>

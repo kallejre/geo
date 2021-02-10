@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang = "en">
+   <head>
+      <meta charset = "utf-8">
+      <title>jQuery UI Autocomplete functionality</title>
+    <link href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
+      <script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
+      <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+      
+      <!-- Javascript -->
+      <script>
+         $(function() {
+            var availableSymbols  =  [
+            // First, 24 most common single values according to Taginfo as of 10 Feb 2020
+                // Values here are counted from top 250 most popular values of 
+                // both destination:symbol and destination:symbol:lanes. Then counted each lane-value
+                // separately and took top 24 from that list. (25th was U-Bahn).
+                'airport',          // Taginfo has 8628 uses
+                'motorway',         // Taginfo has 8270 uses
+                'hospital',         // Taginfo has 3096 uses
+                'industrial',       // Taginfo has 2804 uses
+                'centre',           // Taginfo has 2115 uses
+                'parking',          // Taginfo has 1887 uses
+                'fuel',             // Taginfo has 1470 uses
+                'bus',              // Taginfo has 1311 uses
+                'food',             // Taginfo has 1164 uses
+                'rest_area',        // Taginfo has 1117 uses
+                'toilets',          // Taginfo has 1023 uses
+                'lodging',          // Taginfo has 834 uses
+                'fuel_diesel',      // Taginfo has 563 uses
+                'viewpoint',        // Taginfo has 551 uses
+                'train_station',    // Taginfo has 526 uses
+                'ferry',            // Taginfo has 479 uses
+                'interchange',      // Taginfo has 475 uses
+                'restaurant',       // Taginfo has 357 uses
+                'motorroad',        // Taginfo has 309 uses
+                'camp_site',        // Taginfo has 249 uses
+                'harbour',          // Taginfo has 243 uses
+                'info',             // Taginfo has 214 uses
+                'train',            // Taginfo has 208 uses
+                'police',           // Taginfo has 204 uses
+            // Now comes official documented list of symbols from OSM wiki pages.
+    // https://wiki.openstreetmap.org/wiki/Proposed_features/Destination_details#destination:symbol
+                // Values are in alphabetical order, excluding ones in top 24.
+                'aerialway',
+                'car_shuttle_train',
+                'covered_parking',
+                'fuel_cng',
+                'fuel_e85',
+                'fuel_ev',
+                'lightrail',
+                'mosque',
+                'park_and_ride',
+                'parking_truck',
+                'phone',
+                'railroad_freight_terminal',
+                'soccer_stadium',
+                'stadium',
+                'subway',
+                'TDD',
+                'tram',
+                'wifi'
+            ];
+            $( "#automplete-1" ).autocomplete({
+               source: availableSymbols,
+               minLength: 0,delay:200
+            });
+            // $( "#automplete-1" ).autocomplete("disable")
+         });
+      </script>
+   </head>
+   
+   <body>
+      <!-- HTML --> 
+      <div class = "ui-widget">
+         <p>Type "a" or "s"</p>
+         <label for = "automplete-1">Tags: </label>
+         <input id = "automplete-1">
+      </div>
+   </body>
+</html>
