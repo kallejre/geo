@@ -8,37 +8,54 @@ var lane_change_str = {
 
 var availableSymbols  =  [
 // Most common symbol values for auutocomplete
-// First, 24 most common single values according to Taginfo as of 10 Feb 2020
+// First, 40 most common single values according to Taginfo as of 11 Feb 2020
     // Values here are counted from top 250 most popular values of 
     // both destination:symbol and destination:symbol:lanes. Then counted each lane-value
-    // separately and took top 24 from that list. (25th was U-Bahn).
-    'airport',          // Taginfo has 8628 uses
-    'motorway',         // Taginfo has 8270 uses
-    'hospital',         // Taginfo has 3096 uses
-    'industrial',       // Taginfo has 2804 uses
-    'centre',           // Taginfo has 2115 uses
-    'parking',          // Taginfo has 1887 uses
-    'fuel',             // Taginfo has 1470 uses
-    'bus',              // Taginfo has 1311 uses
-    'food',             // Taginfo has 1164 uses
-    'rest_area',        // Taginfo has 1117 uses
-    'toilets',          // Taginfo has 1023 uses
-    'lodging',          // Taginfo has 834 uses
-    'fuel_diesel',      // Taginfo has 563 uses
-    'viewpoint',        // Taginfo has 551 uses
-    'train_station',    // Taginfo has 526 uses
-    'ferry',            // Taginfo has 479 uses
-    'interchange',      // Taginfo has 475 uses
-    'restaurant',       // Taginfo has 357 uses
-    'motorroad',        // Taginfo has 309 uses
-    'camp_site',        // Taginfo has 249 uses
-    'harbour',          // Taginfo has 243 uses
-    'info',             // Taginfo has 214 uses
-    'train',            // Taginfo has 208 uses
-    'police',           // Taginfo has 204 uses
+    // separately and took top 40 from that list.
+    'airport',          // Taginfo has 9570 uses
+    'motorway',         // Taginfo has 9231 uses
+    'industrial',       // Taginfo has 4130 uses
+    'hospital',         // Taginfo has 4075 uses
+    'centre',           // Taginfo has 2816 uses
+    'parking',          // Taginfo has 2770 uses
+    'fuel',             // Taginfo has 2502 uses
+    'food',             // Taginfo has 1845 uses
+    'bus',              // Taginfo has 1396 uses
+    'toilets',          // Taginfo has 1328 uses
+    'rest_area',        // Taginfo has 1300 uses
+    'lodging',          // Taginfo has 1212 uses
+    'train_station',    // Taginfo has 992 uses
+    'ferry',            // Taginfo has 806 uses
+    'restaurant',       // Taginfo has 723 uses
+    'fuel_diesel',      // Taginfo has 686 uses
+    'interchange',      // Taginfo has 625 uses
+    'viewpoint',        // Taginfo has 591 uses
+    'camp_site',        // Taginfo has 573 uses
+    'harbour',          // Taginfo has 562 uses
+    'stadium',          // Taginfo has 542 uses
+    'motorroad',        // Taginfo has 494 uses
+    'info',             // Taginfo has 474 uses
+    'park_and_ride',    // Taginfo has 436 uses
+    'police',           // Taginfo has 384 uses
+    'U-Bahn',           // Taginfo has 267 uses
+    'soccer_stadium',   // Taginfo has 232 uses
+    'train',            // Taginfo has 229 uses
+    'hotel',            // Taginfo has 195 uses
+    'S-Bahn',           // Taginfo has 184 uses
+    'parking_truck',    // Taginfo has 180 uses
+    'information',      // Taginfo has 178 uses
+    'funicular',        // Taginfo has 153 uses
+    'gondola',          // Taginfo has 122 uses
+    'MVVLift',          // Taginfo has 108 uses
+    'church',           // Taginfo has 106 uses
+    'zoo',              // Taginfo has 102 uses
+    'swimming',         // Taginfo has 94 uses
+    'beach',            // Taginfo has 78 uses
+    'phone',            // Taginfo has 78 uses
+
 // Now comes official documented list of symbols from OSM wiki pages.
 // https://wiki.openstreetmap.org/wiki/Proposed_features/Destination_details#destination:symbol
-    // Values are in alphabetical order, excluding ones in top 24.
+    // Values are in alphabetical order, excluding ones in top 40.
     'aerialway',
     'car_shuttle_train',
     'covered_parking',
@@ -47,15 +64,10 @@ var availableSymbols  =  [
     'fuel_ev',
     'lightrail',
     'mosque',
-    'park_and_ride',
-    'parking_truck',
-    'phone',
     'railroad_freight_terminal',
-    'soccer_stadium',
-    'stadium',
     'subway',
     'TDD',
-    'tram',
+    'tram ',
     'wifi'
 ];
 
