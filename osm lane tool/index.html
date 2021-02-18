@@ -2,16 +2,54 @@
 <html lang="en">
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
-<title>Lane change tool</title>
+<title>OSM Lane Tool</title>
 <meta property="og:image" content="../favico.png" />
 <link rel="icon" href="../favico.png" type="image/x-icon"/>
 <link rel="shortcut icon" href="../favico.png" type="image/x-icon"/>
 </head>
 <body lang=EN onload="toggle_warning()">
 <h2>OSM Lane Tool</h2>
-Warning this website <s>may contain</s> definitely contains bugs.<br>
-Destination fields and lanes are now draggable. Best used with mouse.<br>
-Click and hold ░░ to drag fields. For lanes, click and drag anywhere in arrows section.<br>
+<button label="If you don't know what you are doing, click here" onclick="$('#helptext')[0].classList.toggle('hide')">Show/hide help</button>
+<br>
+<div id=helptext class=hide>
+<h3>General</h3>
+<p>OSM Lane tool is simple website designed to help <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors to add various lane-specific tags for highways and other streets, specifically turning lane arrows (where you are allowed to turn) and various destination tags (where will road lead). While OSM uses relatively simple and straightforward
+ <a hraf="https://wiki.openstreetmap.org/wiki/Key:destination">syntax</a> to add such tags, tag values themselves could grow very lenghty and difficult understand for humans. This tool was created in January 2021 and was originally meant to make management of multi-lane road tagging easier for contributors who primarly use iD and don't wish to switch to Josm.</p>
+ <h3>How to map</h3>
+ Only special caveat not covered by <a href="https://wiki.openstreetmap.org/wiki/Proposed_features/Destination_details">wiki</a> nor this tool is to make sure, what kind of ref-number formatting your area uses. For example European routes are written with space between E and road number (e.g "E 123").
+<h3>How to use tool</h3>
+<p>Most of features provided by this tool are listed as buttons below and explained by tooltips at most buttons. To see tooltip, just hover your mouse over a button to read explanation.</p>
+<ul>
+<li>Menu buttons meanings<ul>
+<li>Add lane - Adds a new lane with no extra tags by default.</li>
+<li>Export (as :X) - Converts lanes to OSM-compatible tags. As :X text indicates if key suffix has been set.</li>
+<li>Import (overwrite) - Converts tags pasted into textbox below to lanes used by this interactive tool. <br>Asks confirmation to overwrite existing lanes.
+<br><b>Importing does not currently support :forward/:backward suffixes.</b></li>
+<li>Import (extend) - Also converts tags pasted into textbox to lanes, but new lanes are appended to the right, not overwriting old lanes. <br>Useful when exit ramp already has destination tags, but you wish to add tags to previous road section.</li>
+<li>Switch forward/backward - Switches between 3 possible suffixes of exported tags: :forward, :backward or no suffix at all. <br>Current suffix is listed on export button.</li>
+<li>Switch to LHT/RHT - Purely cosmetic functionality requested by Australian users. Switches positions of Reverse & None checkboxes and swaps picture used to illustrate U-turn option. This button has absolutely no effect on export or how new lanes are added.</li>
+<li>Consolidate imported ref-tags - Used for configuring import settings.<br>Unchecking this checkbox will import each ref and int_ref tag value as separate value on individual line.<br>
+Keeping it checked loads destination:ref and destination:int_ref keys as single lines (just like it's stored in OSM).</li>
+</ul></li>
+<li>Lane buttons meanings<ul>
+<li>Copy lane - Usually does what it says. Adds new lane next to selected one while also carrying over settings selected on current lane.<br>
+Unusually there may occur bug. When user holds button pressed for too long, lane dragging functionality is triggered parallel to copying action. New lane will appear as shadow hovering in odd place. Workaround is to try to click deletion button.</li>
+<li>Delete lane - Does what it says. Deletes a lane.</li>
+<li>Allow lane change? - Button with slightly confusing title is used to determine if changing lanes is allowed between this <b>current lane and lane on the right</b>. Button is hidden when current lane is the rightmost lane.<br>
+3 coloured squares are used to make button's state more noticable. Clicking on the button will cycle through these 3 states. <ul><li>🟧 - Lane change undefined (none)</li><li>🟥 - Lane change not allowed (no)</li><li>🟩 - Lane change allowed (yes)</li></ul> 
+Known issue: Due to limitation of UI chosen for this tool, single button is regulating lane changes from left to right and from right to left. This means some situations, where changing lanes is allowed only in one direction, can not be created with this software. Workaround is to manualy alter these lanes after exporting.</li>
+<li>❌ - deletes selected row/field from lane. Button is hidden from field, which allows adding new rows.</li>
+</ul></li>
+<li>Non-buttoned functionality / Tips & tricks<ul>
+<li>Selecting type of destination before typing it's name keeps destination type selected while adding new field.</li>
+<li>Click and hold ░░ to drag fields. Fields can be dragged across lanes.</li>
+<li>Best way to drag lanes is to click and hold lane arrow.</li>
+<li>Symbol field has auto-complete feature. 53 most common values are shown when at least two characters are typed to textbox. Suggestions are listed in order of popularity.</li>
+<li>Turn arrow "None" is default choice even when no checkboxes are checked. Use checkbox None if you wish to remove all current arrows from a lane.<br>Selecting any other checkbox unchecks None</li>
+</ul></li></ul>
+<s><h3>Need a custom key?</h3>
+<p>In far future this tool may get custom keys support for more specialized users who may need more than these 5 currently provided.</p></s>
+</div>
 <div class=hide id=warning>
 <!-- special warning for old website-->
 <h3>Tool on this website isn't maintained.</h3>
@@ -39,19 +77,46 @@ td > div > img {
     vertical-align:middle;
     top: 0px;
 }
-li {
+#All-templates > ul {
     font-family: monospace;
-    /*
-    border-color: #a94442;
-    -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
-    box-shadow: inset 0 2px 2px rgba(0,0,0,.075);
-    border-radius: 4px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-    */
+}
+#All-templates > ul > li > span {
+    background-color: #fdd;
+}
+#All-templates > ul > li > span > s {
+    background-color: #cfc;
+}
+
+#helptext > ul{
+    margin-top:5px;
+    margin-left:10px;
+  padding-left:10px;
+  font-size:14px;
+}
+
+/* Second Level */
+ul ul{
+    margin-top:3px;
+    margin-bottom:6px;
+  padding-left:15px;
+}
+
+/* Third Level */
+ul ul ul{
+    margin-top:3px;
+    margin-bottom:6px;
+  padding-left:20px;
+}
+
+#helptext {
+    background-color:#ffd;
+    padding:10px;
+    padding-top:1px;
+    border-radius:30px;
+    width:900px;
+}
+.ui-menu-item {
+    font-family: monospace;
 }
 #main-lanes-row > td {
     vertical-align: bottom;
@@ -126,45 +191,48 @@ so make sure to keep separate copy of original tags.
 Later in your main editor, just paste output from this textbox 
 after last of existing tags to update existing ones.</textarea>
 </div>
-<button onclick="document.getElementById('All-templates').classList.toggle('hide')">Do not click here. (debugging section)</button>
-<br>See supported values for <tt>destination:symbol</tt> tag from <a href="https://wiki.openstreetmap.org/wiki/Proposed_features/Destination_details#destination:symbol">wiki</a> or <a href="https://taginfo.openstreetmap.org/keys/destination:symbol">Taginfo</a>. Or just use autocomplete, whopping 53 most common values included.
+<button onclick="document.getElementById('All-templates').classList.toggle('hide')">Don't click here. (shows debugging section)</button>
+<br>See supported values for <tt>destination:symbol</tt> tag from <a href="https://wiki.openstreetmap.org/wiki/Key:destination:symbol#Values">wiki</a>, <a href="https://taginfo.openstreetmap.org/keys/destination:symbol">Taginfo</a> or just use autocomplete.
 <div id=All-templates class=hide>
-
+Warning this website <s>may contain</s> definitely contains bugs.<br>
+This tool is open-source. To view source, right-click and select "View page source" or <a href="https://github.com/kallejre/geo/tree/main/osm%20lane%20tool">visit github page</a>.
+Destination fields and lanes are now draggable. Best used with mouse.<br>
 <h3>Known bugs, wishlist and changelog:</h3>
-<ul ><li><s>Copying lane destinations along with lanes</s>
-</li><li><s>First row of destinations can't be deleted, but shows button</s>
-</li><li><s>This webpage is utterly useless as there's no export functionality</s>
-</li><li><s>Formatting support for changelog</s>
-</li><li><s>New lane destination field is created only on-click (not on-input).</s>
-</li><li><s>Changelog too long, moved to hidden section.</s>
-</li><li><s>Relocated hosting to github.  Added dynamic warning when visiting old site.</s>
-</li><li><s>Adding new destination field preservers key.</s>
-</li><li><s>Add lane changing tags. Todo for that: Update export function.</s>
-</li><li><s>First lane is automatically added when page loads.</s>
-</li><li><s>Bug caused duplicate tagging when lane was copied because of duplicate IDs, when new elements were generated too quickly.</s>
-</li><li><s>Added colored indicators for lane changing.</s>
-</li><li><s>Added none to empty destination lanes.</s>
-</li><li><s>Change:lanes=|, when using 1-lane road.</s>
-</li><li><s>Draggable destination fields</s>
-</li><li><s>Add custom UI for LHT (steering wheel on right side) roads.</s>
-</li><li><s>Import capability needed</s>
-</li><li><s>Draggable lanes</s>
-</li><li><s>:lanes can be omitted, if all lanes have same value</s>
-</li><li><s>turn:lanes shouldn't be shortened</s>
-</li><li><s>Option to export with suffixes</s>
-</li><li><s>Autocomplete for symbol input</s>
-</li><li><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
-</li><li>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
-</li><li>Pressing enter could move cursor to new field
-</li><li>Option to import with suffixes
-</li><li>Exporting single lane with suffix loses turn:lanes
-</li><li>Css styling should use classes
-</li><li>Auto-updating export box would be cool.
-</li><li>Destination field shouldn't be draggable to last position. - Fix made things worse
-</li><li>...and many more
-</li></ul>
+<ul ><li><span><s>Copying lane destinations along with lanes</s>
+</span></li><li><span><s>First row of destinations can't be deleted, but shows button</s>
+</span></li><li><span><s>This webpage is utterly useless as there's no export functionality</s>
+</span></li><li><span><s>Formatting support for changelog</s>
+</span></li><li><span><s>New lane destination field is created only on-click (not on-input).</s>
+</span></li><li><span><s>Changelog too long, moved to hidden section.</s>
+</span></li><li><span><s>Relocated hosting to github.  Added dynamic warning when visiting old site.</s>
+</span></li><li><span><s>Adding new destination field preservers key.</s>
+</span></li><li><span><s>Add lane changing tags. Todo for that: Update export function.</s>
+</span></li><li><span><s>First lane is automatically added when page loads.</s>
+</span></li><li><span><s>Bug caused duplicate tagging when lane was copied because of duplicate IDs, when new elements were generated too quickly.</s>
+</span></li><li><span><s>Added colored indicators for lane changing.</s>
+</span></li><li><span><s>Added none to empty destination lanes.</s>
+</span></li><li><span><s>Change:lanes=|, when using 1-lane road.</s>
+</span></li><li><span><s>Draggable destination fields</s>
+</span></li><li><span><s>Add custom UI for LHT (steering wheel on right side) roads.</s>
+</span></li><li><span><s>Import capability needed</s>
+</span></li><li><span><s>Draggable lanes</s>
+</span></li><li><span><s>:lanes can be omitted, if all lanes have same value</s>
+</span></li><li><span><s>turn:lanes shouldn't be shortened</s>
+</span></li><li><span><s>Option to export with suffixes</s>
+</span></li><li><span><s>Autocomplete for symbol input</s>
+</span></li><li><span><s>Add more organized help page</s>
+</span></li><li><span><s>Different lanes should be aligned.</s> Potential workaround by aligning to bottom.
+</span></li><li><span>Forward-backward lanes.  <b>!!! Only oneway is supported for now. !!!</b>
+</span></li><li><span>Pressing enter could move cursor to new field
+</span></li><li><span>Option to import with suffixes
+</span></li><li><span>Exporting single lane with suffix loses turn:lanes
+</span></li><li><span>Css styling should use classes
+</span></li><li><span>Auto-updating export box would be cool.
+</span></li><li><span>Destination field shouldn't be draggable to last position. - Fix made things worse
+</span></li><li><span>...and many more
+</span></li></ul>
 <h2>Templates for js to generate new lanes.</h2>
-Please avoid touching tables below as they are used to generate new lanes.<br> This tool is open-source. To view source, right-click and select "View page source" :-P
+Please avoid touching tables below as they are used to generate new lanes.
 <h3>Lanes</h3>
 <div id=template1 >
 <table id="{lane_id}" border=1 width=390px>
