@@ -24,6 +24,7 @@ def scan(key, Range=(1,top_pages+1)):
     for page in range(*Range):
         params={'key':key,'page':page}
         print(urlData+urllib.parse.urlencode(params))
+        # When umlauts are needed, use urllib.request.quote
         webURL = urllib.request.urlopen(urlData+urllib.parse.urlencode(params))
         data = webURL.read()
         encoding = webURL.info().get_content_charset('utf-8')
@@ -67,7 +68,7 @@ a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
 a2=scan(key+':lanes:backward')
 merged={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
 if output_filename:
-    file=open(output_filename, 'w')
+    file=open(output_filename, 'w', encoding='utf8')
 else:
     file=None
 for key in sorted(merged, key=lambda x: merged[x], reverse=True):
