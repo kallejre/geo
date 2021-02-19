@@ -4,14 +4,20 @@ import urllib.request
 import urllib.parse
 import json
 
-urlData = "https://taginfo.openstreetmap.org/api/4/key/values?filter=all&lang=en&sortname=count&sortorder=desc&rp=25&qtype=value&format=json&"
+
 # Just key without lanes/forward/backward suffixes
-key='destination:symbol'
+key = 'destination:symbol'
 # Option whether  same value repeated across lanes...
 # is counted just once (False) or multiple times (True)
-sum_lanes=False
+sum_lanes = False
+top_pages = 10
+per_page = 25
+# If filename is None, result is printed to stdout (python console)
+output_filename = None
 
-def scan(key, Range=(1,101)):
+urlData = "https://taginfo.openstreetmap.org/api/4/key/values?filter=all&lang=en&"\
+    "sortname=count&sortorder=desc&rp=" + str(per_page) + "&qtype=value&format=json&"
+def scan(key, Range=(1,top_pages+1)):
     split_lanes=':lanes' in key
     results=dict()
     print(key)
@@ -22,13 +28,15 @@ def scan(key, Range=(1,101)):
         data = webURL.read()
         encoding = webURL.info().get_content_charset('utf-8')
         result = json.loads(data.decode(encoding))
-        print(len(result['data']))
+        # print(len(result['data']))
         if len(result['data'])==0:
             break  # Stops if last empty list is received
         for res in result['data']:
             c=res['count']
             val=res['value']
-            if '; ' in val or '| ' in val:print(val)
+            if '; ' in val or '| ' in val:
+                # Prints notification about incorrectly formatted value
+                print(val)
             if not sum_lanes:
                 val=';'.join(set(val.replace('|', ';').split(';')))
             if split_lanes or 1:
@@ -58,6 +66,12 @@ a2=scan(key+':lanes:forward')
 a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
 a2=scan(key+':lanes:backward')
 merged={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
+if output_filename:
+    file=open(output_filename, 'w')
+else:
+    file=None
 for key in sorted(merged, key=lambda x: merged[x], reverse=True):
-    print(key, merged[key], sep='\t')
+    print(key, merged[key], sep='\t', file=file)
+if output_filename:
+    file.close()
 # Output can be copied from console and pasted to spreadsheet.
