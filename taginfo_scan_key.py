@@ -10,7 +10,7 @@ key = 'destination:symbol'
 # Option whether  same value repeated across lanes...
 # is counted just once (False) or multiple times (True)
 sum_lanes = False
-top_pages = 10
+top_pages = 100
 per_page = 25
 # If filename is None, result is printed to stdout (python console)
 output_filename = None
@@ -23,7 +23,8 @@ def scan(key, Range=(1,top_pages+1)):
     print(key)
     for page in range(*Range):
         params={'key':key,'page':page}
-        print(urlData+urllib.parse.urlencode(params))
+        # print(urlData+urllib.parse.urlencode(params))
+        print(key, page, '/', Range[1]-1)
         # When umlauts are needed, use urllib.request.quote
         webURL = urllib.request.urlopen(urlData+urllib.parse.urlencode(params))
         data = webURL.read()
@@ -56,23 +57,72 @@ def scan(key, Range=(1,top_pages+1)):
                     else:
                         results[v3]=c
     return results
-a1=scan(key)
-a2=scan(key+':lanes')
-a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
-a2=scan(key+':forward')
-a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
-a2=scan(key+':backward')
-a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
-a2=scan(key+':lanes:forward')
-a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
-a2=scan(key+':lanes:backward')
-merged={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
+def run_queries():
+    a1=scan(key)
+    a2=scan(key+':lanes')
+    a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
+    a2=scan(key+':forward')
+    a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
+    a2=scan(key+':backward')
+    a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
+    a2=scan(key+':lanes:forward')
+    a1={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
+    a2=scan(key+':lanes:backward')
+    merged={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
+    return merged
+# """
+merged=run_queries()
+sorted_values=sorted(merged, key=lambda x: merged[x], reverse=True)
+"""
 if output_filename:
     file=open(output_filename, 'w', encoding='utf8')
 else:
     file=None
-for key in sorted(merged, key=lambda x: merged[x], reverse=True):
+for key in sorted_values:
     print(key, merged[key], sep='\t', file=file)
+    if merged[key]<5: break
 if output_filename:
     file.close()
+# """
+def get_page(title='Key:'+key):    
+    # Get current page
+    # While this is json, there's no point in parsing it.
+    url='https://wiki.openstreetmap.org/w/api.php?action=query&prop=revisions&titles={{title}}&rvslots=*&rvprop=content&formatversion=1&format=json'
+    url=url.replace('{{title}}', title)
+    webURL = urllib.request.urlopen(url)
+    data = webURL.read().decode()
+    import re
+    # Finds all values defined on page
+    regex = r"{{Tag\|+[\w:]+\|+(\w+)}}"
+    matches = re.finditer(regex, data, re.MULTILINE)
+    match_set=set()
+    for i in matches: match_set.add(i.group(1))
+    return match_set
 # Output can be copied from console and pasted to spreadsheet.
+def wikitable():
+    # Wikitable generator
+    rows=30
+    cols=4
+    table=[ [ [] for i in range(cols)] for i in range(rows)]
+    exact_match = get_page()
+    close_match=';'.join(exact_match).lower()
+    # Non-semantic assessment of tag similarity.
+    for i in range(rows*cols):
+        value=sorted_values[i]
+        count=merged[value]
+        if value in exact_match: t='yes'
+        elif value.lower() in close_match: t='maybe'
+        else: t='no'
+        close_match+=';'+value
+        row=i%rows
+        col=i//rows
+        table[row][col]=[value, count,t]
+    print('{| class="wikitable"\n|-\n! Value !! Count !! Value !! Count !! Value !! Count !! Value !! Count ')
+    for row in table:
+        print('|-')
+        line=[]
+        for col in row:
+            line.append(f'| {{{{{col[2]}|{col[0]}}}}} || {{{{{col[2]}|{col[1]}}}}} ')
+        print('|'.join(line))
+    print('|}')
+wikitable()
