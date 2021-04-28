@@ -1,0 +1,3 @@
+OpenStreetMap import script created as a part of final thesis. Meant to solve issue of low quality building import that took place in Tallinn, Estonia in september 2008 by overwriting existing building geometry with data originated from governemt's dataset while preserving OSM tags and history. Current state of script is NOT out-of-the-box-solution as it was meant to work with source data stored in EPSG:3301 CRS, which your source dataset likely isn't.
+
+Code comments are (still) in Estonian. Todo: translate them.
