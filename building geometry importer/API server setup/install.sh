@@ -1,23 +1,25 @@
 #!/usr/bin/env bash 
-cd /home/user
+cd /home/$USER
 if [ "$EUID" -eq 0 ]
   then echo "Skripti käivitamisel juurkasutajana tekib probleeme OSM serveri DB seadistamisel. Samas, sudo õigustes tegevuste jaoks (apt update; bundle install) küsitakse paar korda parooli."
   exit
 fi
 echo "Käivitamine kasutajana $USER. Skripti testiti kasutajanime user alt."
 echo "Käesoleva skripti töö jooksul küsitakse paar korda sudo parooli"
-
+echo "Kas installida ka Josm ja Osmium?"
+read -p "Josm on kaardiredaktor ning Osmium tööriist OSM andmete töötlemiseks. (y/N) " -n 1 -r josm
+echo  ""  # https://stackoverflow.com/questions/1885525
 # Allalaadimise osa.
 echo "Sudo parool apt-get installi jaoks"
 echo "Enne jätkamist palun veendu, et apt on seatud kasutama parimat saadaolevat uuenduste serverit."
+
 sudo apt-get update
 sudo apt-get upgrade -y || {
  echo "Uuendamine ebaõnnestus."
  echo "Skripti testimisel põhjustas tõrget Ubuntu enda automaatsete uuenduste tööriista samaaegne töötamine."
- exit 1 }
-echo "Kas installida ka Josm ja Osmium? (y/N)"
-read -p "Josm on kaardiredaktor ning Osmium tööriist OSM andmete töötlemiseks. " -n 1 -r josm
-echo  ""  # https://stackoverflow.com/questions/1885525
+ exit 1 
+ }
+
 
 sudo apt-get install ruby2.7 libruby2.7 ruby2.7-dev \
                      libmagickwand-dev libxml2-dev libxslt1-dev nodejs \
@@ -32,7 +34,7 @@ fi
 sudo apt autoremove -y
 sudo gem2.7 install bundler
 
-cd /home/user
+cd /home/$USER
 # Osmosise paigaldamine
 # Aptiga tuleb automaatselt kaasa Osmosis 0.47-4, aga vaja on versiooni 0.48
 # Samas nõuab osmosis palju (200MB) lisamooduleid, s.h Java RE, 
@@ -66,8 +68,9 @@ fi  # https://superuser.com/questions/1169664/bash-if-on-single-line
 echo "Installid tehtud."
 
 echo "OSM veebilehe allalaadimine"
+echo "Varsti küsitakse parooli"
 git clone --depth=1 https://github.com/openstreetmap/openstreetmap-website.git
-cd /home/user/openstreetmap-website
+cd /home/$USER/openstreetmap-website
 bundle install  # Küsib sudo jaoks luba
 bundle exec rake yarn:install
 touch config/settings.local.yml
@@ -76,16 +79,16 @@ touch config/settings.local.yml
 # Andmebaasi seadistamine
 # Esiteks käsk juhuks, kui on vaja baasi koostamine tagasi võtta.
 # bundle exec rake db:drop
-cd /home/user/openstreetmap-website
+cd /home/$USER/openstreetmap-website
 cp config/example.storage.yml config/storage.yml
 cp config/example.database.yml config/database.yml
 
 #read  -n 1 -p "Vajuta ctrl+C." asd
 
 # DB kasutajanimi peaks olema sama mis süsteemi kasutajal. [https://gis.stackexchange.com/questions/336151]
-sudo -u postgres createuser -s user
-psql -d openstreetmap -c "ALTER USER \"user\" WITH PASSWORD 'user'"
-cd /home/user/openstreetmap-website
+sudo -u postgres createuser -s $USER
+psql -d openstreetmap -c "ALTER USER \"$USER\" WITH PASSWORD 'user'"
+cd /home/$USER/openstreetmap-website
 bundle exec rake db:create
 psql -d openstreetmap -c "CREATE EXTENSION btree_gist"
 psql -d openstreetmap -f db/functions/functions.sql
@@ -94,15 +97,12 @@ bundle exec rake test:db || {
   echo "DB test ebaõnnestus."
   echo "2021 märtsi seisuga põhjustab teadaolevat viga litsentsiprobleem teekide Mimemagic ja Rails vahel. OSM veebilehe põhifunktsionaalsus ei ole häiritud."
   read  -n 1 -p "Katkestamiseks vajuta ctrl+C, jätkamiseks mõnda muud klahvi." asd
-  echo ""}
+  echo "" 
+ }
 echo "DB kontrollitud."
 
-# sudo sh -c "echo 'local   openstreetmap   user         trust' >> /etc/postgresql/$(ls /etc/postgresql)/main/pg_hba.conf"
+# sudo sh -c "echo 'local   openstreetmap   $USER         trust' >> /etc/postgresql/$(ls /etc/postgresql)/main/pg_hba.conf"
 # service postgresql restart
-
-
-
-
 
 
 # Peale kasutaja loomist
@@ -136,13 +136,13 @@ echo "Kasutaja seadistamisel tekkis tõrge. Nii võib juhtuda, kui kasutaja on v
 }
 
 
-# sudo sh -c "echo 'local   openstreetmap   user         trust' >> /etc/postgresql/$(ls /etc/postgresql)/main/pg_hba.conf"
+# sudo sh -c "echo 'local   openstreetmap   $USER         trust' >> /etc/postgresql/$(ls /etc/postgresql)/main/pg_hba.conf"
 # service postgresql restart
 
 # read  -n 1 -p "Hetkekasutaja on $USER, Katkestamiseks vajuta ctrl+C. Jätkamiseks vajuta muud klahvi." asd
 echo "Ajakulu 30-45 min."
-psql -d openstreetmap -c "ALTER USER \"user\" WITH PASSWORD 'user'"
-~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="user" password="user" validateSchemaVersion="no" || {
+psql -d openstreetmap -c "ALTER USER \"$USER\" WITH PASSWORD 'user'"
+~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="$USER" password="user" validateSchemaVersion="no" || {
  echo 'Osmosise käivitamine ebaõnnestus. '
  echo 'Vea parandamiseks aitab tavaliselt Osmosise kustutamine ja uuesti paigaldamine.'
  cd ~
@@ -158,10 +158,10 @@ psql -d openstreetmap -c "ALTER USER \"user\" WITH PASSWORD 'user'"
   chmod a+x bin/osmosis
   cd ~
   echo "Osmosis installitud"
-
- ~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="user" password="user" validateSchemaVersion="no" || {
+echo "Kaardi kopeerimine andmebaasi, 2. katse. Tegevus võib kesta mitukümmend minutit."
+ ~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="$USER" password="user" validateSchemaVersion="no" || {
  echo 'Osmosise reinstall ei aidanud. Paranda tõrge ja käivita käsitsi järgnev käsk:'
- echo '~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="user" password="user" validateSchemaVersion="no"'
+ echo '~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="$USER" password="user" validateSchemaVersion="no"'
  echo 'Peale seda on kõik korras ning serveri käivitamiseks tuleks sisestada "./run.sh"'
  exit 1
 } }
