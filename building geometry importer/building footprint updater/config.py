@@ -1,40 +1,44 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # Seadistus
 
-exclude_shared_nodes = False
-aastaid = 10     # Mitme aasta vanuseid sõlmi otsitakse
-grid_size = 100  # Indekseerimise ruudustiku suurus meetrites
-buffer_n = 5     # SHP-faili otsingukasti külje kordaja. Kasutatakse SHP faili esimese otsingu tegemiseks.
+# Mitme aasta vanuseid sõlmi otsitakse
+aastaid = 10
+# Indekseerimise ruudustiku suurus meetrites
+grid_size = 100
+# SHP-faili otsingukasti külje kordaja. Kasutatakse SHP faili esimese otsingu tegemiseks.
+buffer_n = 5
 
 # Kus kohas jäi eelmine kord pooleli. Info saab logist.
 # Vaikimisi 0. Kui skript katkestati, tuleks siia kirjutada,
 # mitmenda ruudu juures skript peatati.
-eelmine_kord = 71
+eelmine_kord = 0
 
 # Otsitava piirkonna määramine
 # Toetatud on piirkonna nimi ("Harjumaa"), OSM elemendi ID ('relation/350585') või külgnevuskast ( (59.19,24.25,59.59,25.33) )
-otsinguala='relation/350585'  # NB! Otsingupiirkonna nimi on tõstutundlik.
-
-cache_dir='cache'   # Vahemälu kausta nimi
-# Overpassi päringute vahemälu kaust.
-overpass_dir = cache_dir+'/overpass-cache'
+# NB! Otsingupiirkonna nimi on tõstutundlik.
+otsinguala = 'relation/350585'
+# Vahemälu kausta nimi
+cache_dir = 'cache'
+# Overpassi päringute vahemälu kausta nimi
+overpass_dir = cache_dir + '/overpass-cache'
 # Muudatuskogumi maksimaalne suurus
 MAX_CHANGESET_EDITS = 10000
 # Overpassi server
-Overpass_URL='https://overpass.kumi.systems/api/interpreter'
+Overpass_URL = 'https://overpass.kumi.systems/api/interpreter'
 # OSM API kasutajanimi-parool
-auth={'user': 'testAdmin',
-      'pwd': 'Passw0rd',  # Passw0rd  password
-      'api_url': 'http://192.168.136.131:4443'}
+auth = {'user': 'testAdmin',
+        'pwd': 'Passw0rd',  # Passw0rd  password
+        'api_url': 'http://192.168.136.131:4443'}
 
-shp_fname="ETAK/E_401_hoone_ka.shp"
-shp_encoding='iso-8859-1'
-
+shp_fname = "ETAK/E_401_hoone_ka.shp"
+shp_encoding = 'iso-8859-1'
 
 # Overpassi päring ei kasuta f-stringiga antavaid muutujaid, sest
 # eesmärk oli hoida mall ise overpass-turboga ühilduval kujul.
 # Päringul on ingliskeelsed kommentaarid, sest sarnane päring
 # lisati kaasa mõnedele ingliskeelsetele kirjadele.
-Overpass_mall="""[out:json][timeout:60];  // Vormingu valik
+Overpass_mall = """[out:json][timeout:60];  // Vormingu valik
 area[name="{{name}}"];    // Piirkonna nime järgi geokodeerimine
 (( way["building"](area);	// Get all buildings in area
 );>;)->.all;            // and save them into set .all
@@ -61,4 +65,9 @@ out meta;
 # mis peaks muutma allalaadimise kiiremaks.
 chunk = 10000000
 # Kui suur peab olema minimaalne külgnevuskastide kattuvus, et skript seda kaaluks.
-min_overlap_threshold=15
+min_overlap_threshold = 15
+# Valik, mis lubabhoonel jagada sõlmi mitte-hoonega.
+# Selle muutmine omab hetkel mõju ainult Overpassi päringule, 
+# aga mitte uuendamisskriptile, mistõttu pole mõistlik seda vahetada
+# Lõplik tulemus sellest ei muutu
+exclude_shared_nodes = False

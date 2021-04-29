@@ -128,3 +128,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+# Cache files
+building geometry importer/building footprint updater/cache/
+# Shapefiles
+building geometry importer/building footprint updater/ETAK/E_401*
