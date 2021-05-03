@@ -29,7 +29,7 @@ Overpass_URL = 'https://overpass.kumi.systems/api/interpreter'
 # OSM API kasutajanimi-parool
 auth = {'user': 'testAdmin',
         'pwd': 'Passw0rd',  # Passw0rd  password
-        'api_url': 'http://192.168.136.131:4443'}
+        'api_url': 'http://192.168.136.132:4443'}
 
 shp_fname = "ETAK/E_401_hoone_ka.shp"
 shp_encoding = 'iso-8859-1'

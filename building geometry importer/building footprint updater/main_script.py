@@ -158,7 +158,7 @@ else:  # Ajakulu kuni 1 tund
     f.close()
 inf.update(0, 1, 'Kattuvuste tabeli koostamine')
 print('Väljund tabelina.', util.bench())
-with open(overlap_csv_fname, 'w', newline='', encoding='utf8') as csvfile:
+with open(overlap_csv_fname[:-4] + '_' + timestamp + overlap_csv_fname[-4:], 'w', newline='', encoding='utf8') as csvfile:
     csvwriter = csv.writer(csvfile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     csvwriter.writerow(['Kattuvuse %', 'Keskpunktide kaugus (m)', 'Ads-check', 'SHP-ID', 'OSM-ID',
                         'etak OSM', 'street', 'housenumber', 'housename', 'etak MA', 'ads_lahiaa'])
@@ -201,7 +201,7 @@ try:
     i = 0  # i loendab kõiki töödeldud hooneid
     for yhikruut in ruudud[eelmine_kord:]:
         print(yhikruut)
-        if yhikruut[1] // 10 != eelmine_veerg:
+        if yhikruut[1] // 10 != eelmine_veerg and changes != 0:
             # Lihtne muudatus, millega piiratakse muudatuskogumi laius 10 km-le.
             changes = MAX_CHANGESET_EDITS + 1
         eelmine_veerg = yhikruut[1] // 10
