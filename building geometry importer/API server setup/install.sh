@@ -18,7 +18,7 @@ echo "Enne jätkamist palun veendu, et apt on seatud kasutama parimat saadaoleva
 sudo apt update
 sudo apt upgrade -y || {
  echo "Uuendamine ebaõnnestus."
- echo "Skripti testimisel põhjustas tõrget Ubuntu enda automaatsete uuenduste tööriista samaaegne töötamine."$USER
+ echo "Skripti testimisel põhjustas tõrget Ubuntu enda automaatsete uuenduste tööriista samaaegne töötamine."
  exit 1 
  }
 

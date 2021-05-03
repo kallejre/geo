@@ -211,7 +211,6 @@ try:
             if len(overlapping[yhikruut][way]) > 1:
                 tulemus = ('FAIL', 'Valik mitme hoone vahel', way)
                 node_stats = None
-                continue
             elif len(overlapping[yhikruut][way]) == 1:
                 muudatusi, resu = util.update_geometry(sf, way, list(overlapping[yhikruut][way])[0][3], changes)
                 changes += muudatusi
