@@ -1,25 +1,25 @@
 #!/usr/bin/env bash 
-#Estonian version of install.sh
+# English version of install.sh
 cd /home/$USER
 #https://unix.stackexchange.com/questions/230673
 DB_pass="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 16 ; echo '')"
 if [ "$EUID" -eq 0 ]
-  then echo "Skripti käivitamisel juurkasutajana tekib probleeme OSM serveri DB seadistamisel. Samas, sudo õigustes tegevuste jaoks (apt update; bundle install) küsitakse paar korda parooli."
+  then echo "Running this script as root will cause errors while setting up database. You will be asked to type password few times."
   exit
 fi
-echo "Käivitamine kasutajana $USER. Skripti testiti kasutajanime user alt."
-echo "Käesoleva skripti töö jooksul küsitakse paar korda sudo parooli"
-echo "Kas installida ka Josm ja Osmium?"
-read -p "Josm on kaardiredaktor ning Osmium tööriist OSM andmete töötlemiseks. (y/N) " -n 1 -r josm
+echo "Script started as user $USER."
+echo "During running this script, root password will be asked few times."
+echo "Would you like to install Josm and Osmium?"
+read -p "Josm is map editor and Osmium is tool for processing map data. (y/N) " -n 1 -r josm
 echo  ""  # https://stackoverflow.com/questions/1885525
 # Allalaadimise osa.
-echo "Sudo parool apt-get installi jaoks"
-echo "Enne jätkamist palun veendu, et apt on seatud kasutama parimat saadaolevat uuenduste serverit."
+echo "Sudo password is asked for APT command"
+echo "Before you continue, make sure that APT is configured to use best available download server."
 
 sudo apt update
 sudo apt upgrade -y || {
- echo "Uuendamine ebaõnnestus."
- echo "Skripti testimisel põhjustas tõrget Ubuntu enda automaatsete uuenduste tööriista samaaegne töötamine."
+ echo "Update failed."
+ echo "Error was probably caused by Ubuntu's own automatic update tool."
  exit 1 
  }
 
@@ -32,7 +32,7 @@ sudo apt install git ruby2.7 libruby2.7 ruby2.7-dev \
 if [[ $josm =~ ^[Yy]$ ]]
 then
     sudo apt install josm osmium-tool -y  # Josm - kaardiredaktor, osmium - analüütiline tööriist
-    echo "Josm + Osmium on installitud"
+    echo "Josm + Osmium are installed"
 fi
 sudo apt autoremove -y
 sudo gem2.7 install bundler
@@ -42,7 +42,7 @@ cd /home/$USER
 # Aptiga tuleb automaatselt kaasa Osmosis 0.47-4, aga vaja on versiooni 0.48
 # Samas nõuab osmosis palju (200MB) lisamooduleid, s.h Java RE, 
 # mistõttu on mõistlik 0.47 koos sõltuvustega eraldi apt-ga installida 
-echo "Osmosise installimine"
+echo "Installing osmosis"
 if [ ! -d ~/osmosis ];then
  cd ~ && wget https://github.com/openstreetmap/osmosis/releases/download/0.48.3/osmosis-0.48.3.tgz
  mkdir osmosis
@@ -52,41 +52,41 @@ if [ ! -d ~/osmosis ];then
  rm osmosis-0.48.3.tgz 
  chmod a+x bin/osmosis
  cd ~
- echo "Osmosis installitud"
+ echo "Osmosis installed"
 else
- echo "Osmosis on olemas"
+ echo "Osmosis was already installed"
 fi
 
 
 
-# Järgmisel real kontrollitakse, kas grep leiab kuni 1 päeva vanuse Eesti kaardi faili
-if [[ $(find ~/ -mtime -1 -ls | grep estonia.pbf) ]]; then
- echo "Eesti kaart leiti"
+# Next line finds if up to 1 day old map file already exists
+pbf_filename="estonia.pbf"
+pbf_download_url="https://download.geofabrik.de/europe/estonia-latest.osm.pbf"
+if [[ $(find ~/ -mtime -1 -ls | grep $pbf_filename) ]]; then
+ echo "Map was found"
 else  # https://unix.stackexchange.com/questions/223503/how-to-use-grep-when-file-does-not-contain-the-string/223504
- echo "Eesti kaarti ei leitud või võiks seda uuendada"
+ echo "Map was not found or it needs to be updated"
  # SviMiki kaart on obf vormingus ning ei ühildu Geofabriku pbf-vorminguga
  # wget http://s2.svimik.com/osm/EE-HAR/Estonia_harjumaa_europe.obf -O ~/estonia.obf 
- wget https://download.geofabrik.de/europe/estonia-latest.osm.pbf -O ~/estonia.pbf
+ wget $pbf_download_url -O ~/$pbf_filename
 fi  # https://superuser.com/questions/1169664/bash-if-on-single-line
-echo "Installid tehtud."
+echo "Install completed."
 
-echo "OSM veebilehe allalaadimine"
-echo "Varsti küsitakse parooli"
+echo "Downloading OSM website"
+echo "soon password will be asked"
 git clone --depth=1 https://github.com/openstreetmap/openstreetmap-website.git
 cd /home/$USER/openstreetmap-website
-bundle install  # Küsib sudo jaoks luba
+bundle install  # Asks sudo password
 bundle exec rake yarn:install
 touch config/settings.local.yml
 # bundle exec rake db:drop
 
-# Andmebaasi seadistamine
-# Esiteks käsk juhuks, kui on vaja baasi koostamine tagasi võtta.
+# Database setup
+# Following line is useful for rolling back and removing DB.
 # bundle exec rake db:drop
 cd /home/$USER/openstreetmap-website
 cp config/example.storage.yml config/storage.yml
 cp config/example.database.yml config/database.yml
-
-#read  -n 1 -p "Vajuta ctrl+C." asd
 
 # DB kasutajanimi peaks olema sama mis süsteemi kasutajal. [https://gis.stackexchange.com/questions/336151]
 sudo -u postgres createuser -s $USER
@@ -97,12 +97,12 @@ psql -d openstreetmap -c "CREATE EXTENSION btree_gist"
 psql -d openstreetmap -f db/functions/functions.sql
 bundle exec rake db:migrate
 bundle exec rake test:db || {
-  echo "DB test ebaõnnestus."
-  echo "2021 märtsi seisuga põhjustab teadaolevat viga litsentsiprobleem teekide Mimemagic ja Rails vahel. OSM veebilehe põhifunktsionaalsus ei ole häiritud."
-  read  -n 1 -p "Katkestamiseks vajuta ctrl+C, jätkamiseks mõnda muud klahvi." asd
+  echo "DB test failed."
+  echo "As of March 2021 issue was caused by license conflict between Mimemagic ja Rails libraries. OSM website is not significantly affected."
+  read  -n 1 -p "To abort, press ctrl+C, To continue, press any other key." asd
   echo "" 
  }
-echo "DB kontrollitud."
+echo "DB check passed."
 
 # sudo sh -c "echo 'local   openstreetmap   $USER         trust' >> /etc/postgresql/$(ls /etc/postgresql)/main/pg_hba.conf"
 # service postgresql restart
@@ -134,21 +134,21 @@ admin.roles.create(:role => "administrator", :granter_id => admin.id)
 admin.roles.create(:role => "moderator", :granter_id => admin.id)
 admin.save!' || {
 echo ""
-echo "Kasutaja seadistamisel tekkis tõrge. Nii võib juhtuda, kui kasutaja on varem juba seadistatud."
+echo "User set-up failed. This is usually caused when user already exists."
 }
 
 psql -d openstreetmap -c "ALTER USER \"$USER\" WITH PASSWORD '$DB_pass'"
 echo ""
-echo "Algab kaardifaili andmebaasi laadimine."
-echo "Tegevuse ajakulu on 30-45 min."
-echo "See on skripti viimane samm, peale seda võib serveri käivitada."
-~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="$USER" password="$DB_pass" validateSchemaVersion="no" || {
- echo 'Osmosise käivitamine ebaõnnestus. '
- echo 'Vea parandamiseks aitab tavaliselt Osmosise kustutamine ja uuesti paigaldamine.'
+echo "Loading map file to database."
+echo "This usually takes 30-45 min."
+echo "This is last step of the script. After it completes, you can start the webserver."
+~/osmosis/bin/osmosis --read-pbf-fast ~/$pbf_filename --write-apidb host="localhost" database="openstreetmap" user="$USER" password="$DB_pass" validateSchemaVersion="no" || {
+ echo 'Starting Osmosis has failed. '
+ echo 'Issue is usually fixed by reinstalling Osmosis.'
  cd ~
  rm -r osmosis  # Osmosise reinstalli sundimiseks.
 
- echo "Osmosise uuesti installimine"
+ echo "Osmosis reinstall"
   cd ~ && wget https://github.com/openstreetmap/osmosis/releases/download/0.48.3/osmosis-0.48.3.tgz
   mkdir osmosis
   mv osmosis-0.48.3.tgz osmosis
@@ -157,15 +157,15 @@ echo "See on skripti viimane samm, peale seda võib serveri käivitada."
   rm osmosis-0.48.3.tgz 
   chmod a+x bin/osmosis
   cd ~
-  echo "Osmosis installitud"
+  echo "Osmosis is installed"
   echo ""
-  echo "Algab kaardifaili andmebaasi laadimise 2. katse."
-  echo "Tegevuse ajakulu on 30-45 min."
-  echo "See on skripti viimane samm, peale seda võib serveri käivitada."
- ~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="$USER" password="$DB_pass" validateSchemaVersion="no" || {
- echo 'Osmosise reinstall ei aidanud. Paranda tõrge ja käivita käsitsi järgnev käsk:'
- echo '~/osmosis/bin/osmosis --read-pbf-fast ~/estonia.pbf --write-apidb host="localhost" database="openstreetmap" user="$USER" password="$DB_pass" validateSchemaVersion="no"'
- echo 'Peale seda on kõik korras ning serveri käivitamiseks tuleks sisestada "./run.sh"'
+  echo "2nd attempt to load map into database."
+  echo "This takes usually 30-45 min."
+  echo "This is last step of the script. After it completes, you can start the webserver."
+ ~/osmosis/bin/osmosis --read-pbf-fast ~/$pbf_filename --write-apidb host="localhost" database="openstreetmap" user="$USER" password="$DB_pass" validateSchemaVersion="no" || {
+ echo 'Osmosis reinstall didnt help. Please fix error and run manually following comamnd:'
+ echo '~/osmosis/bin/osmosis --read-pbf-fast ~/$pbf_filename --write-apidb host="localhost" database="openstreetmap" user="$USER" password="$DB_pass" validateSchemaVersion="no"'
+ echo 'After that everything should be fine and you can run script with command "./run.sh"'
  exit 1
 } }
 # Ajakulu terve Eestiga on 30-45 min.
@@ -175,5 +175,5 @@ echo "See on skripti viimane samm, peale seda võib serveri käivitada."
 # bundle exec rails server -b 0.0.0.0 # Runs at foreground
 # firefox http://localhost:3000/ &
 
-echo "Veebisait on installitud"
-echo 'Serveri käivitamiseks sisesta "./run.sh"'
+echo "Website has been installed"
+echo 'To start web server, use command "./run.sh"'
