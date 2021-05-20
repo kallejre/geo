@@ -2,6 +2,12 @@
 # English version of install.sh
 cd /home/$USER
 #https://unix.stackexchange.com/questions/230673
+
+# FIXME: On the following 2 lines, replace map file download url and filename with something more suitable.
+pbf_filename="estonia.pbf"
+pbf_download_url="https://download.geofabrik.de/europe/estonia-latest.osm.pbf"
+
+
 DB_pass="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 16 ; echo '')"
 if [ "$EUID" -eq 0 ]
   then echo "Running this script as root will cause errors while setting up database. You will be asked to type password few times."
@@ -60,8 +66,6 @@ fi
 
 
 # Next line finds if up to 1 day old map file already exists
-pbf_filename="estonia.pbf"
-pbf_download_url="https://download.geofabrik.de/europe/estonia-latest.osm.pbf"
 if [[ $(find ~/ -mtime -1 -ls | grep $pbf_filename) ]]; then
  echo "Map was found"
 else  # https://unix.stackexchange.com/questions/223503/how-to-use-grep-when-file-does-not-contain-the-string/223504
