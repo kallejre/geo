@@ -100,7 +100,7 @@ bundle exec rake db:create
 psql -d openstreetmap -c "CREATE EXTENSION btree_gist"
 psql -d openstreetmap -f db/functions/functions.sql
 bundle exec rake db:migrate
-bundle exec rake test:db || {
+bundle exec rails test:all || {
   echo "DB test failed."
   echo "As of March 2021 issue was caused by license conflict between Mimemagic ja Rails libraries. OSM website is not significantly affected."
   read  -n 1 -p "To abort, press ctrl+C, To continue, press any other key." asd

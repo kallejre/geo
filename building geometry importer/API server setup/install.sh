@@ -96,7 +96,7 @@ bundle exec rake db:create
 psql -d openstreetmap -c "CREATE EXTENSION btree_gist"
 psql -d openstreetmap -f db/functions/functions.sql
 bundle exec rake db:migrate
-bundle exec rake test:db || {
+bundle exec rails test:all || {
   echo "DB test ebaõnnestus."
   echo "2021 märtsi seisuga põhjustab teadaolevat viga litsentsiprobleem teekide Mimemagic ja Rails vahel. OSM veebilehe põhifunktsionaalsus ei ole häiritud."
   read  -n 1 -p "Katkestamiseks vajuta ctrl+C, jätkamiseks mõnda muud klahvi." asd
