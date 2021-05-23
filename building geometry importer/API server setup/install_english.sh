@@ -4,8 +4,8 @@ cd /home/$USER
 #https://unix.stackexchange.com/questions/230673
 
 # FIXME: On the following 2 lines, replace map file download url and filename with something more suitable.
-pbf_filename="estonia.pbf"
-pbf_download_url="https://download.geofabrik.de/europe/estonia-latest.osm.pbf"
+pbf_filename="cambodia.pbf"
+pbf_download_url="https://download.geofabrik.de/asia/cambodia-latest.osm.pbf"
 
 
 DB_pass="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 16 ; echo '')"
@@ -118,20 +118,18 @@ echo "DB check passed."
 cd ~/openstreetmap-website/
 # Järgnev rida ei tohiks parooli krüpteerimise nõude tõttu töötada, aga töötab ikka.
 bundle exec rails runner 'admin = User.find_or_initialize_by(:email => "testAdmin@osm.dev")
-admin.update_attributes(
-  :email => "testAdmin@osm.dev",
-  :email_valid => true,
-  :display_name => "testAdmin",
-  :description => "testAdmin konto OSMi skripti tarbeks",
-  :home_lat => "59.39550",
-  :home_lon => "24.66430",
-  :status => "confirmed",
-  :terms_seen => true,
-  :terms_agreed => Time.now.getutc,
-  :data_public => true,
-  :pass_crypt => "Passw0rd",
-  :pass_crypt_confirmation => "Passw0rd",
-)
+  admin.email = "testAdmin@osm.dev"
+  admin.email_valid = true
+  admin.display_name = "testAdmin"
+  admin.description = "testAdmin account for testing purposes"
+  admin.home_lat = "59.39550"
+  admin.home_lon = "24.66430"
+  admin.status = "confirmed"
+  admin.terms_seen = true
+  admin.terms_agreed = Time.now.getutc
+  admin.data_public = true
+  admin.pass_crypt = "Passw0rd"
+  admin.pass_crypt_confirmation = "Passw0rd"
 admin.save!
 
 admin.roles.create(:role => "administrator", :granter_id => admin.id)
