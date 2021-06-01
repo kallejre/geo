@@ -13,6 +13,8 @@ buffer_n = 5
 # Vaikimisi 0. Kui skript katkestati, tuleks siia kirjutada,
 # mitmenda ruudu juures skript peatati.
 eelmine_kord = 0
+# Piirab muudetavate kastide arvu.
+max_squares_to_process = 20  # Change to None in production
 
 # Otsitava piirkonna määramine
 # Toetatud on piirkonna nimi ("Harjumaa"), OSM elemendi ID ('relation/350585') või külgnevuskast ( (59.19,24.25,59.59,25.33) )
@@ -71,3 +73,4 @@ min_overlap_threshold = 15
 # aga mitte uuendamisskriptile, mistõttu pole mõistlik seda vahetada
 # Lõplik tulemus sellest ei muutu
 exclude_shared_nodes = False
+building_edit_delay = 0.4

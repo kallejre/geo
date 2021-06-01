@@ -64,6 +64,7 @@ print('Andmed laetud', util.bench())
 print('Fail avatud', util.bench())
 
 # SHP-failist otsitakse külgnevuskasti mahtuvad hooned.
+print('SHP-failist otsitakse külgnevuskasti mahtuvad hooned')
 inf.update(1, 1, 'SHP külgnevuskasti arvutused')
 etak_count = 0
 inf.update(0, 1, 'Hoonekujude otsimine')
@@ -99,7 +100,7 @@ else:  # Ajakulu paar minutit
     print(etak_count, settings, file=f)
     print(str(etak_grid), file=f)
     f.close()
-print(f'Otsingukastist leiti {etak_count} hoonet')
+print(f'Otsingukastist leiti {etak_count} hoonet', util.bench())
 # sf.shape(4) ~~ df.records[4] ~~ sf.record(4)
 # Nüüd on leitud kõik ETAK-hooned, mis asuvad samas piirkonnas, kus otsitud hooned.
 
@@ -158,7 +159,8 @@ else:  # Ajakulu kuni 1 tund
     f.close()
 inf.update(0, 1, 'Kattuvuste tabeli koostamine')
 print('Väljund tabelina.', util.bench())
-with open(overlap_csv_fname[:-4] + '_' + timestamp + overlap_csv_fname[-4:], 'w', newline='', encoding='utf8') as csvfile:
+
+with open(overlap_csv_fname, 'w', newline='', encoding='utf8') as csvfile:
     csvwriter = csv.writer(csvfile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     csvwriter.writerow(['Kattuvuse %', 'Keskpunktide kaugus (m)', 'Ads-check', 'SHP-ID', 'OSM-ID',
                         'etak OSM', 'street', 'housenumber', 'housename', 'etak MA', 'ads_lahiaa'])
@@ -190,7 +192,7 @@ ruudud = list(sorted(overlapping, key=lambda x: (x[1] // 10, x[0], x[1] % 10)))
 timestamp = str(util.datetime.datetime.today())[:16].replace(' ', '-').replace(':', '-')
 output_log = open(upload_log_fname[:-4] + '_' + timestamp + upload_log_fname[-4:], 'w')
 node_stats_log = open(node_log_fname[:-4] + '_' + timestamp + node_log_fname[-4:], 'w')
-building_count = sum(list(map(lambda x: len(overlapping[x]), overlapping)))
+building_count = sum(list(map(lambda x: len(overlapping[x]), ruudud[:max_squares_to_process])))
 
 tehtud_hooneid = sum(list(map(lambda x: len(overlapping[x]), ruudud[:eelmine_kord])))
 inf.reset(1, '', building_count - tehtud_hooneid, True)
@@ -199,8 +201,8 @@ eelmine_veerg = ruudud[eelmine_kord][1] // 10
 cset_counter = 1
 try:
     i = 0  # i loendab kõiki töödeldud hooneid
-    for yhikruut in ruudud[eelmine_kord:]:
-        print(yhikruut)
+    for yhikruut in ruudud[eelmine_kord:max_squares_to_process]:
+        print(f"Alustati ruuduga {yhikruut}, {len(overlapping[yhikruut])} hoonet.")
         if yhikruut[1] // 10 != eelmine_veerg and changes != 0:
             # Lihtne muudatus, millega piiratakse muudatuskogumi laius 10 km-le.
             changes = MAX_CHANGESET_EDITS + 1
@@ -211,6 +213,7 @@ try:
             if len(overlapping[yhikruut][way]) > 1:
                 tulemus = ('FAIL', 'Valik mitme hoone vahel', way)
                 node_stats = None
+                # continue
             elif len(overlapping[yhikruut][way]) == 1:
                 muudatusi, resu = util.update_geometry(sf, way, list(overlapping[yhikruut][way])[0][3], changes)
                 changes += muudatusi
@@ -231,7 +234,7 @@ try:
                     tulemus = resu[:3]
                     node_stats = list(map(str, resu[3]))
                 else:
-                    print(resu)
+                    # print(resu)
                     tulemus = ('FAIL', resu, way)
                     node_stats = None
             else:
@@ -256,6 +259,8 @@ else:
     for fail in tulemus[1][1]:
         print(fail[0], fail[1], tulemus[2], (fail[2] if len(fail) > 2 else ''), sep='\t', file=output_log)
 output_log.close()
+sf.close()
 node_stats_log.close()
-util.edit_end()
+util.edit_end(nodelay=True)
 inf.close()
+print("Lõpetamine. Üleslaadimine:", util.bench())

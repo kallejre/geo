@@ -346,18 +346,23 @@ def basic_dist(coor1, coor2):
     return (x2 - x1) ** 2 + (y2 * Lng_Err_correction - y1 * Lng_Err_correction) ** 2
 
 
-def edit_start(com=u'Hoone kuju uuendamine', source='Maa-amet 2021'):
+def edit_start(com=u'Maa-amet building geometry import #MA-geom-21-05', source='Maa-amet 2021'):
     global chs_open
     if not chs_open:
-        changes = OsmApi.ChangesetCreate({u"comment": com, u"source": source})
+        changes = OsmApi.ChangesetCreate({u"comment": com, u"source": source, u"import": u"yes"})
         chs_open = True
 
 
-def edit_end():
+def edit_end(nodelay=False):
     global chs_open
     if chs_open:
         chs_open = False
         OsmApi.ChangesetClose()
+        # Wait until end of current minute
+        if not nodelay:
+            delay = round(max(5,58-time.time() % 60),1)
+            print("Changeset closure delay", delay)
+            time.sleep(delay)
 
 
 def update_geometry(sf, osm_id, shp_id, changes=0):
@@ -368,6 +373,7 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
     osm2shp_node = dict()
     kasutatud_shp = set()
     fails = set()
+    now = datetime.datetime.now()
     # Eesmärk leida hooned, mis jagavad külge mõne teisega.
     # Idee oli teha päring avalikku overpassi serverisse et leida naaberhooneid, aga see oli liiga aeglane.
     # Uus lähenemine on allpool, mis kasutab OsmApi.NodeWays funktsiooni.
@@ -387,6 +393,8 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
             if len(ways_through_node) != 1:
                 fails.add(
                     ('FAIL', 'Hoone sõlm on jagatud teise hoonega.', tuple(map(lambda x: x['id'], ways_through_node))))
+        if (now - i['data']['timestamp']).days < 1:
+            fails.add(('FAIL', 'Hiljuti muudetud element.', i['data']['id']))
     if len(waydi) - 1 > len(geom):
         fails.add(('FAIL', 'OSMis olev hoonekuju on detailsem kui Maa-ameti kontuur.'))
     if fails: return 0, ('FAIL', fails)
@@ -447,10 +455,14 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
         # CityIdx on samuti kahtlane Verbatiumi ajastu silt, ~46 kasutust Väike-Õismäel.
         del tags['CityIdx']
         tags['addr:city'] = 'Tallinn'
+    # Eemalda nimi, kui see dubleerib aadressi
     if 'name' in tags and tags['name']:
         if 'addr:housenumber' in tags and tags['addr:housenumber']:
             if tags['name'] == tags['addr:housenumber']:
-                pass
+                del tags['name']
+        elif 'addr:housename' in tags and tags['addr:housename']:
+            if tags['name'] == tags['addr:housename']:
+                del tags['name']
     # tags['source:geometry']='Maa-amet'  # Allika silt peaks minema muudatuskogumile
     # print({'id': osm_id, 'nd': osm_node_list,'version': way2['version'], 'tag': tags})
     OsmApi.WayUpdate({'id': osm_id, 'nd': osm_node_list, 'version': way2['version'], 'tag': tags})
@@ -460,6 +472,7 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
     # Täiendav logi selle kohta, kuidas on sõlmede arv muutunud.
     node_stats = list(
         map(str, [osm_id, len(osm_node_list) - 1, news, round(news / (len(osm_node_list) - 1 - news), 2)]))
+    time.sleep(building_edit_delay)
     if not fails:
         # +1 muudetud_sõlmede taga tähistab hoonet ennast (way)
         return muudetud_sõlmi + 1, ('SUCCESS', 'Hoone uuendatud.', osm_id, node_stats)
