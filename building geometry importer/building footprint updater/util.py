@@ -360,7 +360,7 @@ def edit_end(nodelay=False):
         OsmApi.ChangesetClose()
         # Wait until end of current minute
         if not nodelay:
-            delay = round(max(5,58-time.time() % 60),1)
+            delay = 59  # round(max(5,58-time.time() % 60),1)
             print("Changeset closure delay", delay)
             time.sleep(delay)
 
