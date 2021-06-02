@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Seadistus
-
+import datetime
 # Mitme aasta vanuseid sõlmi otsitakse
 aastaid = 10
 # Indekseerimise ruudustiku suurus meetrites
@@ -27,12 +27,15 @@ overpass_dir = cache_dir + '/overpass-cache'
 # Muudatuskogumi maksimaalne suurus
 MAX_CHANGESET_EDITS = 10000
 # Overpassi server
-Overpass_URL = 'https://overpass.kumi.systems/api/interpreter'
+Overpass_URL = 'https://overpass-api.de/api/interpreter'
 # OSM API kasutajanimi-parool
 auth = {'user': 'testAdmin',
         'pwd': 'Passw0rd',  # Passw0rd  password
         'api_url': 'http://192.168.136.132:4443'}
 
+dev_auth = {'user': 'testAdmin',
+         'pwd': 'Passw0rd',  # Passw0rd  password
+         'api_url': 'http://192.168.136.131:4443'}
 shp_fname = "ETAK/E_401_hoone_ka.shp"
 shp_encoding = 'iso-8859-1'
 
@@ -74,3 +77,5 @@ min_overlap_threshold = 15
 # Lõplik tulemus sellest ei muutu
 exclude_shared_nodes = False
 building_edit_delay = 0.4
+strt_time = str(datetime.datetime.today())[:16].replace(' ', '-').replace(':', '-')
+debug_log_fname = cache_dir + f"/debug_log_{strt_time}.txt"

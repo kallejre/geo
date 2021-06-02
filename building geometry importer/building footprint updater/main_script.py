@@ -199,6 +199,7 @@ inf.reset(1, '', building_count - tehtud_hooneid, True)
 inf.reset(2, '1. muudatuskogumi täituvus', MAX_CHANGESET_EDITS, True)
 eelmine_veerg = ruudud[eelmine_kord][1] // 10
 cset_counter = 1
+# input("000")
 try:
     i = 0  # i loendab kõiki töödeldud hooneid
     for yhikruut in ruudud[eelmine_kord:max_squares_to_process]:
@@ -263,4 +264,5 @@ sf.close()
 node_stats_log.close()
 util.edit_end(nodelay=True)
 inf.close()
+print(f'Lõpetamine {i}. hoone juures, ({ruudud.index(yhikruut)}. ühikruut {yhikruut})')
 print("Lõpetamine. Üleslaadimine:", util.bench())

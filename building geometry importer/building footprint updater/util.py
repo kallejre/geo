@@ -11,6 +11,8 @@ chs_open=False
 # Konstant, mida kasutatakse kauguste arvutamisel
 Lng_Err_correction = None
 OsmApi=osmapi.OsmApi(auth['user'],auth['pwd'], api=auth['api_url'])
+# Dev-api is local instance meant for resource-intesive reading tasks
+DevOsmApi=osmapi.OsmApi(dev_auth['user'],dev_auth['pwd'], api=dev_auth['api_url'])
 # OverApi = overpy.Overpass()
 
 last = time.time()
@@ -280,7 +282,7 @@ def lest_geo(y, x):
     LAT = (u + 0.0033565514853524606 * math.sin(2.0 * u) + (6.5718727752991235e-06) * math.sin(4.0 * u) +
            (1.7645643646802425e-08) * math.sin(6.0 * u) + (5.328478549061744e-11) * math.sin(
                 8.0 * u)) * 57.2957795130823
-    return (round(LAT, 6), round(LON, 6))
+    return (round(LAT, 7), round(LON, 7))
 
 
 def geo_lest(north, east):
@@ -374,6 +376,9 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
     kasutatud_shp = set()
     fails = set()
     now = datetime.datetime.now()
+    
+    debug_log = None  # open(debug_log_fname, 'a')
+    print("Updating way", osm_id, file=debug_log)
     # Eesmärk leida hooned, mis jagavad külge mõne teisega.
     # Idee oli teha päring avalikku overpassi serverisse et leida naaberhooneid, aga see oli liiga aeglane.
     # Uus lähenemine on allpool, mis kasutab OsmApi.NodeWays funktsiooni.
@@ -383,21 +388,29 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
     if len(geom) + 1 + changes >= MAX_CHANGESET_EDITS:
         return len(geom) + 1, ('LIMIT', 'Muudatuste arv ületaks muudatuskogumi limiiidi.')
     # OsmApist päringu tegemine on aeglasem, aga vajalik, sest sealt saab kohaliku versiooninumbri.
+    # time.sleep(building_edit_delay)
     waydi = OsmApi.WayFull(osm_id)  # Way koos kõigi sõlmedega
+    print("Queried way", osm_id, file=debug_log)
     for i in waydi:
         if i['type'] == 'node':
             if i['data']['tag']:
                 fails.add(('FAIL', 'Sõlmel on atribuudid.', i['data']['id']))
+            print("Get ways through node", i['data']['id'])
             # Algul prooviti sõlmede kontrollimist overpassiga, aga see tekitas probleeme liiga tihedate päringutega.
-            ways_through_node = OsmApi.NodeWays(i['data']['id'])
-            if len(ways_through_node) != 1:
-                fails.add(
-                    ('FAIL', 'Hoone sõlm on jagatud teise hoonega.', tuple(map(lambda x: x['id'], ways_through_node))))
+            try:
+                ways_through_node = DevOsmApi.NodeWays(i['data']['id'])
+                if len(ways_through_node) != 1:
+                    fails.add(
+                        ('FAIL', 'Hoone sõlm on jagatud teise hoonega.', tuple(map(lambda x: x['id'], ways_through_node))))
+            except Exception as err:
+                print("Node", i['data']['id'], "doesn't exist on dev server.")
+                fails.add(('FAIL', 'Sõlme ei ole kohalikus APIs.', i['data']['id']))
         if (now - i['data']['timestamp']).days < 1:
             fails.add(('FAIL', 'Hiljuti muudetud element.', i['data']['id']))
     if len(waydi) - 1 > len(geom):
         fails.add(('FAIL', 'OSMis olev hoonekuju on detailsem kui Maa-ameti kontuur.'))
     if fails: return 0, ('FAIL', fails)
+    print("No fails on way", osm_id, file=debug_log)
     way2 = None
     for i in waydi:
         if i['type'] == 'node':
@@ -415,6 +428,7 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
     osm_node_list = []
     news = 0
     muudetud_sõlmi = 0
+    print("Uploading nodes to way", osm_id, file=debug_log)
     for i in geom:
         try:
             if i in osm2shp_node:
@@ -426,14 +440,16 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
                 osm_node_list.append(osm2shp_node[i][0])  # Sõlme ID listakse joonele.
             else:
                 news += 1
-                # print('New')
+                print(f"Adding new node {i} to way {osm_id}", file=debug_log)
                 nod = OsmApi.NodeCreate({'lat': i[0], 'lon': i[1], 'tag': {}})
                 osm_node_list.append(nod['id'])
                 muudetud_sõlmi += 1
         except osmapi.OsmApiError as error:
             # Paaril korral tekkis segane olukord, kus sõlme ei olnud võimalik uuendada, sest versioonid ei klappinud.
+            print('OsmApiError ln 444', error, file=debug_log)
             fails.add(('FAIL', error))
     # Kuna hoonekuju on suletud murdjoon, peab selle esimene ja viimane sõlm olema sama.
+    print("Processing tags on way", osm_id, file=debug_log)
     osm_node_list.append(osm_node_list[0])
     # Siltide uuendamine
     tags = way2['tag']
@@ -467,12 +483,12 @@ def update_geometry(sf, osm_id, shp_id, changes=0):
     # print({'id': osm_id, 'nd': osm_node_list,'version': way2['version'], 'tag': tags})
     OsmApi.WayUpdate({'id': osm_id, 'nd': osm_node_list, 'version': way2['version'], 'tag': tags})
     # print('Joon',osm_id,'-',len(osm_node_list)-1, 'sõlme,',news,'uut.')
-
+    print("Completed uploading way", osm_id, file=debug_log)
+    # debug_log.close()
     # print(osm_id, len(osm_node_list)-1,news,round(news/(len(osm_node_list)-1-news),2), sep='\t')
     # Täiendav logi selle kohta, kuidas on sõlmede arv muutunud.
     node_stats = list(
         map(str, [osm_id, len(osm_node_list) - 1, news, round(news / (len(osm_node_list) - 1 - news), 2)]))
-    time.sleep(building_edit_delay)
     if not fails:
         # +1 muudetud_sõlmede taga tähistab hoonet ennast (way)
         return muudetud_sõlmi + 1, ('SUCCESS', 'Hoone uuendatud.', osm_id, node_stats)
