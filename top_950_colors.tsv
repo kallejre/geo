@@ -1,0 +1,984 @@
+# encoding: utf8
+Keys scanned:  (Analysed Top 12500 values of each of 30 keys)
+roof:colour
+building:colour
+colour
+colour:back
+colour:text
+colour:arrow
+light:colour
+seamark:buoy_lateral:colour
+seamark:light:colour
+seamark:topmark:colour
+ref:colour
+ref:colour_tx
+seamark:beacon_lateral:colour
+building:facade:colour
+ref:colour_bg
+building:roof:colour
+destination:colour
+seamark:light:1:colour
+surface:colour
+seamark:buoy_special_purpose:colour
+seamark:buoy_cardinal:colour
+seamark:buoy_cardinal:colour_pattern
+seamark:beacon_special_purpose:colour
+bonnet:colour
+seamark:light:2:colour
+colour:bonnet
+cap:colour
+seamark:retro_reflector:colour
+buoy:colour
+colour:cap
+
+
+Key	Total
+horizontal	7906
+aluminum	503
+natural	454
+wood	271
+brick	252
+anthrazit	239
+3000K	225
+glass	204
+2700K	158
+anthracite	152
+copper	144
+lilac	143
+metal	116
+zinc	106
+transparent	105
+bronze	90
+warmwhite	85
+whitethickness	75
+peach	69
+beige clair	66
+maron	65
+negro	63
+Vermelho	61
+Szürke	60
+stainless steel	59
+rust	58
+terracotta	51
+3200K	50
+colour:black	50
+white with red pointer	49
+czerwony	47
+natur	47
+RAL 7035 with anti-reflection coating	45
+colour:yellow	43
+beigey	41
+brun	41
+Czerwony	40
+czarno-czerwony	38
+blanche	36
+lemon	36
+vermelho	36
+mocassin	35
+rainbow	35
+midgrey	33
+r	33
+charcoal	32
+Amarelo - Vermelho	31
+yes	31
+Zaans groen	31
+plaster	30
+w	28
+burgundy	27
+concrete	27
+nature	27
+wooden	27
+Reddish brown	26
+creme	25
+greyPor lo general, va en bicicleta al trabajo.	25
+no	25
+blanchedalmon	24
+Pocrovca	24
+ref	24
+dark	23
+Light Wood	23
+sandstone	22
+silber	22
+vert foncé	22
+2800K	21
+Brun	21
+pale_grey	20
+red, white	20
+sienna3	20
+slate	20
+白	20
+jaune	19
+lower half white	19
+multi	19
+Schwarz	19
+violett	19
+lightgeen	18
+Marrone	18
+biege	17
+brun foncé	17
+red and white	17
+undefined	17
+vanilla	17
+Amarillo	16
+bare metal	16
+brickred	16
+brązowy	16
+ciment	16
+ginger	16
+Rosso	16
+#{0.value}	15
+Dekel Schwarz	15
+gr	15
+grise	15
+mahogany	15
+Noir	15
+red_carmine	15
+Verde	15
+whight	15
+2600K	14
+army green	14
+branco	14
+brightblue	14
+brown,gray	14
+lightgey	14
+mustard	14
+burnished metal	13
+Cinzento	13
+firered	13
+tiles	13
+unknown	13
+upper half red	13
+azul	12
+Bing	12
+brack	12
+brouwn	12
+brownBURGANDY	12
+Brązowy	12
+cinza	12
+Gelb	12
+Golden	12
+rosso	12
+steel	12
+vinous	12
+חום	12
+bois	11
+Bruin	11
+Cinza	11
+clear	11
+flat	11
+Jaune	11
+lighgrey	11
+Piros-fehér	11
+Vörös	11
+yellow,black	11
+2900K	10
+Black1012765673-preview.mp4	10
+blue, white	10
+castanho	10
+grey, red	10
+greyAlexis Texas Boxing POV	10
+hnědá	10
+mint	10
+purplish_red	10
+res	10
+stone	10
+Vert foncé	10
+Weiß	10
+brown, gray	9
+bruin	9
+g	9
+gey	9
+grass	9
+grigio	9
+light_grayrr	9
+mustard yellow	9
+red/ blue	9
+Rouge et blanc	9
+transparant	9
+White and Yellow	9
+yellow,red	9
+4000K (colour temperature)	8
+beige, red	8
+brightred	8
+brown and grey	8
+bunt	8
+buttermilk	8
+golden	8
+gre	8
+grey, black	8
+grown	8
+mansard	8
+Maron	8
+multicolour	8
+ochra	8
+red, silver	8
+redVia_della_Tenuta,_37,_51039_Quarrata_PT	8
+Rood/Wit	8
+yelow	8
+zink	8
+barun	7
+Blau	7
+bright_green	7
+brown, green	7
+gray,red	7
+grey, brown	7
+lower half green	7
+Maple	7
+ochre	7
+PeachPuff1	7
+re	7
+red - white	7
+red with white dot	7
+red,black	7
+Rojo	7
+upper half yellow	7
+weiss	7
+yellowish	7
+разноцветный	7
+0x404040	6
+4000K	6
+48к6	6
+antrazit	6
+bage	6
+black, white and red	6
+bordeaux	6
+browm	6
+czerowny	6
+dg	6
+Green and White	6
+greyhttps://www.openstreetmap.org/#map=18/3.15976/101.67239	6
+gris	6
+lack	6
+Natur	6
+Natural	6
+pieds mauves	6
+red carmine	6
+red, beige	6
+Reddish Brown	6
+rojo	6
+roof:colour	6
+upper half green	6
+verte	6
+white, red	6
+wine	6
+y	6
+yellow, red	6
+Zaans green	6
+#453С3E	5
+acqua	5
+Amarelo	5
+amber	5
+asphalt	5
+Azul	5
+black, yellow	5
+blacl	5
+blanco	5
+blue and brown	5
+bown	5
+Branco	5
+Brick_red	5
+brightgreen	5
+brightpink	5
+brown, grey	5
+chrome	5
+cinzento	5
+couleur	5
+Dekel Braun	5
+g#835F52	5
+gabled	5
+geen	5
+gery	5
+green and white	5
+green, white	5
+kaki	5
+lower half yellow	5
+mixed	5
+n/a	5
+Natúr	5
+Negro	5
+nero	5
+ocher	5
+off white	5
+oliv	5
+Piros	5
+Preto	5
+red, grey	5
+rot, silber	5
+rusty	5
+Silber	5
+silver, wood	5
+Svart	5
+Szary	5
+upper half blue	5
+white and blue	5
+white,orange	5
+yellow over blue	5
+yellow::yellow_diamond	5
+zinq	5
+灰色	5
+黄色	5
+5000K (colour temperature)	4
+all	4
+back	4
+black, white	4
+blak	4
+Blu	4
+blue with white dot	4
+Castanho	4
+chartreuse3	4
+darckgray	4
+ga	4
+granite brut	4
+Green, White	4
+Green, white	4
+Grey and brown	4
+grey+34954337504+34954337504	4
+hellbraun	4
+LightSkyBlue4	4
+limon	4
+mix	4
+oker	4
+red, cream	4
+red,yellow	4
+redlight	4
+rosewood	4
+ROSSO	4
+translucent	4
+Trä	4
+Verte	4
+whi	4
+white and red	4
+Wooden	4
+Zaans_green	4
+Бирюзовый	4
+красный	4
+℣	4
+ｖ	4
+#fdfgfe	3
+across	3
+Ash	3
+AWP	3
+baun	3
+black metal and brown wood	3
+blueish	3
+Bois	3
+Brick	3
+brick_color	3
+brick_red	3
+Bronze	3
+browbn	3
+browen	3
+Brown and White	3
+brown, blue	3
+brown, white	3
+brown1	3
+brownHankovszky Zsigmond liget	3
+brownish	3
+brwon	3
+building:colour	3
+colour=#009933	3
+colourful	3
+Cream and White	3
+Czerowny	3
+darkbr	3
+darkgey	3
+ebrown	3
+fire	3
+firebick	3
+fresco	3
+gelb	3
+giallo	3
+Grau Glimmer	3
+gree	3
+Green & Red	3
+Green - White	3
+greenEste processo encontra-se registado pelo GARF com a referência SMM-64.	3
+grey+red	3
+grey,	3
+greyrey	3
+Gris-bois	3
+gry	3
+Grön	3
+hnedá	3
+inox	3
+lemongreen	3
+marone	3
+marrone	3
+marroon	3
+mid-grey	3
+milk	3
+Moon Mural	3
+naranja	3
+niebieski	3
+null	3
+olieve	3
+orange, green	3
+other	3
+Peach	3
+PEACH_COLOR	3
+petrol	3
+pink, white	3
+purplewhite-red	3
+rec	3
+red white stripes	3
+red/ white/ blue	3
+redish_brown	3
+redГорная улица	3
+Rot / Weiss	3
+Ruby	3
+Sichtbeton	3
+sliver	3
+smokewhite	3
+tal	3
+Tan - Orange	3
+Unpainted	3
+various	3
+viloet	3
+voice	3
+wall nut	3
+while	3
+white, brown	3
+white, grey	3
+whitebrown	3
+whites	3
+whitesnow	3
+Wit	3
+yellow / red	3
+Yellow and White	3
+Zinnoberrot	3
+Γκρί	3
+Красный	3
+♯6D7F6B	3
+＃244046	3
+ｇ	3
+#сссссс	2
+'	2
+*	2
+3900K	2
+6000K	2
+`blue	2
+Anthracite	2
+apricot	2
+arancio	2
+ashes	2
+Ashes	2
+asparagus	2
+autunite yellow	2
+Barna	2
+bla	2
+black and white	2
+Black, Green White	2
+Black/Rust	2
+blackG	2
+blackish	2
+blanc	2
+Blanche	2
+blk	2
+blue and white	2
+Blue Blazed Trail	2
+blue:orange	2
+BR	2
+brick red	2
+browh	2
+Brown and Grey	2
+brown, green, yellow	2
+brown, red	2
+browne	2
+Brun foncé	2
+Brąz	2
+buff	2
+burgandy	2
+chestnut	2
+Concrete	2
+Czarno brązowy	2
+czarny	2
+darkgreyarkgreyarkgreyarkgrey	2
+destination:colour	2
+dunkelbraun	2
+Eisenglimmer	2
+fekete	2
+Giallo	2
+Granite brut	2
+Gray50	2
+greay	2
+greeen	2
+green & blue	2
+green RAL 6012	2
+green, tan	2
+greensurface=cobblestone	2
+grey,yellow	2
+GRIGIO	2
+Gris foncé	2
+Grise	2
+Groen gelakt	2
+Grün, Braun, Weiß	2
+Grünes Eck	2
+Holz	2
+Kék	2
+kék	2
+light grey and red	2
+light grey, dark grey	2
+lightgrtey	2
+limestone	2
+LR-123	2
+marron clair	2
+mauve	2
+modrá	2
+multicolored	2
+multiple	2
+natural wood	2
+NOIR	2
+Noire	2
+ocynk	2
+old	2
+orange / black	2
+orange, yellow	2
+Oranje	2
+oranžová	2
+peach and white	2
+Piedra	2
+Raven	2
+raw	2
+read	2
+red / white	2
+red and yellow	2
+red with blue dot	2
+Red, White and Blue	2
+red-wihite striped	2
+red.white	2
+red:yellow	2
+redyellow	2
+residential	2
+rojo y blanco	2
+Rood	2
+rood wit	2
+Rood-Wit	2
+Rood/wit	2
+Rot-Silber	2
+rot-weiss-rot	2
+Rot/Weiß	2
+rouge vif	2
+rred	2
+Rust	2
+Rød	2
+sandy	2
+seashell4	2
+See photo	2
+silbern	2
+snow1	2
+Sárga-fekete	2
+ted	2
+text	2
+tu	2
+Turkoosi	2
+türkis	2
+upper half white, lower half green	2
+verde, azul	2
+Verdâtre	2
+Vermelha	2
+vertical	2
+verzinnt	2
+Weiß/Orange	2
+whhite	2
+white and brown	2
+White and Green	2
+white stone	2
+White with red cap	2
+white,black	2
+white,red	2
+white,sand	2
+white-puple	2
+whitegrey	2
+whiteguard_rail	2
+Wood	2
+yello	2
+yelloow-red	2
+yellow and blue	2
+yellow with black dot	2
+yellow with blue dot	2
+yellow with red pointer	2
+yeloow	2
+zebra	2
+zielono-zółty	2
+zwart, grijs	2
+červená	2
+Зелений	2
+коричневый	2
+разноцветная	2
+синий	2
+銀	2
+＃001D22	2
+#	1
+#4455СС	1
+#65,105,225	1
+#FJ931D	1
+0range	1
+2BLfxNCbsdfG1b7sGq3DEA	1
+3400K	1
+Acier	1
+Amber	1
+Anthrazit	1
+Antrazit	1
+AZUL	1
+Azul marino	1
+Azul, Blanco, Negro	1
+Back	1
+balck	1
+Banrural	1
+barier	1
+Baun	1
+beech	1
+beim A-Mast	1
+Beyaz-Yeşil	1
+Bike Share Toronto	1
+bkue	1
+bl	1
+Black (heavily rusted)	1
+black and gold	1
+black metal, brown wood	1
+Black White, Green	1
+black, blue	1
+Black,Green, White	1
+black,red	1
+black:yellow:white	1
+blacke	1
+BLANC	1
+bleu	1
+blie	1
+blkuie	1
+blue & brown	1
+Blue & Red	1
+Blue & White	1
+Blue & Yellow	1
+blue + red	1
+blue and red	1
+blue, brown	1
+blue, red, grey	1
+blue, yellow	1
+blue:yellow	1
+blur	1
+blå	1
+bo	1
+bordó	1
+Borla	1
+br	1
+Braun / Schwarz	1
+Brauner Dekel	1
+bright_grey	1
+bron	1
+bronw	1
+brow	1
+brown (patched on white sign)	1
+brown with metal between seats	1
+Brown with white letering	1
+brown+	1
+brown, black	1
+brown, yellow, green	1
+brown,tan	1
+Brown/dark green	1
+brown_normal	1
+brownish red	1
+brownk	1
+brownn	1
+browny	1
+Brun clair	1
+brwn	1
+bue	1
+buk	1
+bund	1
+burg	1
+Café - Rosa	1
+Chipped black paint on white	1
+Chiusino in Ghisa	1
+ciel	1
+Cimento	1
+clack	1
+Claret	1
+colour	1
+contact@tourisme-picsaintloup.fr	1
+corall	1
+covered_parking	1
+Cream & Green	1
+Cream & Grey	1
+CZEROWNY	1
+czerwomy	1
+dark_blue RAL 5011	1
+Dekel Hellbraun	1
+derei	1
+destination	1
+Diófa Alapkezelő Zrt.	1
+DodgerBlue4	1
+dunkelgrau	1
+Dwa poziome żółte pasy po 10 cm w odstępie 10 cm	1
+eik	1
+Einsatzrampe für Feuerwehr, Wasserwehr und Katastrophenschutz, freihalten	1
+emerald	1
+Erindale Road	1
+ex:Red	1
+fawn	1
+Fehér	1
+Fl. G. 4s	1
+flag	1
+fluogreen	1
+fuscia	1
+galben albastru	1
+Geel	1
+Girs clair	1
+Graffiti	1
+graffiti	1
+Grau mit Roter Kappe	1
+gray and green	1
+Gray_Summer	1
+Grayish white	1
+greab	1
+greek	1
+green (patched on white sign)	1
+green + red	1
+green - blue - red	1
+Green -White	1
+Green / Black	1
+green poop	1
+green, yellow	1
+green,red	1
+greenish	1
+greenred	1
+grenn	1
+Grey & White	1
+Grey with red top	1
+grey, yellow	1
+grey,black	1
+greys	1
+GRIS	1
+gris/blanc	1
+Groen	1
+grren	1
+Grå	1
+grön	1
+Grün	1
+Gtey	1
+Gul	1
+harbour	1
+harmaa	1
+hazel	1
+helbraun	1
+hite	1
+hneda	1
+industrial	1
+inlaid	1
+Inox	1
+invisible	1
+Ivan Theimer	1
+Ivoir Claire	1
+jasny brąz	1
+JAUNE	1
+jaune ?	1
+Jaune ou blanche ?	1
+kafena	1
+khahi	1
+lead	1
+Legno	1
+LGTBI	1
+Light wood	1
+Lilac	1
+lower half red	1
+lower part red	1
+LR-283	1
+LR-286	1
+magneta	1
+Marroia	1
+Marron foncé	1
+Marrón	1
+material	1
+metalic	1
+metallic colors	1
+mid blue	1
+middle part white	1
+Modrá	1
+Multi-colour	1
+musk	1
+mutiple	1
+n	1
+N/A	1
+n6	1
+name	1
+Naturalny	1
+neonorange	1
+Niebieski	1
+No. 37	1
+None	1
+none:none	1
+oak	1
+oak/stone	1
+oblue	1
+orang	1
+orang'	1
+Orange & blue	1
+orange and white	1
+oranje	1
+pale yellow	1
+pbrown	1
+Peach & White	1
+pink,brown	1
+piros	1
+platinum	1
+puce	1
+range	1
+rd	1
+rd/white	1
+rde	1
+Rector	1
+red & blue	1
+Red & white	1
+red / stainless_steel	1
+Red / White	1
+red /white	1
+red _ white	1
+red bar on white ground	1
+red with white circle	1
+red, black	1
+red, green, white	1
+Red,Blue,Yellow	1
+red,green	1
+red-whit'	1
+red/blue striped	1
+red/whithe	1
+red:white:red	1
+red`	1
+redgg	1
+redpizzo	1
+red‹	1
+rerd	1
+ret	1
+rey	1
+rjava	1
+Rode pijl	1
+Rojo y blanco	1
+Rood -Wit	1
+rood boven, blauw onder	1
+rood-wit	1
+roof	1
+rot weiss rot	1
+rot/silber	1
+rougr	1
+Rouille	1
+Rpige	1
+Röd	1
+rød	1
+s	1
+schwartz	1
+Silber/ Rote Abgänge	1
+silver and blue	1
+silver'red	1
+silvery-white	1
+Siva	1
+smkewhite	1
+so ein melancholisches grün	1
+SO-630	1
+Stainless, blank	1
+stainless_steel	1
+Szart, czerwony dach	1
+szary	1
+sárga	1
+t	1
+tagged white	1
+tan/light brown	1
+tans	1
+The Zone	1
+this K6 booth is red in colour.	1
+tmavo modrá	1
+to	1
+tr	1
+trä	1
+træ	1
+turquesa	1
+uge	1
+upper half black	1
+upper half blue, lower half red	1
+upper half green, lower half red	1
+upper half red, lower half white	1
+upper half red, lower half yellow	1
+upper half yellow, lower half green	1
+upper half yellow, lower half red	1
+upper half yellow, lower half white	1
+upper part green	1
+Vemelho	1
+verde cemento	1
+Vermelho / Branco	1
+vermello	1
+VERT	1
+Vert Foncé	1
+vert foncée	1
+Verte et Rouge	1
+verte foncé	1
+verte foncée	1
+vertes	1
+viola	1
+violet with yellow dot	1
+violet, green	1
+water	1
+way 696065634	1
+weiss-rot	1
+whiote-red	1
+White & Grey	1
+white & red	1
+white - yellow	1
+white and black	1
+White plaster	1
+white wit red pointer	1
+white with green dot	1
+white with green X	1
+white with red triangle	1
+white with red X	1
+white,green	1
+white-pueple	1
+white2	1
+whitsmoke	1
+whitte	1
+whitte-purple	1
+who	1
+Wood Brown	1
+Wood Oak	1
+wood,steel	1
+wood:aged	1
+wooden/red	1
+ww	1
+XXX	1
+ye	1
+ye\	1
+yekkow	1
+yelkow	1
+yelloow	1
+yellow and green	1
+yellow dot	1
+yellow with green dot	1
+Yellow, black and yellow	1
+yellow, white	1
+yellow,blue	1
+yellow-with-blue-cross	1
+yellow:none	1
+yellow:yellow:yellow:58:black	1
+yellow:yellow:yellow:80:black	1
+yellow:yellow:yellow:81:black	1
+yellow_s	1
+Yes	1
+yy	1
+zielony	1
+zinc-grey	1
+καφε	1
+Κόκκινο	1
+πράσινο	1
+білий (white)	1
+исправен	1
+коричневий (brown)	1
+Коричневый	1
+оранжевый, синий	1
+розовый	1
+Серый	1
+сірий	1
+Червоний	1
+червоний	1
+רר	1
+قرمز	1
+灰	1
+紫	1
+黒	1

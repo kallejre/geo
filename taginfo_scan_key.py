@@ -3,6 +3,7 @@
 import urllib.request
 import urllib.parse
 import json
+import re
 
 
 # Just key without lanes/forward/backward suffixes
@@ -10,7 +11,7 @@ key = 'destination:symbol'
 # Option whether  same value repeated across lanes...
 # is counted just once (False) or multiple times (True)
 sum_lanes = False
-top_pages = 100
+top_pages = 500
 per_page = 25
 # If filename is None, result is printed to stdout (python console)
 output_filename = None
@@ -70,9 +71,16 @@ def run_queries():
     a2=scan(key+':lanes:backward')
     merged={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
     return merged
+
+def many_keys(keys):
+    a2=dict()
+    for key in keys:
+        a1=scan(key)
+        a2={k: a1.get(k, 0) + a2.get(k, 0) for k in set(a1) | set(a2)}
+    return a2
 # """
-merged=run_queries()
-sorted_values=sorted(merged, key=lambda x: merged[x], reverse=True)
+#merged=run_queries()
+#sorted_values=sorted(merged, key=lambda x: merged[x], reverse=True)
 """
 if output_filename:
     file=open(output_filename, 'w', encoding='utf8')
@@ -87,8 +95,7 @@ if output_filename:
 def get_page(title='Key:'+key):    
     # Get current page
     # While this is json, there's no point in parsing it.
-    url='https://wiki.openstreetmap.org/w/api.php?action=query&prop=revisions&titles={{title}}&rvslots=*&rvprop=content&formatversion=1&format=json'
-    url=url.replace('{{title}}', title)
+    url=f'https://wiki.openstreetmap.org/w/api.php?action=query&prop=revisions&titles={title}&rvslots=*&rvprop=content&formatversion=1&format=json'
     webURL = urllib.request.urlopen(url)
     data = webURL.read().decode()
     import re
@@ -98,6 +105,15 @@ def get_page(title='Key:'+key):
     match_set=set()
     for i in matches: match_set.add(i.group(1))
     return match_set
+def get_keys_list(search_term):
+    # https://taginfo.openstreetmap.org/api/4/keys/all?query=colo&sortname=count_all&sortorder=desc&page=1&rp=30&format=json
+    url=f'https://taginfo.openstreetmap.org/api/4/keys/all?query={search_term}&sortname=count_all&sortorder=desc&page=1&rp=30&format=json'
+    webURL = urllib.request.urlopen(url)
+    data = webURL.read()
+    encoding = webURL.info().get_content_charset('utf-8')
+    result = json.loads(data.decode(encoding))['data']  # List
+    return list(map(lambda x:x["key"], result))
+    
 # Output can be copied from console and pasted to spreadsheet.
 def wikitable():
     # Wikitable generator
@@ -107,7 +123,7 @@ def wikitable():
     exact_match = get_page()
     close_match=';'.join(exact_match).lower()
     # Non-semantic assessment of tag similarity.
-    for i in range(rows*cols):
+    for i in range(min([rows*cols, len(sorted_values)])):
         value=sorted_values[i]
         count=merged[value]
         if value in exact_match: t='yes'
@@ -125,4 +141,24 @@ def wikitable():
             line.append(f'| {{{{{col[2]}|{col[0]}}}}} || {{{{{col[2]}|{col[1]}}}}} ')
         print('|'.join(line))
     print('|}')
-wikitable()
+# wikitable()
+#hmm = many_keys('roof:colour building:colour colour colour:back'\
+#                'colour:text colour:arrow light:colour surface:colour'.split())
+keys = get_keys_list("colo")
+hmm = many_keys(keys)
+hmm_sorted=sorted(hmm, key=lambda x: hmm[x], reverse=True)
+
+##for key in keys:
+##    for val in []:
+##        if val not in "blue":
+##            print(f'nwr["{key}"~"{val}"];')
+import colors
+missing = list(filter(lambda x: not colors.try_parse_colour(x), hmm_sorted))
+for i in range(0,len(missing),6):
+    for f in range(i,min([i+6, len(missing)-1])):
+        print(missing[f], end='\t')
+    print()
+
+#for key in keys:
+#	for val in ['schwarz', 'noir']:
+#		print(f'nwr["{key}"="{val}"]({{{{bbox}}}});')
