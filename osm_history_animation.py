@@ -24,11 +24,27 @@ def to_base_4(n):
     return "0"*(4-len(s))+s
 
 
-ts=[]
-for y in range(7,22):
-    for m in range(1,13, 1):
-        ts.append("20%02d-%02d-01T00:00:00Z" % (y,m))
-
+def gen_dates():
+    start_date = datetime.datetime(2007, 1, 1)
+    end_date = datetime.datetime.now()
+    # Examples from https://stackoverflow.com/questions/35066588
+    # step = relativedelta(weeks=1)  # Next week
+    # step = relativedelta(months=+1, day=1, weekday=MO(1))  # First monday of next month
+    step = relativedelta(months=+1, day=1)  # 1st of next month
+    # Hourly or even minutely changes are supported as well.
+    c=0
+    output = [start_date]
+    while output[-1] <end_date:
+        c+=1
+        # We are using multiplication, not regular increments due to 28 days of february.
+        # Example 01-29 > 02-28 > 03-29 vs 01-29 > 02-28 > 03-28.
+        output.append(start_date + step * c)
+        print(c, output[-1])
+    output.pop(-1)
+    return list(map(lambda x: x.strftime('%Y-%m-%dT%H:%M:%SZ'), output))
+    
+    
+ts=gen_dates()
 os.system("createdb")
 c = 0
 try:
