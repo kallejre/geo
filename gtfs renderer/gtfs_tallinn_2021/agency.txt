@@ -1,0 +1,3 @@
+﻿agency_id,agency_name,agency_url,agency_timezone,agency_phone,agency_lang
+tallinn,Tallinn,https://transport.tallinn.ee,Europe/Vilnius,8 800 00000,ee
+tallinn,Tallinn,https://transport.tallinn.ee,Europe/Vilnius,8 800 00000,ee
