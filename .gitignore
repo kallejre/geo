@@ -132,3 +132,4 @@ dmypy.json
 building geometry importer/building footprint updater/cache/
 # Shapefiles
 building geometry importer/building footprint updater/ETAK/E_401*
+gtfs renderer/layers.txt

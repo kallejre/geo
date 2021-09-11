@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import filedialog
 import requests
 import config
+import time
 
 selector_counter_str = '{} selected\n{} deselected'
 
@@ -25,9 +26,13 @@ def move_items(from_list, to_list, all=False):
         values.pop(idx)
     from_list.list.set(values)
     # Post-transfer updates.
+    update_layer_info()
+
+def update_layer_info():
     update_selector_label()
-    # update_layer
-    generate_config_url()
+    timestamp=save_config()
+    generate_config_url(timestamp)
+    draw_image(temp_url.get().format(x=1, y=3, z=7))
 
 
 def move_all_AB():
@@ -52,9 +57,24 @@ def update_selector_label():
     selector_label.config(text=txt)
 
 
-def generate_config_url():
+def generate_config_url(timestamp=None):
     copy_url_btn['state'] = "normal"
-    temp_url.set(config.URL + "ee")
+    suffix=""
+    if timestamp:
+        suffix = "?t="+str(int(timestamp))
+    temp_url.set(config.URL + suffix)
+
+
+def save_config():
+    folder_selected
+    timestamp=int(time.time())
+    layers=SBox_B.list.get()
+    print(folder_selected, layers, timestamp)
+    with open("layers.txt", "w") as f:
+        print(timestamp, folder_selected, file=f)
+        for layer in layers:
+            print(layer, file=f)
+    return timestamp
 
 
 def copy_to_clipboard():
@@ -62,6 +82,7 @@ def copy_to_clipboard():
     root.clipboard_clear()
     root.clipboard_append(text)
     root.update()  # https://stackoverflow.com/a/4203897
+    
 
 
 class Scrollbox(Frame):
