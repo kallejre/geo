@@ -1,5 +1,7 @@
 import random
 from tkinter import *
+from tkinter import filedialog
+import requests
 import config
 
 selector_counter_str = '{} selected\n{} deselected'
@@ -83,6 +85,21 @@ class Scrollbox(Frame):
         self.listbox.insert(END, item)
 
 
+def draw_image(url):
+    global picture_file
+    filename='tmp_tile.png'
+    if "://" in url:
+        r = requests.get(url, allow_redirects=True)
+        open('tmp_tile.png', 'wb').write(r.content)
+    else:
+        print(url)
+        filename=url
+    # Works by first downloading file locally and then drawing image on canvas
+    picture_file = PhotoImage(file=filename)
+    worthAThousandWords.create_image(0, 0, anchor=NW, image=picture_file)
+    root.update()
+
+
 root = Tk()
 
 # This is the section of code which creates the main window
@@ -136,10 +153,13 @@ root.columnconfigure(0, weight=3)
 root.columnconfigure(1, weight=1)
 root.columnconfigure(2, weight=3)
 root.rowconfigure(3, weight=1)
-
-# First, we create a canvas to put the picture on
 worthAThousandWords = Canvas(root, height=256, width=256)
-picture_file = PhotoImage(master=root, file='sample.png')
-worthAThousandWords.create_image(256, 0, anchor=NE, image=picture_file)
 worthAThousandWords.grid(row=11, column=0, columnspan=4)
+
+draw_image("https://tile.openstreetmap.org/8/147/73.png")
+
+folder_selected = filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
+print(folder_selected)
+# load_gtfs_from_folder(folder_selected)
 root.mainloop()
+
