@@ -1,4 +1,5 @@
 import random
+import subprocess
 from tkinter import *
 from tkinter import filedialog
 import requests
@@ -182,5 +183,8 @@ draw_image("https://tile.openstreetmap.org/8/147/73.png")
 folder_selected = filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
 print(folder_selected)
 # load_gtfs_from_folder(folder_selected)
+print("Starting web server (flask is needed")
+proc=subprocess.Popen(["python", "backend.py"])
 root.mainloop()
-
+print("Killing web server")
+proc.terminate()
