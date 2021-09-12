@@ -1,4 +1,4 @@
-﻿stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,stop_url,location_type,parent_station,thoreb_id
+stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,stop_url,location_type,parent_station,thoreb_id
 134773,5701054-1,"Laimi",,59.22155,23.67992,,,,3294
 134774,5701055-1,"Laimi",,59.22143,23.67969,,,,4545
 9495,5700265-1,"Nõva",,59.22309,23.68909,,,,9495

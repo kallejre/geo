@@ -27,7 +27,7 @@ def load_config():
         layers=f.readlines()
         folder_selected=' '.join(layers.pop(0).split()[1:])
 
-def draw_img(z,x,y:
+def draw_img(z,x,y):
     with Image.new(mode="RGBA", size=(256, 256)) as im:
         draw = ImageDraw.Draw(im)
         draw.line((0, 0) + im.size, fill=(255,0,0,200), width=4)
