@@ -5,6 +5,7 @@ from tkinter import filedialog
 import requests
 import config
 import time
+import gtfs
 
 selector_counter_str = '{} selected\n{} deselected'
 
@@ -33,7 +34,7 @@ def update_layer_info():
     update_selector_label()
     timestamp=save_config()
     generate_config_url(timestamp)
-    draw_image(temp_url.get().format(x=1, y=3, z=7))
+    draw_image(temp_url.get().format(x=291, y=150, z=9))
 
 
 def move_all_AB():
@@ -131,16 +132,6 @@ root.title('GTFS renderer control panel')
 
 # This is the section of code which creates a listbox
 SBox_A = Scrollbox(root, width=0, height=0, selectmode="extended")
-SBox_A.insert('Walnuts')
-SBox_A.insert('corn')
-SBox_A.insert('Italian bread')
-SBox_A.insert('chimichanga')
-SBox_A.insert('jambalaya')
-SBox_A.insert('crab')
-SBox_A.insert('Milk')
-SBox_A.insert('Lamb')
-SBox_A.insert('BBQ')
-SBox_A.insert('babaganoosh')
 SBox_A.grid(row=0, column=0, rowspan=8, sticky="NSEW")
 
 # This is the section of code which creates a button to copy URL
@@ -149,11 +140,6 @@ copy_url_btn.grid(row=7, column=1, rowspan=1, sticky="NSEW")
 
 # This is the section of code which creates a listbox
 SBox_B = Scrollbox(root, width=0, height=15, selectmode="extended")
-
-SBox_B.listbox.insert('0', 'French dip')
-for i in range(20):
-    SBox_B.listbox.insert(str(i), hex(random.randint(16 ** 7, 16 ** 8 - 1))[2:])
-
 SBox_B.grid(row=0, column=2, rowspan=8, sticky="NSEW")
 
 # This is the section of code which creates a button
@@ -177,12 +163,12 @@ root.columnconfigure(2, weight=3)
 root.rowconfigure(3, weight=1)
 worthAThousandWords = Canvas(root, height=256, width=256)
 worthAThousandWords.grid(row=11, column=0, columnspan=4)
-
-draw_image("https://tile.openstreetmap.org/8/147/73.png")
+draw_image("https://tile.openstreetmap.org/9/291/150.png")
 
 folder_selected = filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
 print(folder_selected)
-# load_gtfs_from_folder(folder_selected)
+gtfs.init(folder_selected)
+gtfs.load_gtfs_from_folder(SBox_A)
 print("Starting web server (flask is needed")
 proc=subprocess.Popen(["python", "backend.py"])
 root.mainloop()
