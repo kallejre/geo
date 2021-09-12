@@ -3,6 +3,7 @@ folder=None
 stops= dict()  # Dictionary of stops, referenced by stop_id
 stop_idx = dict()  # Dictionary of stops, spatially indexed in after 2 deciamal places
 route_type = dict()  # https://developers.google.com/transit/gtfs/reference/extended-route-types
+rt_names = dict()  # Special short name used in UI
 routes=dict()
 def init(path):
     global folder
@@ -12,9 +13,9 @@ def init(path):
     load_routes(os.path.join(folder, "routes.txt"))
     
     
-def load_gtfs_from_folder(scrollbox):
-    os.listdir(folder)
-    scrollbox.insert('Walnuts')
+def populate_route_list(scrollbox):
+    for route in get_route_names():
+        scrollbox.insert(route)
 
 
 def load_stops(filepath):
@@ -31,7 +32,11 @@ def load_stops(filepath):
 def get_route_names():
     if not folder:
         raise SyntaxError("GTFS folder not set. (Use gtfs.folder=<path> before calling commands")
-    
+    out=[]
+    for rt_id in routes:
+        out.append(routes[rt_id])
+    out=list(map(lambda x:x._list_name,sorted(out, key=lambda x: x._sortval)))
+    return out
     
 def load_routes(filepath):
     global routes
@@ -41,6 +46,7 @@ def load_routes(filepath):
         for line in f.readlines():
              route=Route(dict(zip(header, list(map(lambda x:x.strip(),line.split(","))))))
              routes[route.id]=route
+             rt_names[route._list_name]=route.id
     
 
 
@@ -69,4 +75,14 @@ class Route():
         self.ref = csv_row["route_short_name"].strip('"')
         self.name = csv_row["route_long_name"].strip('"')
         self.type = route_type[int(csv_row["route_type"])]
+        self._list_name = self.type.split()[0]+' '+self.ref
+        self._sortval = (self.type, self.id.split('_')[1], self.ref.zfill(5))
+
+
+def load_shapes():
+    # Trips: route_id -> shape_id
+    # Shapes: shape_id -> lat-lon
+    # Stops: route_id + shape_id -> trip_id  (Stop_times) trip_id -> stop_id -> lat-lon
+    pass
+
 

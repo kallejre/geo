@@ -19,7 +19,7 @@ def move_items(from_list, to_list, all=False):
     if not indexes: return  # If nothing is selected
     # Add items to to_list
     position = len(to_list.list.get())
-    for item in sorted(map(lambda x: values[x], indexes), key=lambda x: x.lower()):
+    for item in sorted(map(lambda x: values[x], indexes), key=lambda x: gtfs.routes[gtfs.rt_names[x]]._sortval):
         to_list.insert(item)
     # Deselect from_list
     from_list.listbox.select_clear(0, max(indexes) + 2)
@@ -71,7 +71,6 @@ def save_config():
     folder_selected
     timestamp=int(time.time())
     layers=SBox_B.list.get()
-    print(folder_selected, layers, timestamp)
     with open("layers.txt", "w") as f:
         print(timestamp, folder_selected, file=f)
         for layer in layers:
@@ -168,7 +167,7 @@ draw_image("https://tile.openstreetmap.org/9/291/150.png")
 folder_selected = filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
 print(folder_selected)
 gtfs.init(folder_selected)
-gtfs.load_gtfs_from_folder(SBox_A)
+gtfs.populate_route_list(SBox_A)
 print("Starting web server (flask is needed")
 proc=subprocess.Popen(["python", "backend.py"])
 root.mainloop()
