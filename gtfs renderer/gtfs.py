@@ -19,7 +19,8 @@ def populate_route_list(scrollbox):
     for route in get_route_names():
         scrollbox.insert(route)
 
-
+def get_route_by_short(short_name):
+    return routes[rt_names[short_name]]
 
 def csv_to_dict(path):
     with open(path, encoding="utf8") as f:
@@ -92,6 +93,10 @@ class Shape():
         self.id = csv_row["shape_id"]
         self.rt_id = csv_row["route_id"]
         self.coords = dict()  # Coordinates has unusual format: key = index; value = (lat, lon)
+    @property
+    def coordlist(self):
+        return list(map(lambda x: self.coords[x], sorted(self.coords)))
+        
     def add_coord(self, idx, lat, lon):
         self.coords[int(idx)] = (float(lat), float(lon))
         
