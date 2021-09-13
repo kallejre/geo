@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request
-from flask import send_file
+from flask import send_file, make_response
 from io import BytesIO
 from PIL import Image, ImageDraw
 import config
@@ -39,7 +39,10 @@ def serve_pil_image(pil_img):
     img_io = BytesIO()
     pil_img.save(img_io, 'png')
     img_io.seek(0)
-    return send_file(img_io, mimetype='image/png')
+    response = make_response(send_file(img_io, mimetype='image/png'))
+    response.cache_control.max_age = 15  # 15 sec
+    response.cache_control.public = True
+    return response
 
 
 print("This is flask app serving tiles for the url.\n\
