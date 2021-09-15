@@ -3,6 +3,7 @@ from flask import request
 from flask import send_file, make_response
 from io import BytesIO
 from PIL import Image, ImageDraw
+import random, math
 import config
 import gtfs
 app = Flask(__name__)
@@ -24,6 +25,7 @@ def handle_request(z,x,y):
 
 
 def load_config():
+    print("(Re)-loading config")
     global layers
     global folder_selected, folder_old
     global selected_shapes
@@ -35,15 +37,40 @@ def load_config():
         gtfs.init(folder_selected)
     selected_shapes = []
     for ui_name in layers:
-        shps = gtfs.get_route_by_short(ui_name).shapes
+        rt = gtfs.get_route_by_short(ui_name)
+        shps = rt.shapes
+        selected_shapes.append({"name":rt.ref, "shp":list()})
         for shape_id in shps:
-            selected_shapes.append(shps[shape_id].coordlist)
+            selected_shapes[-1]["shp"].append(shps[shape_id].coordlist)
+
+def deg2tile_float(lat_deg: float, lon_deg: float, zoom: int):
+    lat_rad = math.radians(lat_deg)
+    n = 2 ** zoom
+    xtile = (lon_deg + 180.0) / 360 * n
+    # Sets safety bounds on vertical tile range.
+    if lat_deg >= 89:
+        return (xtile, 0)
+    if lat_deg <= -89:
+        return (xtile, n - 1)
+    ytile = (1 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2 * n
+    limited_ytile = max(min(n, ytile), 0)
+    return (xtile, limited_ytile)
+def get_col():
+    return random.choice(["#ff0000", "#ff00ff", "#ffff00", "#00ff00", "#00ffff", "#0000ff"])
 def draw_img(z,x,y):
+    z,x,y=int(z), int(x), int(y)
     with Image.new(mode="RGBA", size=(256, 256)) as im:
         draw = ImageDraw.Draw(im)
-        draw.line((0, 0) + im.size, fill=(255,0,0,200), width=4)
-        draw.line((0, im.size[1], im.size[0], 0), fill=(255,0,0,100), width=4)
-        # TODO: Add actual GTFS rendering
+        #draw.line((0, 0) + im.size, fill=(255,0,0,200), width=4)
+        #draw.line((0, im.size[1], im.size[0], 0), fill=(255,0,0,100), width=4)
+        # TODO: Move parts of this to data loading.
+        for line in selected_shapes:
+            ref = line["name"]
+            colour = get_col()
+            for shp in line["shp"]:  # List of lat/lon-s
+                shp = list(map(lambda x:deg2tile_float(x[0], x[1], z),shp))
+                shp = list(map(lambda tile: ((tile[0]-x)*256, (tile[1]-y)*256),shp))
+                draw.line(shp, width=7, fill=colour, joint="curve")
     return im
 
 def serve_pil_image(pil_img):
