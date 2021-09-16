@@ -9,7 +9,7 @@ import gtfs
 
 selector_counter_str = '{} selected\n{} deselected'
 
-
+config.portlist.add(config.port)
 def move_items(from_list, to_list, all=False):
     values = list(from_list.list.get())
     if not all:
@@ -34,7 +34,7 @@ def update_layer_info():
     update_selector_label()
     timestamp=save_config()
     generate_config_url(timestamp)
-    draw_image(temp_url.get().format(x=291, y=150, z=9))
+    draw_image(temp_url.get().replace(gen_ports(), f":{config.port}").format(x=291, y=150, z=9))
 
 
 def move_all_AB():
@@ -58,13 +58,18 @@ def update_selector_label():
     # print(txt)
     selector_label.config(text=txt)
 
+def gen_ports():
+    portswitch=f":{config.port}"
+    if len(config.portlist)>1:
+        portswitch=":{switch:"+','.join(list(map(lambda x:str(x), config.portlist)))+"}"
+    return portswitch
 
 def generate_config_url(timestamp=None):
     copy_url_btn['state'] = "normal"
     suffix=""
     if timestamp:
         suffix = "?t="+str(int(timestamp))
-    temp_url.set(config.URL + suffix)
+    temp_url.set(config.URL.replace(f":{config.port}", gen_ports()) + suffix)
 
 
 def save_config():
@@ -169,7 +174,10 @@ print(folder_selected)
 gtfs.init(folder_selected)
 gtfs.populate_route_list(SBox_A)
 print("Starting web server (flask is needed")
-proc=subprocess.Popen(["python", "backend.py"])
+proc=[]
+for port in config.portlist:
+    proc.append(subprocess.Popen(["python", "backend.py", "-port", str(port)]))
 root.mainloop()
 print("Killing web server")
-proc.terminate()
+for p in proc:
+    p.terminate()
