@@ -13,6 +13,7 @@ last_t=0
 layers=[]
 folder_selected=None
 folder_old = None
+show_stops=None
 selected_shapes = []
 
 @app.route("/<z>/<x>/<y>")
@@ -31,52 +32,61 @@ def load_config():
     print("(Re)-loading config")
     global layers
     global folder_selected, folder_old
-    global selected_shapes
+    global selected_shapes, show_stops
     with open("layers.txt") as f:
         layers=f.read().strip().split('\n')
-        folder_selected=' '.join(layers.pop(0).split()[1:])
+        first_line = layers.pop(0)
+        show_stops = first_line.split()[1]=="True"
+        folder_selected=' '.join(first_line.split()[2:])
     if folder_old != folder_selected:
         folder_old = folder_selected
+        print(folder_selected)
         gtfs.init(folder_selected)
     selected_shapes = []
     for ui_name in layers:
         rt = gtfs.get_route_by_short(ui_name)
         shps = rt.shapes
         selected_shapes.append({"name":rt.ref, "shp":list()})
-        selected_shapes[-1]["colour"] = get_col()
+        selected_shapes[-1]["colour"] = get_col(rt.name)
         for shape_id in shps:
-            shp = list(map(lambda x:deg2tile_float(x[0], x[1], cache_zoom),shps[shape_id].coordlist))
+            shp = list(map(lambda x:gtfs.deg2tile_float(x[0], x[1], cache_zoom),shps[shape_id].coordlist))
             selected_shapes[-1]["shp"].append(shp)
-def deg2tile_float(lat_deg: float, lon_deg: float, zoom: int):
-    lat_rad = math.radians(lat_deg)
-    n = 2 ** zoom
-    xtile = (lon_deg + 180.0) / 360 * n
-    # Sets safety bounds on vertical tile range.
-    if lat_deg >= 89:
-        return (xtile, 0)
-    if lat_deg <= -89:
-        return (xtile, n - 1)
-    ytile = (1 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2 * n
-    limited_ytile = max(min(n, ytile), 0)
-    return (xtile, limited_ytile)
-def get_col():
+
+def get_col(val=None):
+    random.seed(val)
     c=hls_to_rgb(random.random(), 0.4+0.2*random.random(), 0.9+0.1*random.random())
     return tuple(map(lambda x:int(x*256),c))
     return random.choice(["#ff0000", "#ff00ff", "#ffff00", "#00ff00", "#00ffff", "#0000ff"])
 def draw_img(z,x,y):
     z,x,y=int(z), int(x), int(y)
+    # Multiplier: Link between scaling of current level and lvl 20.
     multiplier = 2 ** (z-cache_zoom )
     print(multiplier)
     with Image.new(mode="RGBA", size=(256, 256)) as im:
         draw = ImageDraw.Draw(im)
         #draw.line((0, 0) + im.size, fill=(255,0,0,200), width=4)
         #draw.line((0, im.size[1], im.size[0], 0), fill=(255,0,0,100), width=4)
-        # TODO: Move parts of this to data loading.
+        # TODO: Add checkboxes for transparency and stops.
+        # TODO: Presistent colours
         for line in selected_shapes:
             ref = line["name"]
             for shp in line["shp"]:  # List of lat/lon-s
                 shp = list(map(lambda tile: ((multiplier*tile[0]-x)*256, (multiplier*tile[1]-y)*256),shp))
                 draw.line(shp, width=7, fill=line["colour"], joint="curve")
+        if show_stops and z>10:
+            max_stops=256
+            drawn_stops=0
+            #print(x,y, multiplier)
+            for x20 in range(int(x/multiplier)-1, int((x+1)/multiplier)+1):
+                for y20 in range(int(y/multiplier)-1, int((y+1)/multiplier)+1):
+                    # print((x,y), (x,y) in gtfs.stop_idx)
+                    if max_stops < drawn_stops: break
+                    if (x20,y20) in gtfs.stop_idx:
+                        for stop_id in gtfs.stop_idx[(x20,y20)]:
+                            tile=list(map(lambda x:int(256*(x%1)), gtfs.deg2tile_float(gtfs.stops[stop_id].lat,gtfs.stops[stop_id].lon,z)))
+                            #print("Drawing to", (tile[0], tile[1], tile[0]+5, tile[1]+5))
+                            draw.rectangle((tile[0], tile[1], tile[0]+5, tile[1]+5), fill=(256,200,0,min([256,max([0,64*(z-10)])])))
+                            drawn_stops+=1
     return im
 
 def serve_pil_image(pil_img):

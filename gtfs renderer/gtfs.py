@@ -1,4 +1,5 @@
 import os
+import math
 folder=None
 stops= dict()  # Dictionary of stops, referenced by stop_id
 stop_idx = dict()  # Dictionary of stops, spatially indexed in after 2 deciamal places
@@ -33,7 +34,9 @@ def load_stops(filepath):
     for stp in csv_to_dict(filepath):
         stop=Stop(stp)
         stops[stop.id]=stop
-        idx=(int(stop.lat*100)/100, int(stop.lon*100)/100)
+        # Stops are spatially indexed to speed up lookup.
+        
+        idx=tuple(map(int,deg2tile_float(stop.lat,stop.lon,20)))
         if idx not in stop_idx:
             stop_idx[idx]=set()
         stop_idx[idx].add(stop.id)
@@ -54,8 +57,6 @@ def load_routes(filepath):
         route=Route(rt)
         routes[route.id]=route
         rt_names[route._list_name]=route.id
-    
-
 
 def load_route_types():
     global route_type
@@ -110,6 +111,19 @@ def load_shapes():
             shp_to_rt[trip["shape_id"]] = trip["route_id"]
     for shp in csv_to_dict(os.path.join(folder, "shapes.txt")):
         routes[shp_to_rt[shp["shape_id"]]].shapes[shp["shape_id"]].add_coord(shp["shape_pt_sequence"], shp["shape_pt_lat"],shp["shape_pt_lon"])
-            
 
-init('C:/Users/kalle/Documents/GitHub/geo/gtfs renderer/gtfs_tallinn_2021')
+def deg2tile_float(lat_deg: float, lon_deg: float, zoom: int):
+    lat_rad = math.radians(lat_deg)
+    n = 2 ** zoom
+    xtile = (lon_deg + 180.0) / 360 * n
+    # Sets safety bounds on vertical tile range.
+    if lat_deg >= 89:
+        return (xtile, 0)
+    if lat_deg <= -89:
+        return (xtile, n - 1)
+    ytile = (1 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2 * n
+    limited_ytile = max(min(n, ytile), 0)
+    return (xtile, limited_ytile)
+           
+if __name__ == "__main__":
+    init('gtfs_tallinn_2021')

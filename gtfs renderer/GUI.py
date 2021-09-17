@@ -73,11 +73,11 @@ def generate_config_url(timestamp=None):
 
 
 def save_config():
-    folder_selected
+    # folder_selected
     timestamp=int(time.time())
     layers=SBox_B.list.get()
     with open("layers.txt", "w") as f:
-        print(timestamp, folder_selected, file=f)
+        print(timestamp, bool(show_stops.get()), folder_selected, file=f)
         for layer in layers:
             print(layer, file=f)
     return timestamp
@@ -125,8 +125,8 @@ def draw_image(url):
     picture_file = PhotoImage(file=filename)
     worthAThousandWords.create_image(0, 0, anchor=NW, image=picture_file)
     root.update()
-
-
+def toggle_stops():
+    update_layer_info()
 root = Tk()
 
 # This is the section of code which creates the main window
@@ -134,27 +134,29 @@ root.geometry('400x500')
 root.configure()
 root.title('GTFS renderer control panel')
 
-# This is the section of code which creates a listbox
+# Create scrollable listboxes
+
 SBox_A = Scrollbox(root, width=0, height=0, selectmode="extended")
 SBox_A.grid(row=0, column=0, rowspan=8, sticky="NSEW")
-
-# This is the section of code which creates a button to copy URL
-copy_url_btn = Button(root, text='Copy URL', command=copy_to_clipboard, state="disabled")
-copy_url_btn.grid(row=7, column=1, rowspan=1, sticky="NSEW")
-
-# This is the section of code which creates a listbox
 SBox_B = Scrollbox(root, width=0, height=15, selectmode="extended")
 SBox_B.grid(row=0, column=2, rowspan=8, sticky="NSEW")
 
-# This is the section of code which creates a button
-X = 1
-Y = 1
-Button(root, text='>>', command=move_all_AB).grid(column=X, row=Y * 1, rowspan=1, sticky="NSEW")
-Button(root, text='>', command=move_sel_AB).grid(column=X, row=Y * 2, rowspan=1, sticky="NSEW")
-Button(root, text='<', command=move_sel_BA).grid(column=X, row=Y * 4, rowspan=1, sticky="NSEW")
-Button(root, text='<<', command=move_all_BA).grid(column=X, row=Y * 5, rowspan=1, sticky="NSEW")
+# Create a button to copy URL
+copy_url_btn = Button(root, text='Copy URL', command=copy_to_clipboard, state="disabled")
+# Selector label - stats about number of currently selected elements.
 selector_label = Label(root, text='0 selected\n0 deselected')
-selector_label.grid(column=X, row=Y * 3, rowspan=1, sticky="NSEW")
+show_stops = IntVar()
+
+# Place items to UI grid
+Button(root, text='>>', command=move_all_AB).grid(column=1, row=1, rowspan=1, sticky="NSEW")
+Button(root, text='>', command=move_sel_AB).grid(column=1, row=2, rowspan=1, sticky="NSEW")
+selector_label.grid(column=1, row=3, rowspan=1, sticky="NSEW")
+Button(root, text='<', command=move_sel_BA).grid(column=1, row=4, rowspan=1, sticky="NSEW")
+Button(root, text='<<', command=move_all_BA).grid(column=1, row=5, rowspan=1, sticky="NSEW")
+Checkbutton(root, text="Show stops", variable=show_stops, command=toggle_stops).grid(column=1, row=6, sticky="NSEW")
+copy_url_btn.grid(row=7, column=1, rowspan=1, sticky="NSEW")
+
+
 update_selector_label()
 temp_url = StringVar()
 temp_url.set("Imagery url here")
@@ -169,7 +171,8 @@ worthAThousandWords = Canvas(root, height=256, width=256)
 worthAThousandWords.grid(row=11, column=0, columnspan=4)
 draw_image("https://tile.openstreetmap.org/9/291/150.png")
 
-folder_selected = filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
+if True: folder_selected = 'gtfs_tallinn_2021'
+else: filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
 print(folder_selected)
 gtfs.init(folder_selected)
 gtfs.populate_route_list(SBox_A)
