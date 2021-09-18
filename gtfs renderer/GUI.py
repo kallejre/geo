@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import filedialog
 import requests
 import config
-import time
+import time, os
 import gtfs
 
 selector_counter_str = '{} selected\n{} deselected'
@@ -171,9 +171,11 @@ worthAThousandWords = Canvas(root, height=256, width=256)
 worthAThousandWords.grid(row=11, column=0, columnspan=4)
 draw_image("https://tile.openstreetmap.org/9/291/150.png")
 
-if True: folder_selected = 'gtfs_tallinn_2021'
+# Detect if current directory contains folder with "gtfs" in it's name.
+fold=list(filter(lambda x:"gtfs" in x.lower() and os.path.isdir(x),os.listdir()))
+if len(fold)==1: folder_selected = fold[0]
 else: filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
-print(folder_selected)
+print("Loading data from", folder_selected)
 gtfs.init(folder_selected)
 gtfs.populate_route_list(SBox_A)
 print("Starting web server (flask is needed")

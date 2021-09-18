@@ -1,4 +1,9 @@
-# GTFS to WMS
+# GTFS to TMS
+**GTFS to TMS to OSM** - A tool that parses [General Transit Feed Specification](https://gtfs.org/) data files and generates [TMS tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames) in EPSG:3857 projection.
+
+To use tool, you need to have downloaded GTFS archive for relavant area and unpacked the archive to separate folder. If that folder is subdirectory of current script directory and it has `gtfs` in it's name, script can find it automatically, but loads only when there's no other alternative. Otherwise folder selection dialogue will pop up.
+
+**Start script by running GUI.py.** To make tile loading faster, UI spawns multiple (default 4) parallel processes to serve tiles. Load balancing is done by your map viewer software, which uses `{switch:<port numbers>}` to open connection to multiple processes.
 
 <details><summary>Original plan</summary>
 <pre>
