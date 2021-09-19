@@ -2,8 +2,8 @@ from flask import Flask
 from flask import request
 from flask import send_file, make_response
 from io import BytesIO
-from PIL import Image, ImageDraw
-import random, math
+from PIL import Image, ImageDraw, ImageFont
+import random, math,time
 import config
 import gtfs
 from colorsys import hls_to_rgb
@@ -15,6 +15,7 @@ folder_selected=None
 folder_old = None
 show_stops=None
 selected_shapes = []
+font = ImageFont.load_default()
 
 @app.route("/<z>/<x>/<y>")
 def handle_request(z,x,y):
@@ -46,8 +47,7 @@ def load_config():
     for ui_name in layers:
         rt = gtfs.get_route_by_short(ui_name)
         shps = rt.shapes
-        selected_shapes.append({"name":rt.ref, "shp":list()})
-        selected_shapes[-1]["colour"] = get_col(rt.name)
+        selected_shapes.append({"name":rt.ref, "shp":list(), "colour": get_col(rt.name)})
         for shape_id in shps:
             shp = list(map(lambda x:gtfs.deg2tile_float(x[0], x[1], cache_zoom),shps[shape_id].coordlist))
             selected_shapes[-1]["shp"].append(shp)
@@ -86,7 +86,10 @@ def draw_img(z,x,y):
                             tile=list(map(lambda x:int(256*(x%1)), gtfs.deg2tile_float(gtfs.stops[stop_id].lat,gtfs.stops[stop_id].lon,z)))
                             #print("Drawing to", (tile[0], tile[1], tile[0]+5, tile[1]+5))
                             draw.rectangle((tile[0], tile[1], tile[0]+5, tile[1]+5), fill=(256,200,0,min([256,max([0,64*(z-10)])])))
+                            if z >= 17:
+                                draw.text((tile[0], tile[1]+5),gtfs.stops[stop_id].name,(255,255,255),font=font)
                             drawn_stops+=1
+        draw.text((2,2),f"{z}/{x}/{y} {time.ctime()[11:19]}",(255,255,255),font=font)
     return im
 
 def serve_pil_image(pil_img):
