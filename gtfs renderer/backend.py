@@ -50,7 +50,7 @@ def load_config():
         selected_shapes.append({"name":rt.ref, "shp":list(), "colour": get_col(rt.name)})
         for shape_id in shps:
             shp = list(map(lambda x:gtfs.deg2tile_float(x[0], x[1], cache_zoom),shps[shape_id].coordlist))
-            if len(selected_shapes)<3: print("Err?",selected_shapes)
+            # if len(selected_shapes)<3: print("Err?",selected_shapes)
             selected_shapes[-1]["shp"].append(shp)
     print("len of selected_shapes:", len(selected_shapes))
 
@@ -90,12 +90,14 @@ def draw_img(z,x,y):
                             tmp_x, tmp_y = gtfs.deg2tile_float(gtfs.stops[stop_id].lat,gtfs.stops[stop_id].lon,z)
                             print(tmp_x, tmp_y)
                             tile=int(256*(tmp_x-x)), int(256*(tmp_y-y))
+                            stop_size= min([0,max([5, z-10])]))
                             #print("Drawing to", (tile[0], tile[1], tile[0]+5, tile[1]+5))
-                            draw.rectangle((tile[0], tile[1], tile[0]+5, tile[1]+5), fill=(256,200,0,min([256,max([0,64*(z-10)])])))
+                            draw.rectangle((tile[0], tile[1], tile[0]+stop_size, tile[1]+stop_size), fill=(256,200,0,min([256,max([0,64*(z-10)])])))
                             if z >= 17:
-                                draw.text((tile[0], tile[1]+5),gtfs.stops[stop_id].name,(255,255,255),font=font)
+                                draw.text((tile[0], tile[1]+stop_size),gtfs.stops[stop_id].name,(255,255,255),font=font)
                             drawn_stops+=1
-        draw.text((2,2),f"{z}/{x}/{y} {time.ctime()[11:19]}",(255,255,255),font=font)
+        text=f"{z}/{x}/{y} {time.ctime()[11:19]}\nPort {ConnectionInfoParsed.port}"
+        draw.text((2,2),text,(255,255,255),font=font)
     return im
 
 def serve_pil_image(pil_img):
