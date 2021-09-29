@@ -84,7 +84,9 @@ class Route():
         self.name = csv_row["route_long_name"].strip('"')
         self.type = route_type[int(csv_row["route_type"])]
         self._list_name = self.type.split()[0]+' '+self.ref
-        self._sortval = (self.type, self.id.split('_')[1], self.ref.zfill(5))
+        #print(self._list_name,self.id, self.ref)
+        #self._sortval = (self.type, self.id.split('_')[1], self.ref.zfill(5))
+        self._sortval = (self.type,  self.ref.zfill(5))
         self.shapes = dict()
 
 class Shape():

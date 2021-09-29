@@ -3,6 +3,7 @@
 cd /home/$USER
 #https://unix.stackexchange.com/questions/230673
 DB_pass="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 16 ; echo '')"
+echo "$DB_pass"
 if [ "$EUID" -eq 0 ]
   then echo "Skripti käivitamisel juurkasutajana tekib probleeme OSM serveri DB seadistamisel. Samas, sudo õigustes tegevuste jaoks (apt update; bundle install) küsitakse paar korda parooli."
   exit

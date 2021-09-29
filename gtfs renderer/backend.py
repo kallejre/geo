@@ -90,7 +90,7 @@ def draw_img(z,x,y):
                             tmp_x, tmp_y = gtfs.deg2tile_float(gtfs.stops[stop_id].lat,gtfs.stops[stop_id].lon,z)
                             print(tmp_x, tmp_y)
                             tile=int(256*(tmp_x-x)), int(256*(tmp_y-y))
-                            stop_size= min([0,max([5, z-10])]))
+                            stop_size= min([10,max([1, z-10])])
                             #print("Drawing to", (tile[0], tile[1], tile[0]+5, tile[1]+5))
                             draw.rectangle((tile[0], tile[1], tile[0]+stop_size, tile[1]+stop_size), fill=(256,200,0,min([256,max([0,64*(z-10)])])))
                             if z >= 17:

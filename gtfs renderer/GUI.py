@@ -174,14 +174,14 @@ draw_image("https://tile.openstreetmap.org/9/291/150.png")
 # Detect if current directory contains folder with "gtfs" in it's name.
 fold=list(filter(lambda x:"gtfs" in x.lower() and os.path.isdir(x),os.listdir()))
 if len(fold)==1: folder_selected = fold[0]
-else: filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
+else: folder_selected=filedialog.askdirectory(title="Please select GTFS directory to be loaded...")
 print("Loading data from", folder_selected)
 gtfs.init(folder_selected)
 gtfs.populate_route_list(SBox_A)
 print("Starting web server (flask is needed")
 proc=[]
 for port in config.portlist:
-    proc.append(subprocess.Popen(["python", "backend.py", "-port", str(port)]))
+    proc.append(subprocess.Popen(["python", "backend.py", "-port", str(port+1)]))
 root.mainloop()
 print("Killing web server")
 for p in proc:
