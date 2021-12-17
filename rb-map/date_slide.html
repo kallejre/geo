@@ -1,0 +1,29 @@
+<script>
+var first_date= new Date(2020, 11,2)  // 1st of Dec 2020
+
+function reset_slider() {
+const diffWeeks = Math.ceil(Math.abs((new Date() - first_date) / (1000 * 60 * 60 * 24))/7)-1;
+ document.getElementById("date").setAttribute("max",diffWeeks);
+ console.log(diffWeeks)
+ slider_update()
+ }
+function addWeeks(date, days) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days*7);
+  return result;
+}
+function slider_update() {
+	var tmp_date=addWeeks(first_date, document.getElementById("date").value).toISOString().substring(0,10);
+	document.getElementById("date").labels[0].innerHTML=tmp_date;
+	document.getElementById("map").src = "svgs/tags-"+(tmp_date)+".svg";
+	//document.getElementById("date").labels[0].innerHTML="rrr" 
+}
+</script>
+ <body onload="reset_slider()"> 
+  <input type="range" id="date" name="date" oninput="slider_update()"
+         style="width: 800px" min="0">
+  <label for="date">Date</label>
+  <div>
+  <img id="map" src = "happy.svg" width="100%" />
+  </div>
+</body>
