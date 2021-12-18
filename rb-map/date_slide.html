@@ -1,8 +1,20 @@
 <script>
-var first_date= new Date(2020, 11,2)  // 1st of Dec 2020
 
+function get_utc(){
+	var date = new Date()
+	var userTimezoneOffset = date.getTimezoneOffset() * 60000;
+	return new Date(date.getTime() - userTimezoneOffset);
+}
+
+var first_date= new Date(2020, 11,1,9)  // 1st of Dec 2020
+// Use 9 AM to prevent issues with daytime saving.
+var userTimezoneOffset = first_date.getTimezoneOffset() * 60000;
+first_date= new Date(first_date.getTime() - userTimezoneOffset);
+var now= get_utc()
+//first_date = Date.parse(first_date.toUTCString().substr(0,30)+"+0000")
+console.log(first_date)
 function reset_slider() {
-const diffWeeks = Math.ceil(Math.abs((new Date() - first_date) / (1000 * 60 * 60 * 24))/7)-1;
+const diffWeeks = Math.ceil(Math.abs((now - first_date) / (1000 * 60 * 60 * 24))/7)-1;
  document.getElementById("date").setAttribute("max",diffWeeks);
  console.log(diffWeeks)
  slider_update()
