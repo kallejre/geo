@@ -1,41 +1,43 @@
 <script>
+    function get_utc() {
+        var date = new Date()
+        var userTimezoneOffset = date.getTimezoneOffset() * 60000;
+        return new Date(date.getTime() - userTimezoneOffset);
+    }
 
-function get_utc(){
-	var date = new Date()
-	var userTimezoneOffset = date.getTimezoneOffset() * 60000;
-	return new Date(date.getTime() - userTimezoneOffset);
-}
+    var first_date = new Date(2020, 11, 1, 9) // 1st of Dec 2020
+        // Use 9 AM to prevent issues with daytime saving.
+    var userTimezoneOffset = first_date.getTimezoneOffset() * 60000;
+    first_date = new Date(first_date.getTime() - userTimezoneOffset);
+    var now = get_utc()
+        //first_date = Date.parse(first_date.toUTCString().substr(0,30)+"+0000")
+    console.log(first_date)
 
-var first_date= new Date(2020, 11,1,9)  // 1st of Dec 2020
-// Use 9 AM to prevent issues with daytime saving.
-var userTimezoneOffset = first_date.getTimezoneOffset() * 60000;
-first_date= new Date(first_date.getTime() - userTimezoneOffset);
-var now= get_utc()
-//first_date = Date.parse(first_date.toUTCString().substr(0,30)+"+0000")
-console.log(first_date)
-function reset_slider() {
-const diffWeeks = Math.ceil(Math.abs((now - first_date) / (1000 * 60 * 60 * 24))/7)-1;
- document.getElementById("date").setAttribute("max",diffWeeks);
- console.log(diffWeeks)
- slider_update()
- }
-function addWeeks(date, days) {
-  var result = new Date(date);
-  result.setDate(result.getDate() + days*7);
-  return result;
-}
-function slider_update() {
-	var tmp_date=addWeeks(first_date, document.getElementById("date").value).toISOString().substring(0,10);
-	document.getElementById("date").labels[0].innerHTML=tmp_date;
-	document.getElementById("map").src = "svgs/tags-"+(tmp_date)+".svg";
-	//document.getElementById("date").labels[0].innerHTML="rrr" 
-}
+    function reset_slider() {
+        const diffWeeks = Math.ceil(Math.abs((now - first_date) / (1000 * 60 * 60 * 24)) / 7) - 1;
+        document.getElementById("date").setAttribute("max", diffWeeks);
+        console.log(diffWeeks)
+        slider_update()
+    }
+
+    function addWeeks(date, days) {
+        var result = new Date(date);
+        result.setDate(result.getDate() + days * 7);
+        return result;
+    }
+
+    function slider_update() {
+        var tmp_date = addWeeks(first_date, document.getElementById("date").value).toISOString().substring(0, 10);
+        document.getElementById("date").labels[0].innerHTML = tmp_date;
+        document.getElementById("map").src = "svgs/tags-" + (tmp_date) + ".svg";
+        //document.getElementById("date").labels[0].innerHTML="rrr" 
+    }
 </script>
- <body onload="reset_slider()"> 
-  <input type="range" id="date" name="date" oninput="slider_update()"
-         style="width: 800px" min="0">
-  <label for="date">Date</label>
-  <div>
-  <img id="map" src = "happy.svg" width="100%" />
-  </div>
+
+<body onload="reset_slider()">
+    <input type="range" id="date" name="date" oninput="slider_update()" style="width: 800px" min="0">
+    <label for="date">Date</label>
+    <div>
+        <img id="map" src="happy.svg" width="100%" />
+    </div>
 </body>
