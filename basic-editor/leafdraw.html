@@ -1,157 +1,141 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Leaflet Quick Start Guide Example</title>
-  <meta charset="utf-8" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-<!-- For autocomplete-->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<link href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" rel="stylesheet">
-<link href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
-<script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-  <!--For map-->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css">
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
-
-
-  <style>
-  .ui-autocomplete-loading {
-    background: white url("ui-anim_basic_16x16.gif") right center no-repeat;
-  }
-  </style>
-</head>
-<body onload="bodyLoad()">
-  <div id="map" style="width: 960px; height: 500px"></div>
-
-
-
-<script src="get_imagery.js"></script>
-<script src="tagging.js"></script>
-  <script>
-  
-  
-var oldlayer;
-var center = [51.51262,-0.09791];
+  <head>
+    <title>Leaflet Quick Start Guide Example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- For autocomplete-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" rel="stylesheet">
+    <link href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
+    <script src = "https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <!--For map-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+    <style>
+      .ui-autocomplete-loading {
+      background: white url("ui-anim_basic_16x16.gif") right center no-repeat;
+      }
+    </style>
+    <script src="get_imagery.js"></script>
+    <script src="tagging.js"></script>
+    <div id="map" style="width: 960px; height: 500px"></div>
+    <script>
+    var oldlayer;
+    var center = [51.51262, -0.09791];
     var map = L.map('map').setView(center, 18);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18, minZoom: 1,
-      attribution: 'Map data &copy; ' +
-        '<a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+      attribution: 'Map data © ' + '<a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
     }).addTo(map);
 
 
+    // Initialise the FeatureGroup to store editable layers
+    var editableLayers = new L.FeatureGroup();
+    map.addLayer(editableLayers);
 
-// Initialise the FeatureGroup to store editable layers
-var editableLayers = new L.FeatureGroup();
-map.addLayer(editableLayers);
+    var drawPluginOptions = {
+      position: 'topleft',
+      draw: {
+        polyline: false,
+        polygon: false,
+        circle: false,
+        circlemarker: false,
+        rectangle: false,
+        marker: false
+      },
+      edit: {
+        featureGroup: editableLayers, //REQUIRED!!
+        remove: false
+      }
+    };
 
-var drawPluginOptions = {
-  position: 'topleft',
-  draw: {
-    polyline: false,
-    polygon: false,
-    circle: false,
-    circlemarker: false,
-    rectangle: false,
-    marker: false
-  },
-  edit: {
-    featureGroup: editableLayers, //REQUIRED!!
-    remove: false
-  }
-};
-
-var customMarker= L.Icon.extend({
-    options: {
+    var customMarker = L.Icon.extend({
+      options: {
         shadowUrl: null,
         iconAnchor: new L.Point(3, 3),
         iconSize: new L.Point(6, 6),
         iconUrl: 'http://joshuafrazier.info/images/firefox.svg'
+      }
+    });
+
+
+    var drawControl = new L.Control.Draw(drawPluginOptions);
+
+    drawControl = new L.Control.Draw({
+      edit: false
+    });
+    editFeatureGroup = L.featureGroup();
+    editToolbar = new L.EditToolbar({
+      featureGroup: editableLayers
+    })
+    editHandler = editToolbar.getModeHandlers()[0].handler
+    editHandler._map = map
+
+    var polygon
+
+    function load_way(coords) {
+      // Clear prev drawing
+      editableLayers.removeLayer(editableLayers.getLayers()[0])
+      if (oldlayer + 1) { // if oldlayer is defined,
+        map.removeLayer(layers[oldlayer]) // Remove old background imagery
+      }
+      polygon = L.polygon(coords, {
+        color: 'red'
+      }).addTo(map);
+      editableLayers.addLayer(polygon);
+      editHandler.enable()
+      map.fitBounds(polygon.getBounds());
+      localayers=get_local_imagery()
+	  console.log(localayers)
+      layers = imagery_to_layers(get_local_imagery())
     }
-});
 
 
-var drawControl = new L.Control.Draw(drawPluginOptions);
+    function resetMap() {
+      editHandler.revertLayers()
+      editHandler.disable()
+      editHandler.enable()
+    }
+    // Imagery index for background
+    function changeLayer() {
+      i = $("#Layers")[0].value // Return id of currently selected item.
+      console.log(layers[i])
+      if (oldlayer + 1) {
+        map.removeLayer(layers[oldlayer])
+      }
+      map.addLayer(layers[i])
+      oldlayer = i
+    }
 
-drawControl = new L.Control.Draw({edit: false});
-editFeatureGroup = L.featureGroup();
-editToolbar = new L.EditToolbar({
-  featureGroup: editableLayers
-})
-editHandler = editToolbar.getModeHandlers()[0].handler
-editHandler._map = map
+    function bodyLoad() {
+      load_way([
+        [51.51281, -0.09753],
+        [51.51237, -0.09746],
+        [51.51230, -0.09802]
+      ])
+      /*load_way([
+        [59.41281, 24.79753],
+        [59.41237, 24.79746],
+        [59.41230, 24.79802]
+      ]);*/
+      load_autocomplete()
+    }
 
-var polygon
+    // Won't work in editing mode
+    //var layerControl = L.control.layers(baseLayers, overlays).addTo(map);
 
-function load_way(coords) {
-   // Clear prev drawing
-   editableLayers.removeLayer(editableLayers.getLayers()[0])
-   if (oldlayer+1) {  // if oldlayer is defined,
-	map.removeLayer(layers[oldlayer])  // Remove old background imagery
-   }
-   //editableLayers.getLayers().forEach(editableLayers.removeLayer)
-   polygon = L.polygon(coords, {color:'red'}).addTo(map);
-   editableLayers.addLayer(polygon);
-   editHandler.enable()
-   map.fitBounds(polygon.getBounds());
-   // get_local_imagery()
-   layers=imagery_to_layers(get_local_imagery())
-   
-
-   
-  }
-
-load_way([
-      [51.51281, -0.09753],
-      [51.51237, -0.09746],
-      [51.51230, -0.09802]
-    ])
-
-load_way([
-      [59.41281, 24.79753],
-      [59.41237, 24.79746],
-      [59.41230, 24.79802]
-    ])
-
-
-  function resetMap() {
-    editHandler.revertLayers()
-    editHandler.disable()
-    editHandler.enable()
-  }
-  // Imagery index for background
-function changeLayer() {
-	i = $("#Layers")[0].value  // Return id of currently selected item.
-	console.log(layers[i])
-	if (oldlayer+1) {  
-	map.removeLayer(layers[oldlayer])
-	}
-	map.addLayer(layers[i])
-	oldlayer=i
-}
-
-function bodyLoad() {
-load_autocomplete()
-  
-  
-  
-  load_way([
-      [59.41281, 24.79753],
-      [59.41237, 24.79746],
-      [59.41230, 24.79802]
-    ]);
-}
-
-  // Won't work in editing mode
-	//var layerControl = L.control.layers(baseLayers, overlays).addTo(map);
-  </script>
-   <button onclick="resetMap()">Reset shape</button> 
-<select id="Layers" size="5" oninput="changeLayer()">
-</select>  <input class="active_tag"  size="40"/>
-</body>
+    </script>
+  </head>
+  <body onload="bodyLoad()">
+    <button onclick="resetMap()">Reset shape</button> 
+    <select id="Layers" size="5" oninput="changeLayer()">
+    </select> 
+    <div class="ui-widget">
+      <input class="active_tag"  size="40"/>
+    </div>
+  </body>
 </html>

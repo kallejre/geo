@@ -4,10 +4,7 @@
 // After several hours of google-fu, this JS file contains code that allows 
 // browser to get available imagery layers at current map location
 // Based on source of iD editor.
-
-var global_imagery= Array()
-
-
+var global_imagery = Array()
 
 // ignore imagery more than 20 years old..
 let cutoffDate = new Date();
@@ -77,235 +74,246 @@ const supportedWMSProjections = [
   'EPSG:4326'
 ];
 
-    $.getJSON('https://osmlab.github.io/editor-layer-index/imagery.json', function(data) {
+$.getJSON('https://osmlab.github.io/editor-layer-index/imagery.json', function(data) {
   //console.log(data)
   // slice(0).
-  data.forEach(function(source2){
-	//console.log(source)
-	let source=source2
-	
-	 if (source.type !== 'tms' && source.type !== 'wms' && source.type !== 'bing') return;
-  if (source.id in discard) return;
+  data.forEach(function(source2) {
+    //console.log(source)
+    let source = source2
 
-  let im = {
-    id: source.id,
-    name: source.name,
-    type: source.type,
-    template: source.url
-  };
-	
-  // Some sources support 512px tiles
-  if (source.id === 'Mapbox') {
-    im.template = im.template.replace('.jpg', '@2x.jpg');
-    im.tileSize = 512;
-  } else if (source.id === 'mtbmap-no') {
-    im.tileSize = 512;
-  } else if (source.id === 'mapbox_locator_overlay') {
-    im.template = im.template.replace('{y}', '{y}{@2x}');
-  } else if (source.id =="Bing"){
-		im.template = 'https://ecn.t{switch:0,1,2,3}.tiles.virtualearth.net/tiles/a{u}.jpeg?g=587&n=z'
-		im.type="bing"
-	}
+    if (source.type !== 'tms' && source.type !== 'wms' && source.type !== 'bing') return;
+    if (source.id in discard) return;
 
-  // Some WMS sources are supported, check projection
-  if (source.type === 'wms') {
-    const projection = source.available_projections && supportedWMSProjections.find(p => source.available_projections.indexOf(p) !== -1);
-    if (!projection) return;
-    if (data.some(other => other.name === source.name && other.type !== source.type)) return;
-    im.projection = projection;
-  }
+    let im = {
+      id: source.id,
+      name: source.name,
+      type: source.type,
+      template: source.url
+    };
 
-
-  let startDate, endDate, isValid;
-
-  if (source.end_date) {
-    endDate = new Date(source.end_date);
-    isValid = !isNaN(endDate.getTime());
-    if (isValid) {
-      if (endDate <= cutoffDate) return;  // too old
-      im.endDate = endDate;
+    // Some sources support 512px tiles
+    if (source.id === 'Mapbox') {
+      im.template = im.template.replace('.jpg', '@2x.jpg');
+      im.tileSize = 512;
+    } else if (source.id === 'mtbmap-no') {
+      im.tileSize = 512;
+    } else if (source.id === 'mapbox_locator_overlay') {
+      im.template = im.template.replace('{y}', '{y}{@2x}');
+    } else if (source.id == "Bing") {
+      im.template =
+        'https://ecn.t{switch:0,1,2,3}.tiles.virtualearth.net/tiles/a{u}.jpeg?g=587&n=z'
+      im.type = "bing"
     }
-  }
 
-  if (source.start_date) {
-    startDate = new Date(source.start_date);
-    isValid = !isNaN(startDate.getTime());
-    if (isValid) {
-      im.startDate = startDate;
+    // Some WMS sources are supported, check projection
+    if (source.type === 'wms') {
+      const projection = source.available_projections && supportedWMSProjections.find(p => source
+        .available_projections.indexOf(p) !== -1);
+      if (!projection) return;
+      if (data.some(other => other.name === source.name && other.type !== source.type)) return;
+      im.projection = projection;
     }
-  }
 
-  let extent = source.extent || {};
-  if (extent.min_zoom || extent.max_zoom) {
-    im.zoomExtent = [
-      extent.min_zoom || 0,
-      extent.max_zoom || 22
-    ];
-  }
+    let startDate, endDate, isValid;
 
-  if (extent.polygon) {
-    im.polygon = extent.polygon;
-  } else if (extent.bbox) {
-    im.polygon = [[
-      [extent.bbox.min_lon, extent.bbox.min_lat],
-      [extent.bbox.min_lon, extent.bbox.max_lat],
-      [extent.bbox.max_lon, extent.bbox.max_lat],
-      [extent.bbox.max_lon, extent.bbox.min_lat],
-      [extent.bbox.min_lon, extent.bbox.min_lat]
-    ]];
-  }
-
-  if (source.id === 'mapbox_locator_overlay') {
-    im.overzoom = false;
-  }
-
-  const attribution = source.attribution || {};
-  if (attribution.url) {
-    im.terms_url = attribution.url;
-  }
-  if (attribution.text) {
-    im.terms_text = attribution.text;
-  }
-  if (attribution.html) {
-    im.terms_html = attribution.html;
-  }
-
-  ['best', 'default', 'description', 'encrypted', 'icon', 'overlay', 'tileSize'].forEach(prop => {
-    if (source[prop]) {
-      im[prop] = source[prop];
+    if (source.end_date) {
+      endDate = new Date(source.end_date);
+      isValid = !isNaN(endDate.getTime());
+      if (isValid) {
+        if (endDate <= cutoffDate) return; // too old
+        im.endDate = endDate;
+      }
     }
-  });
-  global_imagery.push(im);
-	})
+
+    if (source.start_date) {
+      startDate = new Date(source.start_date);
+      isValid = !isNaN(startDate.getTime());
+      if (isValid) {
+        im.startDate = startDate;
+      }
+    }
+
+    let extent = source.extent || {};
+    if (extent.min_zoom || extent.max_zoom) {
+      im.zoomExtent = [
+        extent.min_zoom || 0,
+        extent.max_zoom || 22
+      ];
+    }
+
+    if (extent.polygon) {
+      im.polygon = extent.polygon;
+    } else if (extent.bbox) {
+      im.polygon = [
+        [
+          [extent.bbox.min_lon, extent.bbox.min_lat],
+          [extent.bbox.min_lon, extent.bbox.max_lat],
+          [extent.bbox.max_lon, extent.bbox.max_lat],
+          [extent.bbox.max_lon, extent.bbox.min_lat],
+          [extent.bbox.min_lon, extent.bbox.min_lat]
+        ]
+      ];
+    }
+
+    if (source.id === 'mapbox_locator_overlay') {
+      im.overzoom = false;
+    }
+
+    const attribution = source.attribution || {};
+    if (attribution.url) {
+      im.terms_url = attribution.url;
+    }
+    if (attribution.text) {
+      im.terms_text = attribution.text;
+    }
+    if (attribution.html) {
+      im.terms_html = attribution.html;
+    }
+
+    ['best', 'default', 'description', 'encrypted', 'icon', 'overlay', 'tileSize'].forEach(prop => {
+      if (source[prop]) {
+        im[prop] = source[prop];
+      }
+    });
+    global_imagery.push(im);
+  })
 });
 
 global_imagery.sort((a, b) => a.name.localeCompare(b.name));
 
 function inside(point, vs) {
-    // ray-casting algorithm based on
-    // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
-    
-    var x = point[1], y = point[0];
-    
-    var inside = false;
-    for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        var xi = vs[i][0], yi = vs[i][1];
-        var xj = vs[j][0], yj = vs[j][1];
-        
-        var intersect = ((yi > y) != (yj > y))
-            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-    }
-    
-    return inside;
-};
-function get_local_imagery() {
-    // If polygon is defined and coordinate is in it 
-	// OR polygon is not defined and therefore it's a global layer.
-	pos=map.getCenter()
-	return global_imagery.filter(function(el){return !el.hasOwnProperty("polygon") || inside([pos.lat, pos.lng],el.polygon[0])})
-}
+  // ray-casting algorithm based on
+  // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
 
+  var x = point[1],
+    y = point[0];
+
+  var inside = false;
+  for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    var xi = vs[i][0],
+      yi = vs[i][1];
+    var xj = vs[j][0],
+      yj = vs[j][1];
+
+    var intersect = ((yi > y) != (yj > y)) &&
+      (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+
+  return inside;
+};
+
+function get_local_imagery() {
+  // If polygon is defined and coordinate is in it 
+  // OR polygon is not defined and therefore it's a global layer.
+  pos = map.getCenter()
+  return global_imagery.filter(function(el) {
+    return !el.hasOwnProperty("polygon") || inside([pos.lat, pos.lng], el.polygon[0])
+  })
+}
 
 // https://stackoverflow.com/a/64608760
 var BingLayer = L.TileLayer.extend({
-    getTileUrl: function (tilePoint) {
-		console.log(this)
-        //this._adjustTilePoint(tilePoint);
-        return L.Util.template(this._url, {
-            s: this._getSubdomain(tilePoint),
-            u: this._quadKey(tilePoint.x, tilePoint.y, this._getZoomForUrl())
-        });
-    },
-    _quadKey: function (x, y, z) {
-        var quadKey = [];
-        for (var i = z; i > 0; i--) {
-            var digit = '0';
-            var mask = 1 << (i - 1);
-            if ((x & mask) != 0) {
-                digit++;
-            }
-            if ((y & mask) != 0) {
-                digit++;
-                digit++;
-            }
-            quadKey.push(digit);
-        }
-        return quadKey.join('');
+  getTileUrl: function(tilePoint) {
+    console.log(this)
+    //this._adjustTilePoint(tilePoint);
+    return L.Util.template(this._url, {
+      s: this._getSubdomain(tilePoint),
+      u: this._quadKey(tilePoint.x, tilePoint.y, this._getZoomForUrl())
+    });
+  },
+  _quadKey: function(x, y, z) {
+    var quadKey = [];
+    for (var i = z; i > 0; i--) {
+      var digit = '0';
+      var mask = 1 << (i - 1);
+      if ((x & mask) != 0) {
+        digit++;
+      }
+      if ((y & mask) != 0) {
+        digit++;
+        digit++;
+      }
+      quadKey.push(digit);
     }
+    return quadKey.join('');
+  }
 });
-
 
 function imagery_to_layers(img_list) {
-	
-	list2=img_list.map(function(data){
-		
-			if (data.zoomExtent==null){
-				data.zoomExtent=[1,20]
-			}
-		var subdomains = (data.template.match(/{switch:(.*?)}/i) || ['',''])[1].split(',').map(function (el) {return el.trim();});
-		var options = {maxZoom: data.zoomExtent[1], 
-						minZoom: data.zoomExtent[0],
-						attribution: "".concat("<a href=\"",data.terms_url,"\">",data.terms_text,"</a>"),
-					subdomains: subdomains
-						};
-		console.log(data.type)
-		if (data.type=="bing" ) {
-			var url = data.template.replace(/{switch:(.*?)}/i, "{s}")
-			testLayer = new BingLayer(url, {
-    subdomains: subdomains,
-    attribution: '&copy; <a href="http://bing.com/maps">Bing Maps</a>'
-});
-			
-			
-		} else if (data.type=="tms" || data.default) {
-			var url = data.template.replace(/{switch:(.*?)}/i, "{s}")
-			testLayer= L.tileLayer(url.replace('{zoom}','{z}'), options)
-		} else {
-			if (data.projection==null){
-				data.projection="EPSG:3857"
-			}
-			// This portion is based on https://osmlab.github.io/editor-layer-index/
-			// TODO: Leida {switch:a,b,c}  => {s} + subdomains=["a,", "b","c"]
-			
-	var url = data.template.replace(/{switch:(.*)}/i, "[s}").replace(/{.*?}/g, '').replace("[s}","{s}");
-			console.log(data.template,url)
-                var layers = decodeURIComponent(url.match(/(&|\?)layers=(.*?)(&|$)/i)[2]);
-                var styles = (url.match(/(&|\?)styles=(.*?)(&|$)/i) || [])[2] || '';
-                var format = url.match(/(&|\?)format=(.*?)(&|$)/i)[2];
-                var transparent = (url.match(/(&|\?)transparent=(.*?)(&|$)/i) || [])[2] || true;
-                var version = (url.match(/(&|\?)version=(.*?)(&|$)/i) || [])[2] || '1.1.1';
-                url = url.replace(/((layers|styles|format|transparent|version|width|height|bbox|srs|crs|service|request)=.*?)(&|$)/ig, '')
-				console.log(url)
-                testLayer = L.tileLayer.wms(url, {
-                    layers: layers,
-                    styles: styles,
-                    format: format,
-                    version: version,
-                    transparent: transparent,
-                    uppercase: true,
-					maxZoom: options.maxZoom, 
-					minZoom: options.minZoom,
-					attribution: options.attribution
-                })
-				
-				
-		}
-		testLayer.name=data.name
-		testLayer.id=data.id
-		return testLayer
-	});
-	console.log(list2)
-	i=0
-	   $('#Layers').empty();
-	   list2.forEach(function(value) {
-		el=document.createElement('option')
-		el.setAttribute("value", i)
-		i++;
-		el.innerHTML= value.name
-		$('#Layers')[0].appendChild(el);
-	});
-	
-	return list2; // Return leaflet-compatible list of layers for this location.
+
+  list2 = img_list.map(function(data) {
+
+    if (data.zoomExtent == null) {
+      data.zoomExtent = [1, 20]
+    }
+    var subdomains = (data.template.match(/{switch:(.*?)}/i) || ['', ''])[1].split(',').map(function(el) {
+      return el.trim();
+    });
+    var options = {
+      maxZoom: data.zoomExtent[1],
+      minZoom: data.zoomExtent[0],
+      attribution: "".concat("<a href=\"", data.terms_url, "\">", data.terms_text, "</a>"),
+      subdomains: subdomains
+    };
+    console.log(data.type)
+    if (data.type == "bing") {
+      var url = data.template.replace(/{switch:(.*?)}/i, "{s}")
+      testLayer = new BingLayer(url, {
+        subdomains: subdomains,
+        attribution: '&copy; <a href="http://bing.com/maps">Bing Maps</a>'
+      });
+
+    } else if (data.type == "tms" || data.default) {
+      var url = data.template.replace(/{switch:(.*?)}/i, "{s}")
+      testLayer = L.tileLayer(url.replace('{zoom}', '{z}'), options)
+    } else {
+      if (data.projection == null) {
+        data.projection = "EPSG:3857"
+      }
+      // This portion is based on https://osmlab.github.io/editor-layer-index/
+      // TODO: Leida {switch:a,b,c}  => {s} + subdomains=["a,", "b","c"]
+
+      var url = data.template.replace(/{switch:(.*)}/i, "[s}").replace(/{.*?}/g, '').replace("[s}",
+        "{s}");
+      console.log(data.template, url)
+      var layers = decodeURIComponent(url.match(/(&|\?)layers=(.*?)(&|$)/i)[2]);
+      var styles = (url.match(/(&|\?)styles=(.*?)(&|$)/i) || [])[2] || '';
+      var format = url.match(/(&|\?)format=(.*?)(&|$)/i)[2];
+      var transparent = (url.match(/(&|\?)transparent=(.*?)(&|$)/i) || [])[2] || true;
+      var version = (url.match(/(&|\?)version=(.*?)(&|$)/i) || [])[2] || '1.1.1';
+      url = url.replace(
+        /((layers|styles|format|transparent|version|width|height|bbox|srs|crs|service|request)=.*?)(&|$)/ig,
+        '')
+      console.log(url)
+      testLayer = L.tileLayer.wms(url, {
+        layers: layers,
+        styles: styles,
+        format: format,
+        version: version,
+        transparent: transparent,
+        uppercase: true,
+        maxZoom: options.maxZoom,
+        minZoom: options.minZoom,
+        attribution: options.attribution
+      })
+
+    }
+    testLayer.name = data.name
+    testLayer.id = data.id
+    return testLayer
+  });
+  console.log(list2)
+  i = 0
+  $('#Layers').empty();
+  list2.forEach(function(value) {
+    el = document.createElement('option')
+    el.setAttribute("value", i)
+    i++;
+    el.innerHTML = value.name
+    $('#Layers')[0].appendChild(el);
+  });
+
+  return list2; // Return leaflet-compatible list of layers for this location.
 }
 // inside([47.4507,27.8581],global_imagery[399].polygon[0])
