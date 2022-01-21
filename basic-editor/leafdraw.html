@@ -5,11 +5,17 @@
   <meta charset="utf-8" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--For map-->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- For autocomplete-->
+    <link href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
+      <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
 
 </head>
 <body onload="load_way([
@@ -22,6 +28,7 @@
 
 
 <script src="get_imagery.js"></script>
+<script src="tagging.js"></script>
   <script>
   
   
@@ -136,6 +143,6 @@ function changeLayer() {
     <option value="Lamborghini"> Lamborghini </option>  
     <option value="Ferrari"> Ferrari </option>  
     <option value="Ford"> Ford </option>  
-</select>  
+</select>  <input id="automplete-1" onkeyup="update_tag()" />
 </body>
 </html>
