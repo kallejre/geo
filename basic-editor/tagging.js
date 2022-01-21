@@ -112,6 +112,7 @@ function load_autocomplete() {
         }
         this.value = terms.join("=");
         return false;
-      }
+      },
+      appendTo: "ui-widget"
     });
 }
