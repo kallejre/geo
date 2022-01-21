@@ -177,9 +177,11 @@ $.getJSON('https://osmlab.github.io/editor-layer-index/imagery.json', function(d
     });
     global_imagery.push(im);
   })
+  global_imagery.sort((a, b) => a.name.localeCompare(b.name));
+  // Final callback after global imagery index has been processed
+  refresh_layer_list()
 });
 
-global_imagery.sort((a, b) => a.name.localeCompare(b.name));
 
 function inside(point, vs) {
   // ray-casting algorithm based on
@@ -316,4 +318,9 @@ function imagery_to_layers(img_list) {
 
   return list2; // Return leaflet-compatible list of layers for this location.
 }
-// inside([47.4507,27.8581],global_imagery[399].polygon[0])
+
+function refresh_layer_list() {
+  localayers=get_local_imagery()
+  console.log(localayers)
+  layers = imagery_to_layers(localayers)
+}

@@ -59,9 +59,10 @@
       editableLayers.addLayer(polygon);
       editHandler.enable()
       map.fitBounds(polygon.getBounds());
-      localayers=get_local_imagery()
-      console.log(localayers)
-      layers = imagery_to_layers(get_local_imagery())
+      // Don't run if there are no layers downloaded yet.
+      if (global_imagery.length) {
+        refresh_layer_list()
+      }
     }
 
 
@@ -173,7 +174,7 @@
              height:30%;
         }
     }
-     .active_tag {
+     .active_tag, #Layers {
         width:calc(100% - 20px);
     }
      .ui-widget, .ui-widget > input {
