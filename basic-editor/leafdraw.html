@@ -5,24 +5,26 @@
   <meta charset="utf-8" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+<!-- For autocomplete-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<link href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" rel="stylesheet">
+<link href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
+<script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
   <!--For map-->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-<!-- For autocomplete-->
-    <link href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" rel="stylesheet">
-      <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 
 
+  <style>
+  .ui-autocomplete-loading {
+    background: white url("ui-anim_basic_16x16.gif") right center no-repeat;
+  }
+  </style>
 </head>
-<body onload="load_way([
-      [59.41281, 24.79753],
-      [59.41237, 24.79746],
-      [59.41230, 24.79802]
-    ])">
+<body onload="bodyLoad()">
   <div id="map" style="width: 960px; height: 500px"></div>
 
 
@@ -132,17 +134,24 @@ function changeLayer() {
 	map.addLayer(layers[i])
 	oldlayer=i
 }
+
+function bodyLoad() {
+load_autocomplete()
+  
+  
+  
+  load_way([
+      [59.41281, 24.79753],
+      [59.41237, 24.79746],
+      [59.41230, 24.79802]
+    ]);
+}
+
   // Won't work in editing mode
 	//var layerControl = L.control.layers(baseLayers, overlays).addTo(map);
   </script>
    <button onclick="resetMap()">Reset shape</button> 
 <select id="Layers" size="5" oninput="changeLayer()">
-    <option value="Merceders"> Merceders </option>  
-    <option value="BMW"> BMW </option>  
-    <option value="Jaguar"> Jaguar </option>  
-    <option value="Lamborghini"> Lamborghini </option>  
-    <option value="Ferrari"> Ferrari </option>  
-    <option value="Ford"> Ford </option>  
-</select>  <input id="automplete-1" onkeyup="update_tag()" />
+</select>  <input class="active_tag"  size="40"/>
 </body>
 </html>

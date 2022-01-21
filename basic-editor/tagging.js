@@ -8,8 +8,8 @@ var last_tag_query=0;
 
 function get_taglist(query){
 	// If query contains "=", tag/value is requested, otherwise key.
-	// Check that 2 sec has passed since last call
-	if (Date.now()-last_tag_query<2000){
+	// Check that 0.3 sec has passed since last call
+	if (Date.now()-last_tag_query<300){
 		return buffered_taglist
 	} else {last_tag_query=Date.now()
 	}
@@ -61,7 +61,9 @@ function split( val ) {
       return split( term ).pop();
     }
  
-    $( "#birds" )
+	  
+function load_autocomplete() {
+	$( ".active_tag" )
       // don't navigate away from the field on tab when selecting an item
       .on( "keydown", function( event ) {
         if ( event.keyCode === $.ui.keyCode.TAB &&
@@ -98,4 +100,4 @@ function split( val ) {
           this.value = terms.join( "=" );
           return false;
         }
-      });
+});}
