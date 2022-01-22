@@ -21,6 +21,7 @@
     </style>
     <script src="get_imagery.js"></script>
     <script src="tagging.js"></script>
+    <script src="editing.js"></script>
     <script>
     var oldlayer;
     var center = [51.51262, -0.09791];
@@ -192,6 +193,7 @@
         <div class="ui-widget">
           <input class="active_tag"  />
         </div>
+        <button onclick="submit_data('skip')">Skip item</button> 
       </div>
       <div id="map"></div>
     </div>
