@@ -31,26 +31,25 @@
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
 
-    var customMarker= L.Icon.extend({
-    options: {
+    var customMarker = L.Icon.extend({
+      options: {
         shadowUrl: null,
         iconAnchor: new L.Point(12, 12),
         iconSize: new L.Point(24, 24),
         iconUrl: 'http://joshuafrazier.info/images/firefox.svg'
-    }
-});
+      }
+    });
 
-   
     L.drawLocal.edit.handlers.edit.tooltip.subtext = '';
-    L.drawLocal.edit.handlers.edit.tooltip.text    = '';
+    L.drawLocal.edit.handlers.edit.tooltip.text = '';
 
     function update_marker_sizes() {
-        var z = map.getZoom();
-        z = Math.min(20, Math.max(2, Math.round(Math.pow(1.4, z)/30)))
-        $('.leaflet-marker-draggable').height(z)
-        $('.leaflet-marker-draggable').width(z)
-        $('.leaflet-marker-draggable').css('margin-left',-Math.ceil(z/2)+'px');
-        $('.leaflet-marker-draggable').css('margin-top',-Math.ceil(z/2)+'px');
+      var z = map.getZoom();
+      z = Math.min(20, Math.max(2, Math.round(Math.pow(1.4, z) / 30)))
+      $('.leaflet-marker-draggable').height(z)
+      $('.leaflet-marker-draggable').width(z)
+      $('.leaflet-marker-draggable').css('margin-left', -Math.ceil(z / 2) + 'px');
+      $('.leaflet-marker-draggable').css('margin-top', -Math.ceil(z / 2) + 'px');
     }
 
     function load_way(coords) {
@@ -73,7 +72,6 @@
       }
     }
 
-
     function resetMap() {
       editHandler.revertLayers()
       editHandler.disable()
@@ -94,132 +92,151 @@
       // Finalize initialization
       map = L.map('map').setView(center, 18);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18, minZoom: 10,
-      attribution: 'Map data © ' + '<a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-    }).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        minZoom: 10,
+        attribution: 'Map data © ' + '<a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+      }).addTo(map);
 
+      map.addLayer(editableLayers);
 
-    map.addLayer(editableLayers);
+      editFeatureGroup = L.featureGroup();
+      editToolbar = new L.EditToolbar({
+        featureGroup: editableLayers
+      })
+      editHandler = editToolbar.getModeHandlers()[0].handler
+      editHandler._map = map
 
-    editFeatureGroup = L.featureGroup();
-    editToolbar = new L.EditToolbar({
-      featureGroup: editableLayers
-    })
-    editHandler = editToolbar.getModeHandlers()[0].handler
-    editHandler._map = map
-    
-    map.on('zoomend', update_marker_sizes);
-    
-    
-// Selected on load. Defined and used in editing.js
-tags_div=$(".ui-widget")[0]
-    
-    $(".disablable").prop( "disabled", true );
-      load_way([
-        [51.51281, -0.09753],
-        [51.51237, -0.09746],
-        [51.51230, -0.09802]
-      ])
-      /*load_way([
-        [59.41281, 24.79753],
-        [59.41237, 24.79746],
-        [59.41230, 24.79802]
-      ]);*/
-      load_autocomplete()
+      map.on('zoomend', update_marker_sizes);
+
+      // Selected on load. Defined and used in editing.js
+      tags_div = $(".ui-widget")[0]
+
+      $(".disablable").prop("disabled", true);
+      var ids = new URLSearchParams(window.location.search).get("id")
+      var way_id = new URLSearchParams(window.location.search).get("way")
+      if (ids) {
+        // Using Level0 syntax (w123,w213,w321), but supports just one way.
+        // 1st split, then remove non-ways and non-numeral IDs
+        ids = ids.split(",").filter((d) => d.startsWith("w") && !isNaN(d.slice(1)))[0]
+        if (typeof ids !== 'undefined') {
+          console.log("Found ID " + ids.slice(1))
+          download_way(ids.slice(1))
+        }
+      } else if (way_id && !isNaN(way_id)) {
+        // Alternative uses same parameter format as iD uses (way=123)
+        console.log("Found ID " + way_id)
+        download_way(way_id)
+      }
     }
 
     // Won't work in editing mode
     //var layerControl = L.control.layers(baseLayers, overlays).addTo(map);
-
-    </script>
-    <style>
-    html, body {
-         height: 100%;
-         margin: 0;
-    }
-     #sidebar {
-         width: 250px;
-         height: calc(100%);
-         position: absolute;
-         top: 0;
-         bottom: 0;
-         background: #f8f8f8;
-         z-index: 2;
-         overflow: auto;
-    }
-     #map {
-         width: calc(100% - 250px);
-         height: 100%;
-         left: 250px;
-         position: absolute;
-    }
-     #container {
-         position: absolute;
-         top: 0;
-         right: 0;
-         width: 100%;
-         height: 100%;
-         overflow: show;
-         display: flex;
-         flex-direction: row;
-    }
-     @media (max-width: 500px) {
-         #container {
-             flex-direction: column;
-             display: flex;
-             flex:40%;
+  </script>
+  <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+  
+      #sidebar {
+        width: 250px;
+        height: calc(100%);
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        background: #f8f8f8;
+        z-index: 2;
+        overflow: auto;
+      }
+  
+      #map {
+        width: calc(100% - 250px);
+        height: 100%;
+        left: 250px;
+        position: absolute;
+      }
+  
+      #container {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        overflow: show;
+        display: flex;
+        flex-direction: row;
+      }
+  
+      @media (max-width: 500px) {
+        #container {
+          flex-direction: column;
+          display: flex;
+          flex: 40%;
         }
-         #map, #sidebar {
-             top: 0;
-             right: 0;
-             left: 0;
-             position:relative;
-             width: 100%;
+  
+        #map,
+        #sidebar {
+          top: 0;
+          right: 0;
+          left: 0;
+          position: relative;
+          width: 100%;
         }
-         #map {
-             height:70%;
+  
+        #map {
+          height: 70%;
         }
-         #sidebar{
-             height:30%;
+  
+        #sidebar {
+          height: 30%;
         }
-    }
-     .active_tag, #Layers {
-        width:calc(100%);
-        box-sizing:border-box;
-    }
-     .ui-widget, .ui-widget > input {
+      }
+  
+      .active_tag,
+      #Layers {
+        width: calc(100%);
+        box-sizing: border-box;
+      }
+  
+      .ui-widget,
+      .ui-widget>input {
         font-family: monospace;
-        font-size:1.0em;
-    }
-     .ui-widget > p {
+        font-size: 1.0em;
+      }
+  
+      .ui-widget>p {
         color: black;
         font-family: sans-serif;
         text-align: center;
-    }
-     .active_tag {
+      }
+  
+      .active_tag {
         border: 1px solid #ccc;
         padding-left: 0.2em;
         border-left: none;
         border-right: none;
-        
-    }
-    button {
+  
+      }
+  
+      button {
         width: 49%;
-        }
-    </style>
-  </head>
+      }
+  </style>
+</head>
+
   <body onload="bodyLoad()" class="full_height">
     <div id='container'>
       <div id='sidebar'>
-        <select id="Layers" oninput="changeLayer()"></select> 
+        <select id="Layers" oninput="changeLayer()"></select>
         <div class="ui-widget">
-          <input class="active_tag"  />
+          <input class="active_tag" />
         </div>
         <button id="save-button" class="disablable" onclick="submit_data('save')">Save item</button>
         <button id="skip-button" onclick="submit_data('skip')">Skip item</button>
-        <button id="shape-button" class="disablable" onclick="resetMap()">Reset shape</button> 
-        <button id="reset-button" onclick="resetMap()">Reset all</button> 
+        <button id="shape-button" class="disablable" onclick="resetMap()">Reset shape</button>
+        <button id="reset-button" onclick="resetMap()">Reset all</button>
       </div>
       <div id="map"></div>
     </div>
