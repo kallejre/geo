@@ -186,6 +186,7 @@ $.getJSON('https://osmlab.github.io/editor-layer-index/imagery.json', function(d
 function inside(point, vs) {
   // ray-casting algorithm based on
   // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
+  // Purpose: To find out which imagery polygon is at that location.
 
   var x = point[1],
     y = point[0];
@@ -217,7 +218,6 @@ function get_local_imagery() {
 // https://stackoverflow.com/a/64608760
 var BingLayer = L.TileLayer.extend({
   getTileUrl: function(tilePoint) {
-    console.log(this)
     //this._adjustTilePoint(tilePoint);
     return L.Util.template(this._url, {
       s: this._getSubdomain(tilePoint),
@@ -258,7 +258,6 @@ function imagery_to_layers(img_list) {
       attribution: "".concat("<a href=\"", data.terms_url, "\">", data.terms_text, "</a>"),
       subdomains: subdomains
     };
-    console.log(data.type)
     if (data.type == "bing") {
       var url = data.template.replace(/{switch:(.*?)}/i, "{s}")
       testLayer = new BingLayer(url, {
@@ -278,7 +277,7 @@ function imagery_to_layers(img_list) {
 
       var url = data.template.replace(/{switch:(.*)}/i, "[s}").replace(/{.*?}/g, '').replace("[s}",
         "{s}");
-      console.log(data.template, url)
+      // console.log(data.template, url)
       var layers = decodeURIComponent(url.match(/(&|\?)layers=(.*?)(&|$)/i)[2]);
       var styles = (url.match(/(&|\?)styles=(.*?)(&|$)/i) || [])[2] || '';
       var format = url.match(/(&|\?)format=(.*?)(&|$)/i)[2];
@@ -305,7 +304,6 @@ function imagery_to_layers(img_list) {
     testLayer.id = data.id
     return testLayer
   });
-  console.log(list2)
   i = 0
   $('#Layers').empty();
   list2.forEach(function(value) {

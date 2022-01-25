@@ -16,19 +16,27 @@ Responsible for exchanging data between frontend and backend.
 
 var overpass_server="https://overpass-api.de/api/interpreter"
 // Use {id} as variable.
-var op_query = "[out:json];way(id:{id});out body;>;out skel qt;"
+var op_query = "[timeout:15][out:json];way(id:{id});out body;>;out skel qt;"
 
-function submit_data(state) {
+// tags_div is defined here, but value is defined in leafdraw.html, after webpage has been initialized.
+var tags_div
+
+
+function submit_data(state, id) {
+    out={};
+    out.type="way"
+    out.id=id
     if (state == "skip"){
-        if (!confirm("Are you sure you wish to skip this item?")){
+        if (!confirm("Are you sure you wish to skip this item (way "+out.id+")?")){
             console.log("Skip canceled")
             return
         }
+        out.skipped=true;
         console.log("Skip demo")
         resetMap()
         return
     }
-    out={};
+    out.skipped=false;
     out.geom_changed = Boolean(polygon.edited)
     out.geom = polygon.editing.latlngs[0][0].map(function(d){return [Math.round(d.lat*1e7)/1e7, Math.round(d.lng*1e7)/1e7]});
     // Create key-value pairs from text fields and then convert to object.
@@ -40,11 +48,48 @@ function submit_data(state) {
     console.log(out)
 }
 
+function load_tags(tags) {
+    tags_div.innerHTML = "";
+    if (tags.length==0) {
+        tags_div.innerHTML = "<p>This way has no tags. Yet.</p>";
+    } else {
+        tags.forEach(function(tag) {
+            var inp = document.createElement("input");
+            inp.setAttribute('class',"active_tag");
+            inp.setAttribute('value',tag);
+            tags_div.append(inp)
+        });
+    }
+    add_empty_tag_field()
+    // Add autocomplete to fields
+    load_autocomplete()
+}
+
+function scroll_to_bottom(){
+    $("#sidebar")[0].scrollTo(0,$("#sidebar")[0].scrollHeight);
+}
+
+function add_empty_tag_field() {
+    // Get las input field
+    tags_div.lastChild.removeAttribute("onfocus")
+    // Add empty field
+    var inp = document.createElement("input");
+    inp.setAttribute('class',"active_tag");
+    inp.setAttribute('value',"");
+    inp.setAttribute('onfocus',"add_empty_tag_field()");
+    tags_div.append(inp)
+    scroll_to_bottom()
+}
+
 function parse_overpass(data){
     console.log("Here")
     console.log(data)
     console.log("There")
+    if (data.elements.length > 0){
     way=data.elements[0]
+} else{
+    tags_div.innerHTML="<p>API returned empty response (way might not exist)</p>"
+    return}
     var nodes=data.elements.filter(function(x){return x.type==="node"});
     // Sort nodes in order they appear in way.
     nodes =nodes.sort(function(n,m){return way.nodes.indexOf(n.id)-way.nodes.indexOf(m.id)})
@@ -57,13 +102,22 @@ function parse_overpass(data){
         tags = Object.entries(way.tags).map(function(x){return x.join("=")})
     } else {
         // way is untagged
-        tags = {}
+        tags = []
     }
+    // Re-enable upload button
+    $(".disablable").prop( "disabled", false ); 
     load_way(coords)
+    console.log(tags)
+    load_tags(tags)
     return [coords, tags]
 }
 
 function download_way(id) {
+  tags_div.innerHTML="<p>Calling overpass API</p>"
+  $(".disablable").prop( "disabled", true);
+  $("#reset-button")[0].setAttribute("onClick","download_way("+id+")")
+  $("#save-button")[0].setAttribute("onClick","submit_data('save',"+id+")")
+  $("#skip-button")[0].setAttribute("onClick","submit_data('skip',"+id+")")
   $.ajax({
     type: 'GET',
     url: overpass_server,
@@ -71,6 +125,7 @@ function download_way(id) {
     async: false,
     processData: false,
     data: $.param({"data": op_query.replace("{id}",id)}),
-    success: parse_overpass
+    success: parse_overpass,
+    error:function(){ tags_div.innerHTML="<p>Unable to download element</p>" }
   });
   }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Leaflet Quick Start Guide Example</title>
+    <title>Basic OSM editor in Leaflet</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- For autocomplete-->
@@ -111,6 +111,11 @@
     
     map.on('zoomend', update_marker_sizes);
     
+    
+// Selected on load. Defined and used in editing.js
+tags_div=$(".ui-widget")[0]
+    
+    $(".disablable").prop( "disabled", true );
       load_way([
         [51.51281, -0.09753],
         [51.51237, -0.09746],
@@ -141,7 +146,7 @@
          bottom: 0;
          background: #f8f8f8;
          z-index: 2;
-         padding: 5px;
+         overflow: auto;
     }
      #map {
          width: calc(100% - 250px);
@@ -155,8 +160,7 @@
          right: 0;
          width: 100%;
          height: 100%;
-         overflow: hidden;
-         color: #fef;
+         overflow: show;
          display: flex;
          flex-direction: row;
     }
@@ -181,24 +185,41 @@
         }
     }
      .active_tag, #Layers {
-        width:calc(100% - 20px);
+        width:calc(100%);
+        box-sizing:border-box;
     }
      .ui-widget, .ui-widget > input {
         font-family: monospace;
-         font-size:1.0em;
+        font-size:1.0em;
     }
-
+     .ui-widget > p {
+        color: black;
+        font-family: sans-serif;
+        text-align: center;
+    }
+     .active_tag {
+        border: 1px solid #ccc;
+        padding-left: 0.2em;
+        border-left: none;
+        border-right: none;
+        
+    }
+    button {
+        width: 49%;
+        }
     </style>
   </head>
   <body onload="bodyLoad()" class="full_height">
     <div id='container'>
       <div id='sidebar'>
-        <button onclick="resetMap()">Reset shape</button> 
         <select id="Layers" oninput="changeLayer()"></select> 
         <div class="ui-widget">
           <input class="active_tag"  />
         </div>
-        <button onclick="submit_data('skip')">Skip item</button> 
+        <button id="save-button" class="disablable" onclick="submit_data('save')">Save item</button>
+        <button id="skip-button" onclick="submit_data('skip')">Skip item</button>
+        <button id="shape-button" class="disablable" onclick="resetMap()">Reset shape</button> 
+        <button id="reset-button" onclick="resetMap()">Reset all</button> 
       </div>
       <div id="map"></div>
     </div>
