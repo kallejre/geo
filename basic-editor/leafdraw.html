@@ -26,27 +26,32 @@
     var oldlayer;
     var center = [51.51262, -0.09791];
     var map;
-    var drawControl;
     var polygon;
 
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
 
-    var drawPluginOptions = {
-      position: 'topleft',
-      draw: {
-        polyline: false,
-        polygon: false,
-        circle: false,
-        circlemarker: false,
-        rectangle: false,
-        marker: false
-      },
-      edit: {
-        featureGroup: editableLayers, //REQUIRED!!
-        remove: false
-      }
-    };
+    var customMarker= L.Icon.extend({
+    options: {
+        shadowUrl: null,
+        iconAnchor: new L.Point(12, 12),
+        iconSize: new L.Point(24, 24),
+        iconUrl: 'http://joshuafrazier.info/images/firefox.svg'
+    }
+});
+
+   
+    L.drawLocal.edit.handlers.edit.tooltip.subtext = '';
+    L.drawLocal.edit.handlers.edit.tooltip.text    = '';
+
+    function update_marker_sizes() {
+        var z = map.getZoom();
+        z = Math.min(20, Math.max(2, Math.round(Math.pow(1.4, z)/30)))
+        $('.leaflet-marker-draggable').height(z)
+        $('.leaflet-marker-draggable').width(z)
+        $('.leaflet-marker-draggable').css('margin-left',-Math.ceil(z/2)+'px');
+        $('.leaflet-marker-draggable').css('margin-top',-Math.ceil(z/2)+'px');
+    }
 
     function load_way(coords) {
       // Clear prev drawing
@@ -55,11 +60,13 @@
         map.removeLayer(layers[oldlayer]) // Remove old background imagery
       }
       polygon = L.polygon(coords, {
-        color: 'red'
+        color: 'red',
+        marker: customMarker
       }).addTo(map);
       editableLayers.addLayer(polygon);
       editHandler.enable()
       map.fitBounds(polygon.getBounds());
+      update_marker_sizes()
       // Don't run if there are no layers downloaded yet.
       if (global_imagery.length) {
         refresh_layer_list()
@@ -94,17 +101,15 @@
 
 
     map.addLayer(editableLayers);
-    drawControl	= new L.Control.Draw(drawPluginOptions);
 
-    drawControl = new L.Control.Draw({
-      edit: false
-    });
     editFeatureGroup = L.featureGroup();
     editToolbar = new L.EditToolbar({
       featureGroup: editableLayers
     })
     editHandler = editToolbar.getModeHandlers()[0].handler
     editHandler._map = map
+    
+    map.on('zoomend', update_marker_sizes);
     
       load_way([
         [51.51281, -0.09753],
