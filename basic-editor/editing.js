@@ -31,6 +31,7 @@ function submit_data(state, id) {
         }
         out.skipped = true;
         console.log("Skip demo")
+        alert("This thing can't skip anything (yet) because there's no back-end.")
         resetMap()
         return
     }
@@ -65,8 +66,6 @@ function load_tags(tags) {
         });
     }
     add_empty_tag_field()
-    // Add autocomplete to fields
-    load_autocomplete()
 }
 
 function scroll_to_bottom() {
@@ -83,6 +82,8 @@ function add_empty_tag_field() {
     inp.setAttribute('onfocus', "add_empty_tag_field()");
     tags_div.append(inp)
     scroll_to_bottom()
+    // Add autocomplete to all fields
+    load_autocomplete()
 }
 
 function parse_overpass(data) {
