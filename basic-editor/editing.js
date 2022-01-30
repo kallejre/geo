@@ -27,7 +27,7 @@ var op_query = "[timeout:15][out:json];way(id:{id});out body;>;out skel qt;"
 // tags_div is html <div> element which will hold tags.
 var tags_div
 // Holds original information about downloaded way for later upload purposes.
-var original_way
+var original_data
 
 function submit_data(state, id) {
     out = {};
@@ -120,7 +120,7 @@ function parse_overpass(data) {
     console.log("Here")
     console.log(data)
     console.log("There")
-    original_way = data
+    original_data = data
     if (data.elements.length > 0) {
         way = data.elements.filter(function(x) {return x.type === "way"})[0];
     } else {

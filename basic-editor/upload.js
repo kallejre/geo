@@ -19,6 +19,12 @@ osm={osm:{changeset:{tag:[
     {_k:"imagery_used",_v:Array.from(used_imagery).sort().join(';')}
     ]}}}
 x2js.json2xml_str(osm)
+// Request options defining header XML content.
+XML_HEADER_OPT = {
+  header: {
+    "Content-Type": "text/xml"
+  }
+}
 var currently_open_chset_id = null;
 /*
 <osm>
@@ -118,13 +124,133 @@ update_account_display();
 
 // prompt("Insert changeset comment:", "Default text");
 
-// Changeset uploading?
+function upload_way(data) {
+  // Receive object generated in submit_json/submit_data and handle its uploading or skipping
+  // Convert received data into OSC-compatible format.
+  console.log("Received into upload")
+  console.log(data)
+  if (data.skipped) {
+    console.log("Informing about skipping the way")
+    // FIXME: Insert ommunication with TODO list manager
+    return
+  }
+
+  orig_way = original_data.elements.filter(function(x) {
+    return x.type === "way"
+  })[0]
+
+  if (data.geom_changed) {
+    // TODO: Process geometry changes
+    tmp = process_geometry(data)
+    id_to_coord = tmp.to_keep //   Obj with {OsmID: [lat, lon], ..}
+    nodes_to_add = tmp.to_add //  [[lat, lon], ..]
+    ids_to_remove = tmp.to_delete // [OsmID, ..]
+    // TODO: Generate OsmChange from lists. Don't forget check if node was moved at all.
+    console.log(tmp)
+  } else {
+    // Copy node references from earlier copy.
+    nodes_list = orig_way.nodes.map((d) => {
+      return {
+        "_ref": d
+      }
+    })
+    // Use nodes_list in object in following way: {"nd": nodes_list}
+    console.log(nodes_list)
+  }
+  way_tags = []
+  for (const [key, value] of Object.entries(data.tags)) {
+    way_tags.push({
+      "_k": key,
+      "_v": value
+    });
+  }
+  if (way_tags.length !== 0) {
+    // If way_tags is not empty, use it in following way: {"tag": way_tags}
+  }
+  // FIXME: Insert ommunication with TODO list manager
+}
+
+function process_geometry(data) {
+  // General algorithm: 
+  //    Given set of nodes A (data.geom) and set B (nodes),
+  //    find pairs <a,b> in such way that a (from A) and b (from B)
+  //    link each existing node to closest geom coordinate.
+  //  This function doesn't even include OsmChange generation.
+  nodes = original_data.elements.filter(function(x) {
+    return x.type === "node"
+  });
+  distances = []
+
+  nodes.forEach(function(b) {
+    data.geom.forEach(function(a) {
+      dist = calc_node_distance(a, b)
+      distances.push([dist, a, b.id])
+    });
+  });
+  distances.sort()
+  // Link every existing node to new coordinate
+  id_to_coord = {}
+  nodes_to_add = []
+  ids_to_remove = []
+  console.log(distances)
+  console.log(distances.length)
+  while (distances.length) {
+    first = distances.shift() // Remove 1st elements
+    console.log(first[2])
+    id_to_coord[first[2]] = first[1]
+    console.log(distances)
+    distances = distances.filter(function(d) {
+      return d[2] != first[2]
+    })
+  }
+  if (Object.keys(id_to_coord).length < nodes.length) {
+    // Find nodes ID that are not keys in id_to_coord object.
+    ids_to_remove = nodes.map(function(x) {
+      return x.id  // FIXME!!! Deleting nodes doesn't work.
+    }).filter(function(x) {
+      Object.keys(id_to_coord).indexOf(x) === -1;
+    })
+  } else if (data.geom.length > nodes.length) {
+    // Find new coordinates (data.geom) that were not linked to any existing node.
+    // Due to nested arrays, we need to compare every individual number in arrays.
+    nodes_to_add = data.geom.filter(x => !Object.values(id_to_coord).some(a => x.every((v, i) => v === a[i])));
+  }
+
+  return {"to_keep": id_to_coord, "to_add": nodes_to_add, "to_delete": ids_to_remove}
+}
+
+function calc_node_distance(a, b) {
+  // Warning: a is an Array(<lat>, <lon>) while
+  // b is object {lat: <lat>, lon: <lon>}
+  // Translated from Java on et.wikipedia.org/wiki/Ortodroom
+  var delta, p0, p1, p2, p3;
+  // The average radius for a spherical approximation of Earth
+  var rEarth = 6371010;
+  // Degree to radian mini-function
+  rad = (x) => x * Math.PI / 180
+  delta = rad(a[1]) - rad(b.lon);
+  p0 = Math.cos(rad(b.lat)) * Math.cos(b.lat);
+  p1 = Math.cos(rad(b.lat)) * Math.sin(delta);
+  p2 = Math.cos(rad(a[0])) * Math.sin(rad(b.lat)) - Math.sin(rad(a[0])) * p0;
+  p3 = Math.sin(rad(a[0])) * Math.sin(rad(b.lat)) + Math.cos(rad(a[0])) * p0;
+
+  return rEarth * Math.atan2(Math.sqrt(p1 * p1 + p2 * p2), p3);
+}
+
+function calc_node_distance(a, b) {
+  // Faster alternative using adjusted pythagoran
+  lat_coef = Math.cos(a[0] * Math.PI / 180)
+  return Math.sqrt(((a[0] - b.lat) * lat_coef) ** 2 + (a[1] - b.lon) ** 2)
+}
+
+// =========================================================================
+// Open changeset
 function openChangeset(comment) {
-    osm={osm:{changeset:{tag:[
-        {_k:"created_by",_v: version_identifier},
-        {_k:"comment",_v: comment},
-        {_k:"imagery_used",_v:Array.from(used_imagery).sort().join(';')}
-        ]}}}
+  osm={osm:{changeset:{tag:[
+      {_k:"created_by",_v: version_identifier},
+      {_k:"comment",_v: comment},
+      {_k:"imagery_used",_v:Array.from(used_imagery).sort().join(';')}
+      ]}}}
   cs_xml = x2js.json2xml_str(osm)
 
   // Auth.xhr takes 2 paramaters options and callback.
@@ -132,14 +258,11 @@ function openChangeset(comment) {
     method: 'PUT',
     path: '/api/0.6/changeset/create',
     content: cs_xml,
-    options: {
-      header: {
-        "Content-Type": "text/xml"
-      }
-    },
+    options: XML_HEADER_OPT,
   }, (err, res) => {
     if (err) {
-      reject(err);
+      console.warn("Error occured while opening changeset")
+      console.err(err);
     } else {
       currently_open_chset_id = res;
       console.log('Api returned changeset id: ' + res);
@@ -148,6 +271,8 @@ function openChangeset(comment) {
   });
 }
 
+// =========================================================================
+// Close changeset
 function closeChangeset() {
   if (currently_open_chset_id === null) {
     console.warn(
@@ -159,11 +284,7 @@ function closeChangeset() {
     method: 'PUT',
     path: '/api/0.6/changeset/' + currently_open_chset_id + '/close',
     content: cs_xml,
-    options: {
-      header: {
-        "Content-Type": "text/xml"
-      }
-    },
+    options: XML_HEADER_OPT,
   }, (err, res) => {
     if (err) {
       console.warn("Error occured while closing changeset")
@@ -176,149 +297,39 @@ function closeChangeset() {
 
 // prompt("Insert changeset comment:", "Default text");
 
-// # Parsing & Producing XML
-var a = nl => Array.prototype.slice.call(nl),
-  attr = (n, k) => n.getAttribute(k),
-  serializer = new XMLSerializer();
-// Given an XML DOM in OSM format and an object of the form
-//
-//     { k, v }
-//
-// Find all nodes with that key combination and return them
-// in the form
-//
-//     { xml: Node, tags: {}, id: 'osm-id' }
-var parser = (xml, kv) =>
-  a(xml.getElementsByTagName("node"))
-    .map(node =>
-      a(node.getElementsByTagName("tag")).reduce(
-        (memo, tag) => {
-          memo.tags[attr(tag, "k")] = attr(tag, "v");
-          return memo;
-        },
-        {
-          xml: node,
-          tags: {},
-          id: attr(node, "id"),
-          location: {
-            latitude: parseFloat(attr(node, "lat")),
-            longitude: parseFloat(attr(node, "lon"))
-          }
-        }
-      )
-    )
-    .filter(node => node.tags[kv.k] === kv.v);
-var serialize = xml =>
-  serializer
-    .serializeToString(xml)
-    .replace('xmlns="http://www.w3.org/1999/xhtml"', "");
-// Since we're building XML the hacky way by formatting strings,
-// we'll need to escape strings so that places like "Charlie's Shop"
-// don't make invalid XML.
-var escape = _ =>
-  _.replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-// Generate the XML payload necessary to open a new changeset in OSM
-var changesetCreate = comment => `<osm><changeset>
-    <tag k="created_by" v="${VERSION}" />
-    <tag k="comment" v="${escape(comment)}" />
-  </changeset></osm>`;
-// After the OSM changeset is opened, we need to send the changes:
-// this generates the necessary XML to add or update a specific
-// tag on a single node.
-var changesetChange = (node, tag, id) => {
-  a(node.getElementsByTagName("tag"))
-    .filter(tagElem => tagElem.getAttribute("k") === tag.k)
-    .forEach(tagElem => node.removeChild(tagElem));
-  node.setAttribute("changeset", id);
-  var newTag = node.appendChild(document.createElement("tag"));
-  newTag.setAttribute("k", tag.k);
-  newTag.setAttribute("v", tag.v);
-  return `<osmChange version="0.3" generator="${VERSION}">
-    <modify>${serialize(node)}</modify>
-    </osmChange>`;
-};
-
-
-
-
 // =========================================================================
 // Upload data
 
-var xml;
+function uploadData() {
+  // Create JS object for OsmChange XML.
+  var osc = {
+    'osmChange': {
+      '_version': '0.6',
+      '_generator': version_identifier,
+      'delete': {
+        '_if-unused': "true"
+      }
+    }
+  }
 
-// Save - as .gpx, or .osm, or upload to OSM
-// Not accessed yet...
-function startUpload() {
-	deselectCurrentMarker();
-//	if (markers.length==0) return;
-	var username = u('#username').first().value;
-	var password = u('#password').first().value;
-	if (!username || !password) return alert("You must enter an OSM username and password.");
-	var comment = prompt("Enter a changeset comment.","");
+  /*  OSC sample
+  {'osmChange':{'_version':'0.6','_generator':version_identifier,
+  'delete':{'_if-unused':"true", node:[
+    {_id:-1,_changeset:4433,tag:{_k:"building", _v:"yes"}}, {tag:2}]}}})
+  */
 
-	// Create changeset
-	var str = '<osm><changeset><tag k="created_by" v="Deriviste" /><tag k="comment" v="" /><tag k="imagery_used" v="Mapillary Images" /><tag k="source" v="mapillary" /></changeset></osm>';
-	xml = new DOMParser().parseFromString(str,"text/xml");
-	xml.getElementsByTagName('tag')[1].setAttribute('v', comment);
-
-	fetch("https://www.openstreetmap.org/api/0.6/changeset/create", {
-		method: "PUT",
-	    headers: { "Content-Type": "text/xml",
-		           "Authorization": "Basic " + window.btoa(unescape(encodeURIComponent(username + ":" + password))) },
-		body: new XMLSerializer().serializeToString(xml)
-	}).then(response => {
-		response.text().then(text => {
-			if (isNaN(text)) {
-				flash("Couldn't authenticate");
-			} else {
-				uploadData(text); // this is just the changeset ID
-			}
-		})
-	});
-}
-function uploadData(changesetId) {
-	// Create XML (bleurgh) document
-	xml = document.implementation.createDocument(null,null);
-	var osc = xml.createElement("osmChange");
-	osc.setAttribute('version','0.6');
-	osc.setAttribute('generator','Deriviste');
-	var operation = xml.createElement("create");
-	for (var i=0; i<markers.length; i++) {
-		var marker = markers[i];
-		var node = xml.createElement("node");
-		node.setAttribute("id",-(i+1));
-		node.setAttribute("changeset",changesetId);
-		node.setAttribute("lat",marker.getLatLng().lat);
-		node.setAttribute("lon",marker.getLatLng().lng);
-		for (var k in marker.options.tags) {
-			if (!k || !marker.options.tags[k]) continue;
-			var tag = xml.createElement("tag");
-			tag.setAttribute("k",k);
-			tag.setAttribute("v",marker.options.tags[k]);
-			node.appendChild(tag);
-		}
-		operation.appendChild(node);
-	}
-	osc.appendChild(operation);
-	xml.appendChild(osc);
-	console.log(new XMLSerializer().serializeToString(xml));
-
-	// Upload
-	fetch("https://www.openstreetmap.org/api/0.6/changeset/"+changesetId+"/upload", {
-		method: "POST",
-	    headers: { "Content-Type": "text/xml",
-		           "Authorization": "Basic " + window.btoa(unescape(encodeURIComponent(u('#username').first().value + ":" + u('#password').first().value))) },
-		body: new XMLSerializer().serializeToString(xml)
-	}).then(response => {
-		response.text().then(text => {
-			// we could probably parse the diff result here and keep the markers around
-			//   for editing (with new id/version), but for now, let's just delete them
-			flash("Nodes uploaded.");
-			console.log(text);
-			deleteAllMarkers();
-		})
-	});
+  cs_xml = x2js.json2xml_str(osc)
+  auth.xhr({
+    method: 'POST',
+    path: '/api/0.6/changeset/' + currently_open_chset_id + '/upload',
+    content: cs_xml,
+    options: XML_HEADER_OPT,
+  }, (err, res) => {
+    if (err) {
+      console.warn("Error occured while uploading changes")
+      console.err(err);
+    } else {
+      console.log("Upload was successful")
+    }
+  });
 }
