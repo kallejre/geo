@@ -20,11 +20,12 @@ x2js.json2xml_str(osm)
 // Setup Oauth
 var auth = osmAuth({
     // FIXME: If you use this code, replace key with yours.
-oauth_consumer_key: 'WLwXbm6XFMG7WrVnE8enIF6GzyefYIN6oUJSxG65',
-oauth_secret: '9WfJnwQxDvvYagx1Ut0tZBsOZ0ZCzAvOje3u1TV0',
-auto: true,
-singlepage: true, // Load the auth-window in the current window, with a redirect,
-landing: window.location.href // Come back to the current page
+    url: "https://master.apis.dev.openstreetmap.org",
+oauth_consumer_key: 'UkTktKhTefjWxR7WRutWkazeu2Mbq91ANhV4YDNN',
+oauth_secret: 'KU4vz5R4yScLR1vM7KfLagB2CRqTLiHN7PViQE6B'
+//auto: true,
+//singlepage: true, // Load the auth-window in the current window, with a redirect,
+//landing: window.location.href // Come back to the current page
 });
 
 var urlParams = new URLSearchParams(window.location.search);
@@ -44,6 +45,108 @@ if(urlParams.has('oauth_token')){
     // Attempt to do something authenticated to trigger authentication
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        function done(err, res) {
+            if (err) {
+                document.getElementById('user').innerHTML = 'error! try clearing your browser cache';
+                document.getElementById('user').style.display = 'block';
+                return;
+            }
+            var u = res.getElementsByTagName('user')[0];
+            var changesets = res.getElementsByTagName('changesets')[0];
+            var o = {
+                display_name: u.getAttribute('display_name'),
+                id: u.getAttribute('id'),
+                count: changesets.getAttribute('count')
+            };
+            for (var k in o) {
+                document.getElementById(k).innerHTML = o[k];
+            }
+            document.getElementById('user').style.display = 'block';
+        }
+
+        document.getElementById('authenticate').onclick = function() {
+            if (!auth.bringPopupWindowToFront()) {
+                auth.authenticate(function() {
+                    update();
+                });
+            }
+        };
+
+        function showDetails() {
+            auth.xhr({
+                method: 'GET',
+                path: '/api/0.6/user/details'
+            }, done);
+        }
+
+        function hideDetails() {
+            document.getElementById('user').style.display = 'none';
+        }
+
+        document.getElementById('logout').onclick = function() {
+            auth.logout();
+            update();
+        };
+
+        function update() {
+            if (auth.authenticated()) {
+                document.getElementById('authenticate').className = 'done';
+                document.getElementById('logout').className = '';
+                showDetails();
+            } else {
+                document.getElementById('authenticate').className = '';
+                document.getElementById('logout').className = 'done';
+                hideDetails();
+            }
+        }
+
+        update();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

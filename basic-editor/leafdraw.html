@@ -233,6 +233,16 @@
   <body onload="bodyLoad()" class="full_height">
     <div id='container'>
       <div id='sidebar'>
+      
+              <button id='authenticate'>login</button>
+        <button id='logout'>logout</button>
+        <div id='user'>
+            <h1 id='display_name'></h1>
+            <h2 id='id'></h2>
+            Changesets: <span id='count'></span>
+        </div>
+      
+      
         <select id="Layers" oninput="changeLayer()"></select>
         <div class="ui-widget">
           <input class="active_tag" />
@@ -244,5 +254,6 @@
       </div>
       <div id="map"></div>
     </div>
+    <script src="upload.js"></script>
   </body>
 </html>
