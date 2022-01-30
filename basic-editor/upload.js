@@ -176,7 +176,7 @@ function process_geometry(data) {
   //    find pairs <a,b> in such way that a (from A) and b (from B)
   //    link each existing node to closest geom coordinate.
   //  This function doesn't even include OsmChange generation.
-  nodes = original_data.elements.filter(function(x) {
+  var nodes = original_data.elements.filter(function(x) {
     return x.type === "node"
   });
   distances = []
@@ -196,19 +196,18 @@ function process_geometry(data) {
   console.log(distances.length)
   while (distances.length) {
     first = distances.shift() // Remove 1st elements
-    console.log(first[2])
+    // first is [distance, AddedNode, OsmNode]
     id_to_coord[first[2]] = first[1]
-    console.log(distances)
     distances = distances.filter(function(d) {
-      return d[2] != first[2]
+      return d[2] != first[2] && !(JSON.stringify(first[1])==JSON.stringify(d[1]))
     })
   }
   if (Object.keys(id_to_coord).length < nodes.length) {
     // Find nodes ID that are not keys in id_to_coord object.
     ids_to_remove = nodes.map(function(x) {
-      return x.id  // FIXME!!! Deleting nodes doesn't work.
+      return x.id
     }).filter(function(x) {
-      Object.keys(id_to_coord).indexOf(x) === -1;
+      return Object.keys(id_to_coord).indexOf(x.toString()) === -1;
     })
   } else if (data.geom.length > nodes.length) {
     // Find new coordinates (data.geom) that were not linked to any existing node.
