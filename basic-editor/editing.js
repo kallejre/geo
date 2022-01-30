@@ -14,8 +14,10 @@ Responsible for exchanging data between frontend and backend.
 // Add option to open in iD/Josm (sourcecode in Level0).
 // Future development: tag sorting - insert Overpass query and present tool for clicking through objects.
 var overpass_server = "https://overpass-api.de/api/interpreter"
+var backend_url = "backend.php";
 // Use {id} as variable.
 var op_query = "[timeout:15][out:json];way(id:{id});out body;>;out skel qt;"
+
 
 // tags_div is defined here, but value is defined in leafdraw.html, after webpage has been initialized.
 var tags_div
@@ -48,9 +50,27 @@ function submit_data(state, id) {
     // Remove keys with undefined values
     Object.keys(out.tags).forEach(key => out.tags[key] === undefined ? delete out.tags[key] : {});
     delete out.tags[""] // Case when key is empty.
-    // JSON.stringify(out)
-    console.log(out)
-    alert("This thing can't save anything (yet)")
+    submit_json(out)
+    //alert("This thing can't save anything (yet)")
+}
+
+function submit_json(obj){
+    var json = JSON.stringify(obj)
+    console.log(222)
+    console.log(json)
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", backend_url);
+
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4) {
+          console.log(xhr.responseText);
+       }};
+    console.log(0)
+    xhr.send(json);
+    // In PHP: var_dump(json_decode($json));
 }
 
 function load_tags(tags) {
