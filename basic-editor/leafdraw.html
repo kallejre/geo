@@ -69,6 +69,7 @@
       editHandler.enable()
       map.fitBounds(polygon.getBounds());
       update_marker_sizes()
+      polygon.on('edit', update_used_imagery_list);
       // Don't run if there are no layers downloaded yet.
       if (global_imagery.length) {
         refresh_layer_list()
@@ -131,6 +132,8 @@
         // Alternative uses same parameter format as iD uses (way=123)
         console.log("Found ID " + way_id)
         download_way(way_id)
+      } else {
+        tags_div.innerHTML = "<p>You need to provide way ID via URL parameter to load data into this editor. Append <tt>?id=w1234</tt> or <tt>?way=1234</tt> to end of URL.</p>"
       }
     }
 
@@ -210,7 +213,7 @@
         font-size: 1.0em;
       }
   
-      .ui-widget>p {
+      .ui-widget>p, #user {
         color: black;
         font-family: sans-serif;
         text-align: center;
@@ -227,6 +230,14 @@
       button {
         width: 49%;
       }
+      
+      /* Done class is applied to user account operation,
+      which is currently not available (either sign-in or sign-out)*/
+      .done {
+        display:none;
+      }
+      #user {
+        font-size: 12px}
   </style>
 </head>
 
@@ -237,8 +248,8 @@
               <button id='authenticate'>login</button>
         <button id='logout'>logout</button>
         <div id='user'>
-            <h1 id='display_name'></h1>
-            <h2 id='id'></h2>
+        Connected to <span id="api_server"></span><br>
+            As <span id='display_name'></span> (id: <span id='id'></span>) 
             Changesets: <span id='count'></span>
         </div>
       

@@ -78,6 +78,11 @@ function load_autocomplete() {
   $(".active_tag")
     // don't navigate away from the field on tab when selecting an item
     .on("keydown", function(event) {
+      // If update_used_imagery_list is defined
+      if (typeof update_used_imagery_list !== 'undefined') {
+        // Add currently selected imagery layer to Set.
+        update_used_imagery_list()
+      }
       if (event.keyCode === $.ui.keyCode.TAB &&
         $(this).autocomplete("instance").menu.active) {
         event.preventDefault();

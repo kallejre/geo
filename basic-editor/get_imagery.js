@@ -9,7 +9,13 @@ var global_imagery = Array()
 // ignore imagery more than 20 years old..
 let cutoffDate = new Date();
 cutoffDate.setFullYear(cutoffDate.getFullYear() - 20);
+used_imagery=new Set(); 
 
+function update_used_imagery_list() {
+  // Add currently selected imagery layer to Set.
+  used_imagery.add(layers[$("#Layers")[0].value].name);
+  // console.log("Edited");
+}
 
 const discard = {
   'osmbe': true,                        // 'OpenStreetMap (Belgian Style)'

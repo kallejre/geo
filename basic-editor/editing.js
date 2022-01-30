@@ -15,12 +15,19 @@ Responsible for exchanging data between frontend and backend.
 // Future development: tag sorting - insert Overpass query and present tool for clicking through objects.
 var overpass_server = "https://overpass-api.de/api/interpreter"
 var backend_url = "backend.php";
+// osm_server variable is used here and in upload.js
+// var osm_server = https://www.openstreetmap.org
+var osm_server = "https://master.apis.dev.openstreetmap.org"
+
 // Use {id} as variable.
 var op_query = "[timeout:15][out:json];way(id:{id});out body;>;out skel qt;"
 
 
 // tags_div is defined here, but value is defined in leafdraw.html, after webpage has been initialized.
+// tags_div is html <div> element which will hold tags.
 var tags_div
+// Holds original information about downloaded way for later upload purposes.
+var original_way
 
 function submit_data(state, id) {
     out = {};
@@ -55,6 +62,9 @@ function submit_data(state, id) {
 }
 
 function submit_json(obj){
+    upload_way(obj);  // Upload changes using js-based frontend at upload.js.
+    return;
+    // Leftover code for uploading changes using php-based backend.
     var json = JSON.stringify(obj)
     console.log(222)
     console.log(json)
@@ -110,8 +120,9 @@ function parse_overpass(data) {
     console.log("Here")
     console.log(data)
     console.log("There")
+    original_way = data
     if (data.elements.length > 0) {
-        way = data.elements[0]
+        way = data.elements.filter(function(x) {return x.type === "way"})[0];
     } else {
         tags_div.innerHTML = "<p>API returned empty response (way might not exist)</p>"
         return
@@ -148,7 +159,7 @@ function parse_overpass(data) {
     return [coords, tags]
 }
 
-function download_way(id) {
+function OLD_download_way(id) {
     tags_div.innerHTML = "<p>Calling overpass API</p>"
     $(".disablable").prop("disabled", true);
     $("#reset-button")[0].setAttribute("onClick", "download_way(" + id + ")")
@@ -169,3 +180,26 @@ function download_way(id) {
         }
     });
 }
+
+
+function download_way(id) {
+    // Alternative download method uses OSM instead of overpass
+    tags_div.innerHTML = "<p>Calling Openstreetmap API</p>"
+    $(".disablable").prop("disabled", true);
+    $("#reset-button")[0].setAttribute("onClick", "download_way(" + id + ")")
+    $("#save-button")[0].setAttribute("onClick", "submit_data('save'," + id + ")")
+    $("#skip-button")[0].setAttribute("onClick", "submit_data('skip'," + id + ")")
+    $.ajax({
+        type: 'GET',
+        // https://www.openstreetmap.org/api/0.6/way/126866169/full.json
+        url: osm_server + "/api/0.6/way/"+id+"/full.json",
+        dataType: 'json',
+        async: false,
+        processData: false,
+        success: parse_overpass,
+        error: function() {
+            tags_div.innerHTML = "<p>Unable to download element</p>"
+        }
+    });
+}
+
