@@ -134,9 +134,7 @@ function parse_overpass(data) {
     nodes = nodes.sort(function(n, m) {
         return way.nodes.indexOf(n.id) - way.nodes.indexOf(m.id)
     })
-    nodes.map(function(n) {
-        console.log(way.nodes.indexOf(n.id))
-    })
+    //nodes.map(function(n) { console.log(way.nodes.indexOf(n.id))})
     //Get Leaflet-compatible list of coordinates.
     var coords = nodes.map(function(d) {
         return [d.lat, d.lon]
