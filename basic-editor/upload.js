@@ -143,9 +143,6 @@ function upload_way(data) {
     'osmChange': {
       '_version': '0.6',
       '_generator': version_identifier,
-      'delete': {
-        '_if-unused': "true"
-      }
     }
   }
 
@@ -162,8 +159,8 @@ function upload_way(data) {
           OSC_to_upload.osmChange[action] = {}
         }
         OSC_to_upload.osmChange[action] = Object.assign(OSC_to_upload.osmChange[action], tmp[action]);
-        if (OSC_to_upload.osmChange[action].node.length==0) {
-            delete OSC_to_upload.osmChange[action].node
+        if (OSC_to_upload.osmChange[action].node.length == 0) {
+          delete OSC_to_upload.osmChange[action].node
         }
 
       }
@@ -194,7 +191,7 @@ function upload_way(data) {
     "_id": orig_way.id,
     "_version": orig_way.version
   } // Way to be added
-  
+
   way_tags = []
   for (const [key, value] of Object.entries(data.tags)) {
     way_tags.push({
@@ -206,9 +203,9 @@ function upload_way(data) {
     // If way_tags is not empty, add tags to osc.
     way.tag = way_tags
   }
-  
+
   var way_changed = !compare_two_ways(orig_way, way, data.tags)
-  
+
   if (way_changed) {
     ways_list.push(way)
     console.log("Two ways are different")
@@ -217,6 +214,13 @@ function upload_way(data) {
     delete OSC_to_upload.osmChange.modify.way;
   }
   console.log("READY!!!")
+
+  // If delete block exists, add _if-unused
+  if ("delete" in OSC_to_upload.osmChange) {
+    // The key is added here, because deletions must be after other actions.
+    OSC_to_upload.osmChange.delete['_if-unused'] = "true"
+  }
+
   uploadData(OSC_to_upload)
   // FIXME: Insert ommunication with TODO list manager
 }
@@ -383,43 +387,60 @@ function calc_node_distance(a, b) {
   return Math.sqrt(((a[0] - b.lat) * lat_coef) ** 2 + (a[1] - b.lon) ** 2)
 }
 
-function compare_two_ways(way1,way2, tags, ) {
-    // Input: OSM-XML way and OSC-formatted way
-    // Output: Boolean, if tags, nodes and ID are same
-    var same_id=(way1.id==way2._id)
-    var same_tags = compareObjects(way1.tags, tags)
-    var same_nodes = (JSON.stringify(way1.nodes) === JSON.stringify(way2.nd.map((x) => x._ref)));
-    return same_id && same_tags && same_nodes
+function compare_two_ways(way1, way2, tags, ) {
+  // Input: OSM-XML way and OSC-formatted way
+  // Output: Boolean, if tags, nodes and ID are same
+  var same_id = (way1.id == way2._id)
+  var same_tags = compareObjects(way1.tags, tags)
+  var same_nodes = (JSON.stringify(way1.nodes) === JSON.stringify(way2.nd.map((x) => x._ref)));
+  return same_id && same_tags && same_nodes
 }
 
-function compareObjects(o1, o2){
-    // https://stackoverflow.com/a/5859028
-    for(var p in o1){
-        if(o1.hasOwnProperty(p)){
-            if(o1[p] !== o2[p]){
-                return false;
-            }
-        }
+function compareObjects(o1, o2) {
+  // https://stackoverflow.com/a/5859028
+  for (var p in o1) {
+    if (o1.hasOwnProperty(p)) {
+      if (o1[p] !== o2[p]) {
+        return false;
+      }
     }
-    for(var p in o2){
-        if(o2.hasOwnProperty(p)){
-            if(o1[p] !== o2[p]){
-                return false;
-            }
-        }
+  }
+  for (var p in o2) {
+    if (o2.hasOwnProperty(p)) {
+      if (o1[p] !== o2[p]) {
+        return false;
+      }
     }
-    return true;
+  }
+  return true;
 };
 
 // =========================================================================
 // Open changeset
 function openChangeset(comment) {
-  osm={osm:{changeset:{tag:[
-      {_k:"created_by",_v: version_identifier},
-      {_k:"comment",_v: comment},
-      {_k:"host", _v: window.location.href},
-      {_k:"imagery_used",_v:Array.from(used_imagery).sort().join(';')}
-      ]}}}
+  osm = {
+    osm: {
+      changeset: {
+        tag: [{
+            _k: "created_by",
+            _v: version_identifier
+          },
+          {
+            _k: "comment",
+            _v: comment
+          },
+          {
+            _k: "host",
+            _v: window.location.origin + window.location.pathname
+          },
+          {
+            _k: "imagery_used",
+            _v: Array.from(used_imagery).sort().join(';')
+          }
+        ]
+      }
+    }
+  }
   cs_xml = x2js.json2xml_str(osm)
 
   // Auth.xhr takes 2 paramaters options and callback.
