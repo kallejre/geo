@@ -152,8 +152,9 @@ function upload_way(data) {
     // Process geometry changes, determine new status for each node by id.
     // Then generate OsmChange from lists, which is returned by function.
     tmp = process_geometry(data)
-    nodes_list = tmp.nodes_list
-    console.log(tmp)["create", "modify", "delete"].forEach(function(action) {
+    nodes_list = tmp.nodes_list;
+    //console.log(tmp);
+    ["create", "modify", "delete"].forEach(function(action) {
       if (tmp[action].length != 0) {
         if (!(action in OSC_to_upload.osmChange)) {
           // If action is not present yet
@@ -171,7 +172,7 @@ function upload_way(data) {
       }
     })
     // Use nodes_list in object in following way: {"nd": nodes_list}
-    console.log(nodes_list)
+    //console.log(nodes_list)
   }
   // Construct way
 
@@ -200,7 +201,11 @@ function upload_way(data) {
     // If way_tags is not empty, add tags to osc.
     way.tag = way_tags
   }
+  if (!compare_two_ways(orig_way, way, data.tags)) {
   ways_list.push(way)
+  } else {console.log("Two ways are same")}
+  console.error("READY!!!")
+  console.warn(OSC_to_upload)
   // FIXME: Insert ommunication with TODO list manager
 }
 
@@ -230,8 +235,8 @@ function process_geometry(data) {
   not_changed = []
   nodes_to_add = []
   ids_to_remove = []
-  console.log(distances)
-  console.log(distances.length)
+  //console.log(distances)
+  //console.log(distances.length)
   while (distances.length) {
     first = distances.shift() // Remove 1st elements
     // first is [distance, AddedNode, OsmNode]
@@ -313,7 +318,7 @@ function process_geometry(data) {
     modify_nodes_osc.push(tmp_node)
   };
   delete_nodes_osc = [];
-  console.log(id_to_coord)
+  //console.log(id_to_coord)
   ids_to_remove.forEach((id) => {
     var original_node = id_to_node[id]
     tmp_node = {
@@ -365,6 +370,34 @@ function calc_node_distance(a, b) {
   lat_coef = Math.cos(a[0] * Math.PI / 180)
   return Math.sqrt(((a[0] - b.lat) * lat_coef) ** 2 + (a[1] - b.lon) ** 2)
 }
+
+function compare_two_ways(way1,way2, tags, ) {
+    // Input: OSM-XML way and OSC-formatted way
+    // Output: Boolean, if tags, nodes and ID are same
+    var same_id=(way1.id==way2._id)
+    var same_tags = compareObjects(way1.tags, tags)
+    var same_nodes = (JSON.stringify(way1.nodes) === JSON.stringify(way2.nd.map((x) => x._ref)));
+    return same_id && same_tags && same_nodes
+}
+
+function compareObjects(o1, o2){
+    // https://stackoverflow.com/a/5859028
+    for(var p in o1){
+        if(o1.hasOwnProperty(p)){
+            if(o1[p] !== o2[p]){
+                return false;
+            }
+        }
+    }
+    for(var p in o2){
+        if(o2.hasOwnProperty(p)){
+            if(o1[p] !== o2[p]){
+                return false;
+            }
+        }
+    }
+    return true;
+};
 
 // =========================================================================
 // Open changeset
