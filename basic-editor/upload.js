@@ -123,7 +123,6 @@ function update_account_display() {
 update_account_display();
 
 // prompt("Insert changeset comment:", "Default text");
-
 function upload_way(data) {
   // Receive object generated in submit_json/submit_data and handle its uploading or skipping
   // Convert received data into OSC-compatible format.
@@ -139,14 +138,31 @@ function upload_way(data) {
     return x.type === "way"
   })[0]
 
+  var OSC_to_upload = {
+    'osmChange': {
+      '_version': '0.6',
+      '_generator': version_identifier,
+      'delete': {
+        '_if-unused': "true"
+      }
+    }
+  }
+
   if (data.geom_changed) {
-    // TODO: Process geometry changes
+    // Process geometry changes, determine new status for each node by id.
+    // Then generate OsmChange from lists, which is returned by function.
     tmp = process_geometry(data)
-    id_to_coord = tmp.to_keep //   Obj with {OsmID: [lat, lon], ..}
-    nodes_to_add = tmp.to_add //  [[lat, lon], ..]
-    ids_to_remove = tmp.to_delete // [OsmID, ..]
-    // TODO: Generate OsmChange from lists. Don't forget check if node was moved at all.
-    console.log(tmp)
+    nodes_list = tmp.nodes_list
+    console.log(tmp)["create", "modify", "delete"].forEach(function(action) {
+      if (tmp[action].length != 0) {
+        if (!(action in OSC_to_upload.osmChange)) {
+          // If action is not present yet
+          OSC_to_upload.osmChange[action] = {}
+        }
+        OSC_to_upload.osmChange[action] = Object.assign(OSC_to_upload.osmChange[action], tmp[action]);
+
+      }
+    });
   } else {
     // Copy node references from earlier copy.
     nodes_list = orig_way.nodes.map((d) => {
@@ -157,6 +173,22 @@ function upload_way(data) {
     // Use nodes_list in object in following way: {"nd": nodes_list}
     console.log(nodes_list)
   }
+  // Construct way
+
+  if (!("modify" in OSC_to_upload.osmChange)) {
+    OSC_to_upload.osmChange.modify = {}
+  }
+  if (!("way" in OSC_to_upload.osmChange.modify)) {
+    OSC_to_upload.osmChange.modify.way = []
+  }
+  // Modified way will be added to this list
+  ways_list = OSC_to_upload.osmChange.modify.way
+  way = {
+    "nd": nodes_list,
+    "_changeset": currently_open_chset_id,
+    "_id": orig_way.id,
+    "_version": orig_way.version
+  } // Way to be added
   way_tags = []
   for (const [key, value] of Object.entries(data.tags)) {
     way_tags.push({
@@ -165,8 +197,10 @@ function upload_way(data) {
     });
   }
   if (way_tags.length !== 0) {
-    // If way_tags is not empty, use it in following way: {"tag": way_tags}
+    // If way_tags is not empty, add tags to osc.
+    way.tag = way_tags
   }
+  ways_list.push(way)
   // FIXME: Insert ommunication with TODO list manager
 }
 
@@ -180,8 +214,9 @@ function process_geometry(data) {
     return x.type === "node"
   });
   distances = []
-
+  id_to_node = {}
   nodes.forEach(function(b) {
+    id_to_node[b.id] = b
     data.geom.forEach(function(a) {
       dist = calc_node_distance(a, b)
       distances.push([dist, a, b.id])
@@ -190,6 +225,9 @@ function process_geometry(data) {
   distances.sort()
   // Link every existing node to new coordinate
   id_to_coord = {}
+  // Link coordinates to node IDs (for OSC construction)
+  coord_to_id = {}
+  not_changed = []
   nodes_to_add = []
   ids_to_remove = []
   console.log(distances)
@@ -197,25 +235,111 @@ function process_geometry(data) {
   while (distances.length) {
     first = distances.shift() // Remove 1st elements
     // first is [distance, AddedNode, OsmNode]
-    id_to_coord[first[2]] = first[1]
+    // Check if node was not moved
+    if (first[1][0] == id_to_node[first[2]].lat && first[1][1] == id_to_node[first[2]].lon) {
+      not_changed.push(first[2])
+    } else {
+      id_to_coord[first[2]] = first[1]
+    }
+    coord_to_id[first[1]] = first[2]
+
     distances = distances.filter(function(d) {
-      return d[2] != first[2] && !(JSON.stringify(first[1])==JSON.stringify(d[1]))
+      return d[2] != first[2] && !(JSON.stringify(first[1]) == JSON.stringify(d[1]))
     })
+
   }
-  if (Object.keys(id_to_coord).length < nodes.length) {
-    // Find nodes ID that are not keys in id_to_coord object.
+  if (Object.keys(id_to_coord).length + not_changed.length < nodes.length) {
+    // Find nodes ID that are not keys in id_to_coord object nor in not_changed.
     ids_to_remove = nodes.map(function(x) {
+      //if (!(x.id in id_to_node)) {}
       return x.id
     }).filter(function(x) {
-      return Object.keys(id_to_coord).indexOf(x.toString()) === -1;
+      return Object.keys(id_to_coord).indexOf(x.toString()) === -1 && not_changed.indexOf(x) === -1;
     })
   } else if (data.geom.length > nodes.length) {
     // Find new coordinates (data.geom) that were not linked to any existing node.
+    // Merge nodes that were not modified and modified coordinates into not_deleted_coordinates.
     // Due to nested arrays, we need to compare every individual number in arrays.
-    nodes_to_add = data.geom.filter(x => !Object.values(id_to_coord).some(a => x.every((v, i) => v === a[i])));
+    coord_no_change = not_changed.map((id) => [id_to_node[id].lat, id_to_node[id].lon])
+    not_deleted_coordinates = [...coord_no_change, ...Object.values(id_to_coord)]
+    nodes_to_add = data.geom.filter(x => !not_deleted_coordinates.some(a => x.every((v, i) => v === a[i])));
+    var n = -1
+    nodes_to_add.forEach((c) => {
+      coord_to_id[c] = n
+      n--
+    })
   }
 
-  return {"to_keep": id_to_coord, "to_add": nodes_to_add, "to_delete": ids_to_remove}
+  // Generate OSC-compatible objects
+  // Build list of node references for way
+  nodes_list = data.geom.map((c) => {
+    return {
+      "_ref": coord_to_id[c]
+    }
+  })
+  nodes_list.push(nodes_list[0])
+
+  create_nodes_osc = [] // Use this array as value in {create: {node: X}}
+  nodes_to_add.forEach((c) => { // C is pair of coordinates
+    create_nodes_osc.push({
+      "_id": coord_to_id[c], // ID is already negative
+      "_lat": c[0],
+      "_lon": c[1],
+      "_version": 0,
+      "_changeset": currently_open_chset_id
+    }) // No tags are added
+  });
+
+  modify_nodes_osc = [] // Use this array as value in {create: {node: X}}
+  for ([id, c] of Object.entries(id_to_coord)) { // C ispair of coordinates
+    var original_node = id_to_node[id.toString()]
+    tmp_node = {
+      "_id": coord_to_id[c], // ID is already negative
+      "_lat": c[0],
+      "_lon": c[1],
+      "_version": original_node.version,
+      "_changeset": currently_open_chset_id
+    } // No tags are added yet
+    if (original_node.hasOwnProperty("tags")) {
+      tmp_node.tags = []
+      // Copy tags from node to new node
+      for (const [key, value] of Object.entries(original_node.tags)) {
+        tmp_node.tags.push({
+          "_k": key,
+          "_v": value
+        });
+      }
+    }
+    modify_nodes_osc.push(tmp_node)
+  };
+  delete_nodes_osc = [];
+  console.log(id_to_coord)
+  ids_to_remove.forEach((id) => {
+    var original_node = id_to_node[id]
+    tmp_node = {
+      "_id": id,
+      "_lat": original_node.lat,
+      "_lon": original_node.lon,
+      "_version": original_node.version,
+      "_changeset": currently_open_chset_id
+    }
+    delete_nodes_osc.push(tmp_node)
+
+  });
+  //console.log( {"to_keep": not_changed, "to_modify": id_to_coord, "to_add": nodes_to_add, 
+  //        "to_delete": ids_to_remove, "nodes_list":nodes_list} )
+  return {
+    "create": {
+      "node": create_nodes_osc
+    },
+    "modify": {
+      "node": modify_nodes_osc
+    },
+    "delete": {
+      "node": delete_nodes_osc
+    },
+    "nodes_list": nodes_list
+  }
 }
 
 function calc_node_distance(a, b) {
