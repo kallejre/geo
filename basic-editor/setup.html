@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Basic OSM editor in Leaflet</title>
+    <meta charset="utf-8" />
+    
+    <script src="cookies.js"></script>
+<script >
+function check_custom_api() {
+var selection = document.querySelector('input[name="api"]:checked').value;
+if (selection == "custom") {
+document.getElementById("custom_api_settings").classList.remove("hide");
+} else {
+
+document.getElementById("custom_api_settings").classList.add("hide");}
+}
+function save_settings() {
+    var selection = document.querySelector('input[name="api"]:checked').value;
+    set_cookie("ENV", selection)
+    input_fields = document.getElementById("custom_api_settings").getElementsByTagName('input')
+    for (let item of input_fields) {
+        set_cookie(item.name, item.value)
+    }
+    // Go to editor
+    window.location.href = "leafdraw.html";
+}
+</script>
+<style>
+.hide { display:none;}
+</style>
+  </head>
+  <body onload="check_custom_api()">
+<form action="#">
+Select API endpoint<br>
+    <label><input onclick="check_custom_api()" name="api" type="radio" value="live" checked="checked" />https://api.openstreetmap.org</label><br /> 
+    <label><input onclick="check_custom_api()" name="api" type="radio" value="dev" />https://master.apis.dev.openstreetmap.org</label><br /> 
+    <label><input onclick="check_custom_api()" name="api" type="radio" value="custom" />Custom settings:</label><br /> 
+    <div class="hide" id="custom_api_settings">
+    <label>API url: <input name="custom_api_url" type="text" placeholder="https://127.0.0.1:8080"  /> </label><br /> 
+    <label>Website URL (alias): <input name="custom_user_url" type="text" placeholder="https://127.0.0.1:8080"  /> </label><br /> 
+    <label>OAuth consumer key: <input name="custom_oauth_consumer" type="text"/> </label><br /> 
+    <label>OAuth consumer secret: <input name="custom_oauth_secr" type="text"/> </label><br /> 
+    To use this editor with your own API server, visit <a href="#">[API URL]/user/username/oauth_clients/new</a> and register new OAuth consumer.
+    </div>
+    <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Submit">
+</form>
+
+  </body>
+  </html>
