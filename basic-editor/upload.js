@@ -9,24 +9,10 @@
 
 // Init X2JS, used for x2js.json2xml_str
 var x2js = new X2JS();
-
-version_identifier = "Basic-editor-0.1"
 // Unlike usual simple OSM editors, which build requests using string operations,
 // this script builds OSM-compatible XML by converting JS objects to XML.
-osm={osm:{changeset:{tag:[
-    {_k:"created_by",_v: version_identifier},
-    {_k:"comment",_v:4},
-    {_k:"imagery_used",_v:Array.from(used_imagery).sort().join(';')}
-    ]}}}
-x2js.json2xml_str(osm)
-// Request options defining header XML content.
-XML_HEADER_OPT = {
-  header: {
-    "Content-Type": "text/xml"
-  }
-}
+
 var currently_open_chset_id = null;
-var CS_ID_PLACEHOLDER = "CS_ID_PLACEHOLDER"
 /*
 <osm>
 	<node changeset="188021" id="4326396331" lat="50.4202102" lon="6.1211032" version="1" visible="true">
@@ -38,9 +24,9 @@ var CS_ID_PLACEHOLDER = "CS_ID_PLACEHOLDER"
 // Setup Oauth
 var auth = osmAuth({
   // FIXME: If you use this code, replace key with yours.
-  url: osm_server, // Osm_server is defined in editing.js
-  oauth_consumer_key: 'UkTktKhTefjWxR7WRutWkazeu2Mbq91ANhV4YDNN',
-  oauth_secret: 'KU4vz5R4yScLR1vM7KfLagB2CRqTLiHN7PViQE6B'
+  url: osm_settings[ENV].osm_server, // Osm_server is defined in editing.js
+  oauth_consumer_key: osm_settings[ENV].oauth_consumer,
+  oauth_secret: osm_settings[ENV].oauth_secr
   //auto: true,
   //singlepage: true, // Load the auth-window in the current window, with a redirect,
   //landing: window.location.href // Come back to the current page
@@ -68,7 +54,7 @@ function done(err, res) {
     display_name: u.getAttribute('display_name'),
     id: u.getAttribute('id'),
     count: changesets.getAttribute('count'),
-    api_server: "<a href=\"" + osm_server + "\" target=\"_blank\">" + osm_server.replace('openstreetmap', 'osm')
+    api_server: "<a href=\"" + osm_settings[ENV].user_url + "\" target=\"_blank\">" + osm_settings[ENV].osm_server.replace('openstreetmap', 'osm')
       .replace('https://', '') + "</a>"
   };
   // And then write them to sidepanel
@@ -418,29 +404,13 @@ function compareObjects(o1, o2) {
 // =========================================================================
 // Open changeset
 function openChangeset(comment) {
-  osm = {
-    osm: {
-      changeset: {
-        tag: [{
-            _k: "created_by",
-            _v: version_identifier
-          },
-          {
-            _k: "comment",
-            _v: comment
-          },
-          {
-            _k: "host",
-            _v: window.location.origin + window.location.pathname
-          },
-          {
-            _k: "imagery_used",
-            _v: Array.from(used_imagery).sort().join(';')
-          }
-        ]
-      }
-    }
-  }
+  var osm={osm:{changeset:{tag:[
+      {_k:"created_by",_v: version_identifier},
+      {_k:"comment",_v: comment},
+      {_k:"host", _v: window.location.origin + window.location.pathname},
+      {_k:"imagery_used",_v:Array.from(used_imagery).sort().join(';')}
+      ]}}}
+
   cs_xml = x2js.json2xml_str(osm)
 
   // Auth.xhr takes 2 paramaters options and callback.
@@ -492,12 +462,6 @@ function closeChangeset() {
 
 function uploadData(osc) {
   // osc is JS object for OsmChange XML.
-
-  /*  OSC sample
-  {'osmChange':{'_version':'0.6','_generator':version_identifier,
-  'delete':{'_if-unused':"true", node:[
-    {_id:-1,_changeset:4433,tag:{_k:"building", _v:"yes"}}, {tag:2}]}}})
-  */
   cs_xml = x2js.json2xml_str(osc).replaceAll(CS_ID_PLACEHOLDER, currently_open_chset_id)
   console.warn(cs_xml)
   if (!currently_open_chset_id){return alert("You need to have open changeset to upload into.")}

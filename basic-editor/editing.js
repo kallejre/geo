@@ -13,14 +13,6 @@ Responsible for exchanging data between frontend and backend.
 
 // Add option to open in iD/Josm (sourcecode in Level0).
 // Future development: tag sorting - insert Overpass query and present tool for clicking through objects.
-var overpass_server = "https://overpass-api.de/api/interpreter"
-var backend_url = "backend.php";
-// osm_server variable is used here and in upload.js
-// var osm_server = https://www.openstreetmap.org
-var osm_server = "https://master.apis.dev.openstreetmap.org"
-
-// Use {id} as variable.
-var op_query = "[timeout:15][out:json];way(id:{id});out body;>;out skel qt;"
 
 
 // tags_div is defined here, but value is defined in leafdraw.html, after webpage has been initialized.
@@ -40,7 +32,7 @@ function submit_data(state, id) {
         }
         out.skipped = true;
         console.log("Skip demo")
-        alert("This thing can't skip anything (yet) because there's no back-end.")
+        alert("This thing can't skip anything (yet) because there's no todo-list where skipping would have effect.")
         resetMap()
         return
     }
@@ -192,7 +184,7 @@ function download_way(id) {
     $.ajax({
         type: 'GET',
         // https://www.openstreetmap.org/api/0.6/way/126866169/full.json
-        url: osm_server + "/api/0.6/way/"+id+"/full.json",
+        url: osm_settings[ENV].osm_server + "/api/0.6/way/"+id+"/full.json",
         dataType: 'json',
         async: false,
         processData: false,

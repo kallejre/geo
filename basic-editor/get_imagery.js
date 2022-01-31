@@ -7,9 +7,6 @@
 var global_imagery = Array()
 var layers;  // List of leaflet layers
 
-// ignore imagery more than 20 years old..
-let cutoffDate = new Date();
-cutoffDate.setFullYear(cutoffDate.getFullYear() - 20);
 used_imagery=new Set(); 
 
 function update_used_imagery_list() {
@@ -283,8 +280,6 @@ function imagery_to_layers(img_list) {
         data.projection = "EPSG:3857"
       }
       // This portion is based on https://osmlab.github.io/editor-layer-index/
-      // TODO: Leida {switch:a,b,c}  => {s} + subdomains=["a,", "b","c"]
-
       var url = data.template.replace(/{switch:(.*)}/i, "[s}").replace(/{.*?}/g, '').replace("[s}",
         "{s}");
       // console.log(data.template, url)

@@ -24,9 +24,9 @@ function get_taglist(query) {
   params.query = tag[tag.length - 1]
 
   if (tag.length == 1) {
-    url = 'https://taginfo.openstreetmap.org/api/4/keys/all'
+    url = taginfo_url + '/api/4/keys/all'
   } else {
-    url = 'https://taginfo.openstreetmap.org/api/4/key/values'
+    url = taginfo_url + '/api/4/key/values'
     params.key = tag[0]
   }
   // Make synchronous request to taginfo API
