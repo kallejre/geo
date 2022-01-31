@@ -139,6 +139,12 @@
       } else {
         tags_div.innerHTML = "<p>You need to provide way ID via URL parameter to load data into this editor. Append <tt>?id=w1234</tt> or <tt>?way=1234</tt> to end of URL.</p>"
       }
+      
+      if (get_cookie("open_cs_id")) {
+        // If there is known open changeset
+        currently_open_chset_id = get_cookie("open_cs_id")
+        addChangesetDetails()
+      }
     }
 
     // Won't work in editing mode
@@ -249,12 +255,15 @@
     <div id='container'>
       <div id='sidebar'>
       
-              <button id='authenticate'>login</button>
-        <button id='logout'>logout</button>
+              <button id='authenticate'>Login</button>
+        <button id='logout'>Logout</button>
+        <button id='open-cs' onclick="tryOpenChangeset()">Create changeset</button>
+        <button class="done" onclick="tryCloseChangeset()" id='close-cs'>Close changeset</button>
         <div id='user'>
         Connected to <span id="api_server"></span><br>
             As <span id='display_name'></span> (id: <span id='id'></span>) 
             Changesets: <span id='count'></span>
+            <span class="done" id="cs_msg" >Open changeset: <a href="#" id='cs_id'></a></span>
         </div>
       
       

@@ -39,9 +39,9 @@ osm_settings = {
       // user_url is link which points to OSM website's front page.
       "user_url": "https://master.apis.dev.openstreetmap.org"},
     "live": {
-      "osm_server": "https://api.openstreetmap.org",
-      "oauth_consumer": 'UkTktKhTefjWxR7WRutWkazeu2Mbq91ANhV4YDNN',
-      "oauth_secr": 'KU4vz5R4yScLR1vM7KfLagB2CRqTLiHN7PViQE6B',
+      "osm_server": "https://www.openstreetmap.org",
+      "oauth_consumer": 'Z7c6vNWDkg4RpKsVobTfZdZDaELcGcuVxmxUfdYV',
+      "oauth_secr": 'OBcYcy4bMf6LijcjYDpEVUeLSOXYLNOTqeBNhvyh',
       "user_url": "https://www.openstreetmap.org"},
     "custom": {}
 }

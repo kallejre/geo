@@ -426,8 +426,30 @@ function openChangeset(comment) {
     } else {
       currently_open_chset_id = res;
       console.log('Api returned changeset id: ' + res);
+      set_cookie("open_cs_id", currently_open_chset_id)
+      addChangesetDetails()
     }
   });
+}
+
+function tryOpenChangeset() {
+    // openChangeset wrapper for button in UI
+    comment = prompt("Please insert changeset comment:")
+    if (!(comment && comment.trim() && comment.trim().length > 4)) {
+        alert("Please insert meaningful changeset comment.\nChangeset isn't opened.")
+        return
+    }
+    comment=comment.trim()
+    console.log("Opening changeset "+comment)
+    openChangeset(comment)
+}
+
+function addChangesetDetails() {
+    $("#cs_msg").removeClass("done")
+    $("#cs_id").html(currently_open_chset_id)
+    $("#cs_id").attr("href", osm_settings[ENV].osm_server+"/changeset/"+currently_open_chset_id)
+    $("#close-cs").removeClass("done")
+    $("#open-cs").addClass("done")
 }
 
 // =========================================================================
@@ -439,10 +461,11 @@ function closeChangeset() {
     )
     return
   }
+  
   auth.xhr({
     method: 'PUT',
     path: '/api/0.6/changeset/' + currently_open_chset_id + '/close',
-    content: cs_xml,
+    //content: cs_xml,
     options: XML_HEADER_OPT,
   }, (err, res) => {
     if (err) {
@@ -451,8 +474,24 @@ function closeChangeset() {
     } else {
       console.log(`Changeset ${currently_open_chset_id} was closed`)
       currently_open_chset_id = null;
+      delete_cookie("open_cs_id")
+      removeChangesetDetails()
     }
   });
+}
+
+function tryCloseChangeset() {
+    // closeChangeset wrapper for button in UI
+    console.log("Closing changeset "+currently_open_chset_id)
+    closeChangeset()
+}
+
+function removeChangesetDetails() {
+    $("#cs_msg").addClass("done")
+    $("#cs_id").html("")
+    $("#cs_id").attr("href", "#")
+    $("#close-cs").addClass("done")
+    $("#open-cs").removeClass("done")
 }
 
 // prompt("Insert changeset comment:", "Default text");
