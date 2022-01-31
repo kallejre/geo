@@ -30,6 +30,7 @@
     var center = [51.51262, -0.09791];
     var map;
     var polygon;
+    var update_imagery=true;
 
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
@@ -71,7 +72,7 @@
       update_marker_sizes()
       polygon.on('edit', update_used_imagery_list);
       // Don't run if there are no layers downloaded yet.
-      if (global_imagery.length) {
+      if (global_imagery.length && update_imagery) {
         refresh_layer_list()
       }
     }

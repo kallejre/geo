@@ -5,6 +5,7 @@
 // browser to get available imagery layers at current map location
 // Based on source of iD editor.
 var global_imagery = Array()
+var layers;  // List of leaflet layers
 
 // ignore imagery more than 20 years old..
 let cutoffDate = new Date();
@@ -323,9 +324,6 @@ function imagery_to_layers(img_list) {
     el.innerHTML = value.name
     $('#Layers')[0].appendChild(el);
   });
-  // Select OSM carto / Mapnik layer
-  $("#Layers")[0].selectedIndex=list2.indexOf(list2.find(x => x.id === "MAPNIK"))
-  changeLayer()
   return list2; // Return leaflet-compatible list of layers for this location.
 }
 
@@ -333,4 +331,8 @@ function refresh_layer_list() {
   localayers=get_local_imagery()
   console.log(localayers)
   layers = imagery_to_layers(localayers)
+  
+  // Select OSM carto / Mapnik layer
+  $("#Layers")[0].selectedIndex=list2.indexOf(list2.find(x => x.id === "MAPNIK"))
+  // changeLayer()
 }

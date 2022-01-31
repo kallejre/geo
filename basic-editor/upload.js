@@ -417,6 +417,7 @@ function openChangeset(comment) {
   osm={osm:{changeset:{tag:[
       {_k:"created_by",_v: version_identifier},
       {_k:"comment",_v: comment},
+      {_k:"host", _v: window.location.href},
       {_k:"imagery_used",_v:Array.from(used_imagery).sort().join(';')}
       ]}}}
   cs_xml = x2js.json2xml_str(osm)
@@ -430,11 +431,10 @@ function openChangeset(comment) {
   }, (err, res) => {
     if (err) {
       console.alert("Error occured while opening changeset (see console for details).")
-      console.err(err);
+      console.error(err);
     } else {
       currently_open_chset_id = res;
       console.log('Api returned changeset id: ' + res);
-      resolve(res);
     }
   });
 }
@@ -456,8 +456,9 @@ function closeChangeset() {
   }, (err, res) => {
     if (err) {
       console.alert("Error occured while closing changeset (see console for details).")
-      console.err(err);
+      console.error(err);
     } else {
+      console.log(`Changeset ${currently_open_chset_id} was closed`)
       currently_open_chset_id = null;
     }
   });
@@ -487,9 +488,11 @@ function uploadData(osc) {
   }, (err, res) => {
     if (err) {
       console.warn("Error occured while uploading changes")
-      console.err(err);
+      console.error(err);
     } else {
       console.log("Upload was successful")
+      // To prevent conflicts while uploading next changes, original_data must be updated.
+      download_way(out.id)
     }
   });
 }
