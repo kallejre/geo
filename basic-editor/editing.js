@@ -151,6 +151,8 @@ function parse_overpass(data) {
     }
     // Re-enable upload button
     $(".disablable").prop("disabled", false);
+    // Disable save button if no changes is made
+    $("#save-button").prop("disabled", true);
     load_way(coords)
     console.log(tags)
     load_tags(tags)

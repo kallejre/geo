@@ -81,6 +81,8 @@
       editHandler.disable()
       editHandler.enable()
       update_marker_sizes()
+      // TODO: If tags are not changed, disable save button
+      // $("#save-button").prop("disabled", true);
     }
     // Imagery index for background
     function changeLayer() {
@@ -261,7 +263,8 @@
         <button id="save-button" class="disablable" onclick="submit_data('save')">Save item</button>
         <button id="skip-button" onclick="submit_data('skip')">Skip item</button>
         <button id="shape-button" class="disablable" onclick="resetMap()">Reset shape</button>
-        <button id="reset-button" onclick="resetMap()">Reset all</button>
+        <button id="reset-button" onclick="download_way()">Reset all</button>
+        <!-- onclick method in reset-button is overwritten by download_way -->
       </div>
       <div id="map"></div>
     </div>

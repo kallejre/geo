@@ -26,6 +26,7 @@ XML_HEADER_OPT = {
   }
 }
 var currently_open_chset_id = null;
+var CS_ID_PLACEHOLDER = "CS_ID_PLACEHOLDER"
 /*
 <osm>
 	<node changeset="188021" id="4326396331" lat="50.4202102" lon="6.1211032" version="1" visible="true">
@@ -161,6 +162,9 @@ function upload_way(data) {
           OSC_to_upload.osmChange[action] = {}
         }
         OSC_to_upload.osmChange[action] = Object.assign(OSC_to_upload.osmChange[action], tmp[action]);
+        if (OSC_to_upload.osmChange[action].node.length==0) {
+            delete OSC_to_upload.osmChange[action].node
+        }
 
       }
     });
@@ -186,10 +190,11 @@ function upload_way(data) {
   ways_list = OSC_to_upload.osmChange.modify.way
   way = {
     "nd": nodes_list,
-    "_changeset": currently_open_chset_id,
+    "_changeset": CS_ID_PLACEHOLDER,
     "_id": orig_way.id,
     "_version": orig_way.version
   } // Way to be added
+  
   way_tags = []
   for (const [key, value] of Object.entries(data.tags)) {
     way_tags.push({
@@ -201,11 +206,18 @@ function upload_way(data) {
     // If way_tags is not empty, add tags to osc.
     way.tag = way_tags
   }
-  if (!compare_two_ways(orig_way, way, data.tags)) {
-  ways_list.push(way)
-  } else {console.log("Two ways are same")}
-  console.error("READY!!!")
-  console.warn(OSC_to_upload)
+  
+  var way_changed = !compare_two_ways(orig_way, way, data.tags)
+  
+  if (way_changed) {
+    ways_list.push(way)
+    console.log("Two ways are different")
+  } else {
+    console.log("Two ways are same")
+    delete OSC_to_upload.osmChange.modify.way;
+  }
+  console.log("READY!!!")
+  uploadData(OSC_to_upload)
   // FIXME: Insert ommunication with TODO list manager
 }
 
@@ -214,7 +226,7 @@ function process_geometry(data) {
   //    Given set of nodes A (data.geom) and set B (nodes),
   //    find pairs <a,b> in such way that a (from A) and b (from B)
   //    link each existing node to closest geom coordinate.
-  //  This function doesn't even include OsmChange generation.
+  //  This function includes some of OsmChange generation.
   var nodes = original_data.elements.filter(function(x) {
     return x.type === "node"
   });
@@ -291,7 +303,7 @@ function process_geometry(data) {
       "_lat": c[0],
       "_lon": c[1],
       "_version": 0,
-      "_changeset": currently_open_chset_id
+      "_changeset": CS_ID_PLACEHOLDER
     }) // No tags are added
   });
 
@@ -303,7 +315,7 @@ function process_geometry(data) {
       "_lat": c[0],
       "_lon": c[1],
       "_version": original_node.version,
-      "_changeset": currently_open_chset_id
+      "_changeset": CS_ID_PLACEHOLDER
     } // No tags are added yet
     if (original_node.hasOwnProperty("tags")) {
       tmp_node.tags = []
@@ -326,7 +338,7 @@ function process_geometry(data) {
       "_lat": original_node.lat,
       "_lon": original_node.lon,
       "_version": original_node.version,
-      "_changeset": currently_open_chset_id
+      "_changeset": CS_ID_PLACEHOLDER
     }
     delete_nodes_osc.push(tmp_node)
 
@@ -417,7 +429,7 @@ function openChangeset(comment) {
     options: XML_HEADER_OPT,
   }, (err, res) => {
     if (err) {
-      console.warn("Error occured while opening changeset")
+      console.alert("Error occured while opening changeset (see console for details).")
       console.err(err);
     } else {
       currently_open_chset_id = res;
@@ -443,7 +455,7 @@ function closeChangeset() {
     options: XML_HEADER_OPT,
   }, (err, res) => {
     if (err) {
-      console.warn("Error occured while closing changeset")
+      console.alert("Error occured while closing changeset (see console for details).")
       console.err(err);
     } else {
       currently_open_chset_id = null;
@@ -456,25 +468,17 @@ function closeChangeset() {
 // =========================================================================
 // Upload data
 
-function uploadData() {
-  // Create JS object for OsmChange XML.
-  var osc = {
-    'osmChange': {
-      '_version': '0.6',
-      '_generator': version_identifier,
-      'delete': {
-        '_if-unused': "true"
-      }
-    }
-  }
+function uploadData(osc) {
+  // osc is JS object for OsmChange XML.
 
   /*  OSC sample
   {'osmChange':{'_version':'0.6','_generator':version_identifier,
   'delete':{'_if-unused':"true", node:[
     {_id:-1,_changeset:4433,tag:{_k:"building", _v:"yes"}}, {tag:2}]}}})
   */
-
-  cs_xml = x2js.json2xml_str(osc)
+  cs_xml = x2js.json2xml_str(osc).replaceAll(CS_ID_PLACEHOLDER, currently_open_chset_id)
+  console.warn(cs_xml)
+  if (!currently_open_chset_id){return alert("You need to have open changeset to upload into.")}
   auth.xhr({
     method: 'POST',
     path: '/api/0.6/changeset/' + currently_open_chset_id + '/upload',

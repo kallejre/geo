@@ -12,9 +12,11 @@ cutoffDate.setFullYear(cutoffDate.getFullYear() - 20);
 used_imagery=new Set(); 
 
 function update_used_imagery_list() {
+  // This function is called whenever user changes anything
   // Add currently selected imagery layer to Set.
   used_imagery.add(layers[$("#Layers")[0].value].name);
-  // console.log("Edited");
+  // Enable save button
+  $("#save-button").prop("disabled", false);
 }
 
 const discard = {
@@ -22,7 +24,8 @@ const discard = {
   'osmfr': true,                        // 'OpenStreetMap (French Style)'
   'osm-mapnik-german_style': true,      // 'OpenStreetMap (German Style)'
   'HDM_HOT': true,                      // 'OpenStreetMap (HOT Style)'
-  //'osm-mapnik-black_and_white': true,   // 'OpenStreetMap (Standard Black & White)'
+  // Mapnik BW does not work.
+  'osm-mapnik-black_and_white': true,   // 'OpenStreetMap (Standard Black & White)'
   'osm-mapnik-no_labels': true,         // 'OpenStreetMap (Mapnik, no labels)'
   'OpenStreetMap-turistautak': true,    // 'OpenStreetMap (turistautak)'
 
@@ -312,6 +315,7 @@ function imagery_to_layers(img_list) {
   });
   i = 0
   $('#Layers').empty();
+  // Add imagery options to Layers list.
   list2.forEach(function(value) {
     el = document.createElement('option')
     el.setAttribute("value", i)
@@ -319,7 +323,9 @@ function imagery_to_layers(img_list) {
     el.innerHTML = value.name
     $('#Layers')[0].appendChild(el);
   });
-
+  // Select OSM carto / Mapnik layer
+  $("#Layers")[0].selectedIndex=list2.indexOf(list2.find(x => x.id === "MAPNIK"))
+  changeLayer()
   return list2; // Return leaflet-compatible list of layers for this location.
 }
 
