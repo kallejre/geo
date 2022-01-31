@@ -19,7 +19,7 @@ var backend_url = "backend.php"  // Not used as all editing is done on front-end
 var op_query = "[timeout:15][out:json];way(id:{id});out body;>;out skel qt;"
 
 // Upload.js
-version_identifier = "Basic-editor-0.3"  // Value for created_by tag
+version_identifier = "Basic-editor-0.5"  // Value for created_by tag
 // Request options defining header XML content.
 XML_HEADER_OPT = {
   header: {
