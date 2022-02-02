@@ -34,11 +34,13 @@ function save_settings() {
 </script>
 <style>
 .hide { display:none;}
+div {margin:10px}
+p {margin-bottom:0.2em}
 </style>
   </head>
   <body onload="check_custom_api()">
 <form action="#">
-Select API endpoint<br>
+<p>Select API endpoint</p>
     <label><input onclick="check_custom_api()" name="api" type="radio" value="live" checked="checked" />https://www.openstreetmap.org</label><br /> 
     <label><input onclick="check_custom_api()" name="api" type="radio" value="dev" />https://master.apis.dev.openstreetmap.org</label><br /> 
     <label><input onclick="check_custom_api()" name="api" type="radio" value="custom" />Custom settings:</label><br /> 
@@ -49,6 +51,11 @@ Select API endpoint<br>
     <label>OAuth consumer secret: <input name="custom_oauth_secr" type="text"/> </label><br /> 
     To use this editor with your own API server, visit <a href="#">[API URL]/user/username/oauth_clients/new</a> and register new OAuth consumer.
     </div>
+    <p>Select Overpass server (used only for map below):</p>
+    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="https://overpass-api.de/api/" checked="checked" />https://overpass-api.de/api/</label><br />
+    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="https://overpass.kumi.systems/api/" checked="checked" />https://overpass.kumi.systems/api/</label><br /> 
+    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="custom" />Custom: <input name="custom_overpass_api" placeholder="Omit 'interpreter' part of URL" style="min-width: 15em" type="text"/></label><br /> 
+    
     <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Submit">
 </form>
 
@@ -57,7 +64,8 @@ Select API endpoint<br>
 <input id="tags" oninput="update()" type="text"></input> with time limit 
 <input id="timeout" type="number" oninput="update()" value="30" placeholder="30" min="5" max="120" style="width:4em;"></input> sec.
 </p>
-<p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click <button>Here</button></p>
+<p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click <button>Here</button>
+ and it will add ways found in the region to the queue below.</p>
     <div id="map" style="height: 30em;width:100%"></div>   
     <script>
         // initialize map
@@ -90,6 +98,14 @@ Select API endpoint<br>
         map.setZoom(1);
         
         
+        function updateOverpass() {
+            var selection = document.querySelector('input[name="overpass_api"]:checked').value;
+            if (selection=="custom") {
+                selection=document.querySelector('input[name="custom_overpass_api"]').value
+            }
+            console.log(selection)
+            set_cookie("OP_server", selection)
+        }
         
         
         // Setup overpass
@@ -104,7 +120,25 @@ Select API endpoint<br>
             bbox=[bbox.getSouth(), bbox.getWest(), bbox.getNorth(), bbox.getEast()].map((x) => Math.round(x*1e6)/1e6).join(",")
             query=QUERY_TEMPLATE.replace("{{time}}", timeout).replace("{{tags}}", tags).replace("{{bbox}}", bbox)
             $("#query_field").html(query)
+            updateOverpass()
         }
+        function query() {
+        
+            $.ajax({
+        type: 'GET',
+        url: get_cookie("OP_server"),
+        dataType: 'json',
+        async: false,
+        processData: false,
+        data: $.param({
+            "data": op_query.replace("{id}", id)
+        }),
+        success: parse_overpass,
+        error: function() {
+            tags_div.innerHTML = "<p>Unable to download element</p>"
+        }
+    });}
+
     </script>
   </body>
   </html>

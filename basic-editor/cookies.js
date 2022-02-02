@@ -8,7 +8,7 @@ function set_cookie(name, value, days) {
     else {
         expires = "";
     }
-    document.cookie = name + "=" + value + expires + "; path=/";
+    document.cookie = name + "=" + value + expires + "; SameSite=Lax; path=/";
 }
 
 function delete_cookie(name) {
@@ -41,9 +41,11 @@ function listCookies() {
 
 
     var toInsert = document.createElement("div");
-    toInsert.innerHTML = `PS. This website uses functional cookies. <a onclick="alert('You have following cookies:\\n'+listCookies())" href="#">Click here</a> to read more`;
+    toInsert.innerHTML = `PS. This website uses functional cookies. <a onclick="alert('You have following cookies:\\n'+listCookies())" style="pointer-events: initial;" href="#">Click here</a> to read more`;
     toInsert.id="cookei"
-    toInsert.style.position = "absolute";     
+    toInsert.style.position = "fixed";     
     toInsert.style.bottom = "0px";
     toInsert.style["z-index"]= 9999;
+    toInsert.style["pointer-events"] = "none";
+    
 document.children[0].appendChild(toInsert)
