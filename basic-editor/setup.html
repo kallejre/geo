@@ -3,8 +3,15 @@
   <head>
     <title>Basic OSM editor in Leaflet</title>
     <meta charset="utf-8" />
-    
+    <!-- Single line to make mobile view usable: -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="cookies.js"></script>
+    <!-- Leaflet map with bbox selector -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script src="locationfilter.js"></script>
+    <link rel="stylesheet" type="text/css" href="locationfilter.css">
 <script >
 function check_custom_api() {
 var selection = document.querySelector('input[name="api"]:checked').value;
@@ -45,5 +52,59 @@ Select API endpoint<br>
     <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Submit">
 </form>
 
+<!--  Bounding box selector -->
+<p>Insert overpass-compatible tags you'd like to query.
+<input id="tags" oninput="update()" type="text"></input> with time limit 
+<input id="timeout" type="number" oninput="update()" value="30" placeholder="30" min="5" max="120" style="width:4em;"></input> sec.
+</p>
+<p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click <button>Here</button></p>
+    <div id="map" style="height: 30em;width:100%"></div>   
+    <script>
+        // initialize map
+        var map = L.map('map').setView([38, 0], 2);
+        L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        //  Uses https://github.com/kajic/leaflet-locationfilter/
+        var locationFilter = new L.LocationFilter({
+        bounds:  L.latLngBounds( L.latLng(20, -20),northEast = L.latLng(50, 20)),
+        enable:true
+        }).addTo(map);
+        
+        locationFilter.on("change", function (e) {
+            // Do something when the bounds change.
+            // Bounds are available in `e.bounds`.
+            update();
+        });
+
+        locationFilter.on("enabled", function () {
+            // Do something when enabled.
+        });
+
+        locationFilter.on("disabled", function () {
+            // Do something when disabled.
+        });
+        // Hide bbbox selection box and enable bbox.
+        document.getElementsByClassName("button-container")[0].hidden=true
+        map.setZoom(1);
+        
+        
+        
+        
+        // Setup overpass
+        QUERY_TEMPLATE= `[out:json][timeout:{{time}}];(way[{{tags}}]({{bbox}}););out ids;`
+        function update() {
+            tags=$("#tags")[0].value;
+            if (tags.length==0) {alert("Tag(s) can't be empty");return}
+            timeout = Math.floor($("#timeout")[0].value)
+            if (timeout>300) {$("#timeout")[0].value=120;timeout=120;}
+            if (timeout<5) {$("#timeout")[0].value=5;timeout=5;}
+            bbox = locationFilter.getBounds()
+            bbox=[bbox.getSouth(), bbox.getWest(), bbox.getNorth(), bbox.getEast()].map((x) => Math.round(x*1e6)/1e6).join(",")
+            query=QUERY_TEMPLATE.replace("{{time}}", timeout).replace("{{tags}}", tags).replace("{{bbox}}", bbox)
+            $("#query_field").html(query)
+        }
+    </script>
   </body>
   </html>
