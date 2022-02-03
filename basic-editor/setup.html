@@ -113,7 +113,9 @@
   <script>
     // initialize map
     function getBounds(variable) {
-      var [west, south, east, north] = localStorage.getItem(variable).split(',').map(parseFloat)
+      value = localStorage.getItem(variable)
+      if (value===null) { return null;}
+      var [west, south, east, north] = value.split(',').map(parseFloat)
       var bounds = new L.LatLngBounds(new L.LatLng(south, west), new L.LatLng(north, east))
       return bounds;
     }
@@ -149,9 +151,9 @@
     // Hide bbbox selection box and enable bbox.
     document.getElementsByClassName("button-container")[0].hidden = true
     // Zoom map to previously stored location
-    map.fitBounds(getBounds('mapBounds'));
+    if (getBounds('mapBounds')!==null) { map.fitBounds(getBounds('mapBounds'));}
     map.on("moveend", function() {
-      setBounds('mapBounds')
+      setBounds('mapBounds', map)
     });
 
     function updateOverpass() {

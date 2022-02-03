@@ -39,9 +39,19 @@ function listCookies() {
     return aString;
 }
 
+function listStorage() {
+    var aString = '';
+    for (var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        aString += i+1 + ' ' + k+"="+localStorage.getItem(k) + "\n";
+    }
+    return aString;
+}
+
+show_cookei_msg = () => alert('You have following cookies:\n'+listCookies()+'\n\nAnd those are in local storage:\n'+listStorage())
 
     var toInsert = document.createElement("div");
-    toInsert.innerHTML = `PS. This website uses functional cookies. <a onclick="alert('You have following cookies:\\n'+listCookies())" style="pointer-events: initial;" href="#">Click here</a> to read more`;
+    toInsert.innerHTML = `PS. This website uses functional cookies. <a onclick="show_cookei_msg()" style="pointer-events: initial;" href="#">Click here</a> to read more`;
     toInsert.id="cookei"
     toInsert.style.position = "fixed";     
     toInsert.style.bottom = "0px";
