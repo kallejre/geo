@@ -54,6 +54,13 @@
       display: none;
     }
 
+    .instructions {
+      max-width: 950px;
+      font-family: verdana, sans-serif;
+      text-align: justify;
+      padding: 0em 2% 0.5em 2%;
+    }
+
     form>div {
       margin: 10px
     }
@@ -89,12 +96,53 @@
       /* Set suble green border around map */
       box-shadow: inset 0 0 25px #0f04, 0 0 15px #0f04;
     }
+    #delete-buttons > button{
+      width: 100%;
+      height: 100%;
+      max-width: 9em;
+    }
   </style>
 </head>
 
 <body onload="update_api_forms()">
-<h2>How to use:</h2>
-<p>
+  <h2>How to use: <button onclick="$('#instructions').toggleClass('hide')" >Show/hide text</button></h2>
+  <div class="instructions hide" id="instructions">
+  <p>
+    <b>Intro:</b> This tool was created to fill gap between four popular OpenStreetMap editors and combine their unique characteristics to create ultimate tool for specific task: tagging validation process. 
+    Editor enables you to load list of ways via Overpass query (as in Level0 and Josm) and perform easy operations on them one-by-one (StreetComplete) while doing from comfort of your web browser (iD, Level0). 
+    Unlike Level0, this editor is bit more user friendly (by having interactive maps and layers) and from technical perspective this editor relies entirely on Javascript (like iD) without any server-side scripting (as done in Level0).
+  </p><p>
+    What you see here is a setup page for the editor. Before you can start editing, you need to define what are you trying to update and where. For that, type tag portion overpass query into the first textbox (for example 
+    <tt>building=yes</tt>, and then adjust bounding box to the region you'd like to query. If you are expecting lot of results, you can also increase time limit of the request in timeout field. Click button "Here" to run query.
+    
+  </p><p>
+    When Overpass query finishes, it will show the found elements in the listbox on the left side of map.
+  </p>
+</div>
+<div id="bbox_selection_div">
+    <!--  Bounding box selector -->
+    <p>Insert overpass-compatible tags you'd like to query.
+      <input id="tags" oninput="update()" type="text"></input> with time limit
+      <input id="timeout" type="number" oninput="update()" value="30" placeholder="30" min="5" max="120"
+        style="width:4em;"></input> sec.
+    </p>
+    <p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click
+      <button id="OP_button" onclick="run_query()">Here</button>
+      and it will add ways found in the region to the queue below.</p>
+  <div id="map_container">
+    <select name="elements" id="elms" size="5" multiple="multiple">
+    </select>
+    <div id="map"></div>
+
+  </div>
+  <div id="#delete-buttons">
+  <button onclick="delete_listitems(0)">Delete ONLY selected elements</button>
+  <button onclick="delete_listitems(1)">Delete ALL items</button>
+  <button onclick="delete_listitems(2)">Delete NOT selected items</button>
+  <input id="add_wayID_input" placeholder="Add wayID manually"></input>
+  <button onclick="add_wayID()">Add</button>
+  </div></div>
+  <h4>Additional settings</h4>
   <form action="#">
     <p>Select API endpoint</p>
     <label><input onclick="update_api_forms()" name="api" type="radio" value="live"
@@ -121,24 +169,7 @@
         type="text" /></label><br />
 
   </form>
-<div id="bbox_selection_div">
-    <!--  Bounding box selector -->
-    <p>Insert overpass-compatible tags you'd like to query.
-      <input id="tags" oninput="update()" type="text"></input> with time limit
-      <input id="timeout" type="number" oninput="update()" value="30" placeholder="30" min="5" max="120"
-        style="width:4em;"></input> sec.
-    </p>
-    <p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click
-      <button id="OP_button" onclick="run_query()">Here</button>
-      and it will add ways found in the region to the queue below.</p>
-  <div id="map_container">
-    <select name="elements" id="elms" size="5" multiple="multiple">
-    </select>
-    <div id="map"></div>
-
-  </div></div>
-
-    <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Start mapping" style="width: 100%; max-width: 9em; height: 3em;">
+    <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Start mapping" style="width: 100%; max-width: 9em; height: 3em; margin: 1em;">
   <script>
     // initialize map
     function getBounds(variable) {
@@ -157,8 +188,9 @@
       attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
     //  Uses https://github.com/kajic/leaflet-locationfilter/
+    console.log(getBounds('bboxBounds'))
     var locationFilter = new L.LocationFilter({
-      bounds: getBounds('boxBounds'),
+      bounds: getBounds('bboxBounds'),
       enable: true
     }).addTo(map);
 
@@ -208,7 +240,7 @@
     }
 
     function run_query() {
-      updateOverpass()
+      update_api_forms()
       if ($("#tags")[0].value.length == 0) {
         alert("Tag(s) can't be empty");
         return
@@ -231,9 +263,35 @@
           ids.forEach(function(id) {
             element_list.add(new Option(id));
           });
-
-          // Remove duplicates
+          validate_elments();
+        },
+        error: function() {
+          tags_div.innerHTML = "<p>Unable to download element</p>"
+        }
+      });
+    }
+    
+    function delete_listitems(mode=3) {
+        var element_list = $("#elms")
+        // Delete selected items
+        if (mode==0) {element_list.find('option:selected').remove();}
+        // Delete all items
+        if (mode==1) {element_list.find('option').remove();}
+        // Delete deselected items
+        if (mode==2) {element_list.find('option').not(':selected').remove();}
+    
+    }
+    
+    function add_wayID() {
+        var val = $("#add_wayID_input")[0].value.split(",")
+        var elms = $("#elms")[0];
+        val.forEach((x) => elms.add(new Option(x)));
+        validate_elments()
+    }
+    function validate_elments() {
+              // Remove duplicates
           var options = []
+        var element_list = $("#elms")[0];
 
           element_list.querySelectorAll('option').forEach((option) => {
             if (options.includes(option.value)) option.remove()
@@ -245,12 +303,7 @@
           // Also sort elements
           options.sort()
           options.forEach((id) => element_list.add(new Option(id)))
-        },
-        error: function() {
-          tags_div.innerHTML = "<p>Unable to download element</p>"
-        }
-      });
-    }
+      }
   </script>
 
 </body>
