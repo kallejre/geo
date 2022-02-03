@@ -32,8 +32,8 @@ function submit_data(state, id) {
         }
         out.skipped = true;
         console.log("Skip demo")
-        alert("This thing can't skip anything (yet) because there's no todo-list where skipping would have effect.")
-        resetMap()
+        //alert("This thing can't skip anything (yet) because there's no todo-list where skipping would have effect.")
+        submit_json(out)
         return
     }
     out.skipped = false;

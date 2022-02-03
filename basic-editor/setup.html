@@ -39,12 +39,26 @@
     }
 
     function save_settings() {
-      var selection = document.querySelector('input[name="api"]:checked').value;
-      set_cookie("ENV", selection)
+      // Write settings into cookies.
+      // API main setting
+      set_cookie("ENV", document.querySelector('input[name="api"]:checked').value);
+      // Custom API config
       input_fields = document.getElementById("custom_api_settings").getElementsByTagName('input')
       for (let item of input_fields) {
-        set_cookie(item.name, item.value)
+        set_cookie("custom_api_"+item.name, item.value)
       }
+      
+      // Overpass API settings:
+      var op_sel = document.querySelector('input[name="overpass_api"]:checked').value;
+      if (op_sel == "custom") {
+        op_sel = document.querySelector('input[name="custom_overpass_api"]').value;
+      }
+      set_cookie("OP_server", op_sel)
+      
+      // Selected elements
+      var selected = Array.from($("#elms")[0].querySelectorAll('option')).map((option) => option.value).join(",");
+      localStorage.setItem("todo_list",selected)
+      
       // Go to editor
       window.location.href = "leafdraw.html";
     }
@@ -141,6 +155,7 @@
   <button onclick="delete_listitems(2)">Delete NOT selected items</button>
   <input id="add_wayID_input" placeholder="Add wayID manually"></input>
   <button onclick="add_wayID()">Add</button>
+  <span id="way_counter"></span>
   </div></div>
   <h4>Additional settings</h4>
   <form action="#">
@@ -170,6 +185,7 @@
 
   </form>
     <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Start mapping" style="width: 100%; max-width: 9em; height: 3em; margin: 1em;">
+    <span style="color:red;">Warning: beware of nodes shared between ways when adding or removing nodes!</span>
   <script>
     // initialize map
     function getBounds(variable) {
@@ -279,6 +295,7 @@
         if (mode==1) {element_list.find('option').remove();}
         // Delete deselected items
         if (mode==2) {element_list.find('option').not(':selected').remove();}
+        validate_elments()
     
     }
     
@@ -289,20 +306,22 @@
         validate_elments()
     }
     function validate_elments() {
-              // Remove duplicates
-          var options = []
+        // Remove duplicates
+        var options = []
         var element_list = $("#elms")[0];
 
-          element_list.querySelectorAll('option').forEach((option) => {
+        element_list.querySelectorAll('option').forEach((option) => {
             if (options.includes(option.value)) option.remove()
             else {
-              options.push(option.value);
-              option.remove()
+                options.push(option.value);
+                option.remove()
             }
-          })
-          // Also sort elements
-          options.sort()
-          options.forEach((id) => element_list.add(new Option(id)))
+        })
+        // Also sort and filter elements
+        options= options.filter((x) => (x[0].match("w")!==null || x[0].match("n")!==null || x[0].match("r")!==null) && true).sort()
+        console.log(options)
+        options.forEach((id) => element_list.add(new Option(id)))
+        $("#way_counter").html(options.length+" elements total.");
       }
   </script>
 

@@ -122,22 +122,30 @@
       tags_div = $(".ui-widget")[0]
 
       $(".disablable").prop("disabled", true);
-      var ids = new URLSearchParams(window.location.search).get("id")
+      ids = new URLSearchParams(window.location.search).get("id")
       var way_id = new URLSearchParams(window.location.search).get("way")
-      if (ids) {
+      var todo_list = localStorage.getItem("todo_list")
+      if (todo_list) {
+        ids = todo_list.split(",").filter((d) => d.startsWith("w") && !isNaN(d.slice(1))).map((id) => id.slice(1))
+      } else if (ids) {
         // Using Level0 syntax (w123,w213,w321), but supports just one way.
         // 1st split, then remove non-ways and non-numeral IDs
-        ids = ids.split(",").filter((d) => d.startsWith("w") && !isNaN(d.slice(1)))[0]
-        if (typeof ids !== 'undefined') {
+        ids = ids.split(",").filter((d) => d.startsWith("w") && !isNaN(d.slice(1))).map((id) => id.slice(1))
+        if (typeof ids[0] !== 'undefined') {
           console.log("Found ID " + ids.slice(1))
-          download_way(ids.slice(1))
-        }
+        } else {ids=[]}
       } else if (way_id && !isNaN(way_id)) {
         // Alternative uses same parameter format as iD uses (way=123)
         console.log("Found ID " + way_id)
-        download_way(way_id)
+        ids=[way_id]
+      } 
+      if (ids.length!==0){
+        total_ways=ids.length
+        ids.unshift(0)  // Add placeholder to be removed by load_next_way
+        load_next_way()
       } else {
-        tags_div.innerHTML = "<p>You need to provide way ID via URL parameter to load data into this editor. Append <tt>?id=w1234</tt> or <tt>?way=1234</tt> to end of URL.</p>"
+        tags_div.innerHTML = "<p>You need to provide way ID to load data into this editor. You can do it by visiting "+
+        "<a href='setup.html'>setup page</a> or via URL parameter - append <tt>?id=w1234</tt> or <tt>?way=1234</tt> to end of URL.</p>";
       }
       
       if (get_cookie("open_cs_id")) {
@@ -146,7 +154,12 @@
         addChangesetDetails()
       }
     }
-
+    function load_next_way() {
+       // Communication with todo list manager:
+       ids.shift()  // Remove first element
+       download_way(ids[0])
+        $("#queue-stats").html("Processing element "+(total_ways-ids.length+1)+" of "+total_ways).show()
+    }
     // Won't work in editing mode
     //var layerControl = L.control.layers(baseLayers, overlays).addTo(map);
   </script>
@@ -264,6 +277,7 @@
             As <span id='display_name'></span> (id: <span id='id'></span>) 
             Changesets: <span id='count'></span>
             <span class="done" id="cs_msg" >Open changeset: <a href="#" id='cs_id'></a></span>
+            
         </div>
       
       
@@ -275,6 +289,7 @@
         <button id="skip-button" onclick="submit_data('skip')">Skip item</button>
         <button id="shape-button" class="disablable" onclick="resetMap()">Reset shape</button>
         <button id="reset-button" onclick="download_way()">Reset all</button>
+        <span id="queue-stats" style="visibility:none;"></span>
         <!-- onclick method in reset-button is overwritten by download_way -->
       </div>
       <div id="map"></div>

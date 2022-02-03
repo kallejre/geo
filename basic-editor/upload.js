@@ -117,7 +117,7 @@ function upload_way(data) {
   console.log(data)
   if (data.skipped) {
     console.log("Informing about skipping the way")
-    // FIXME: Insert ommunication with TODO list manager
+    load_next_way()
     return
   }
 
@@ -208,7 +208,7 @@ function upload_way(data) {
   }
 
   uploadData(OSC_to_upload)
-  // FIXME: Insert ommunication with TODO list manager
+  load_next_way();
 }
 
 function process_geometry(data) {
