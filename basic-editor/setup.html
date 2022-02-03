@@ -1,144 +1,235 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Basic OSM editor in Leaflet</title>
-    <meta charset="utf-8" />
-    <!-- Single line to make mobile view usable: -->
-    <meta name="viewport" content="width=device-width, initial-scale=1" /> 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="cookies.js"></script>
-    <!-- Leaflet map with bbox selector -->
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
-    <script src="locationfilter.js"></script>
-    <link rel="stylesheet" type="text/css" href="locationfilter.css">
-<script >
-function check_custom_api() {
-var selection = document.querySelector('input[name="api"]:checked').value;
-if (selection == "custom") {
-document.getElementById("custom_api_settings").classList.remove("hide");
-} else {
 
-document.getElementById("custom_api_settings").classList.add("hide");}
-}
-function save_settings() {
-    var selection = document.querySelector('input[name="api"]:checked').value;
-    set_cookie("ENV", selection)
-    input_fields = document.getElementById("custom_api_settings").getElementsByTagName('input')
-    for (let item of input_fields) {
-        set_cookie(item.name, item.value)
+<head>
+  <title>Basic OSM editor in Leaflet</title>
+  <meta charset="utf-8" />
+  <!-- Single line to make mobile view usable: -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="cookies.js"></script>
+  <!-- Leaflet map with bbox selector -->
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+  <script src="locationfilter.js"></script>
+  <link rel="stylesheet" type="text/css" href="locationfilter.css">
+  <script>
+    function check_custom_api() {
+      var selection = document.querySelector('input[name="api"]:checked').value;
+      if (selection == "custom") {
+        document.getElementById("custom_api_settings").classList.remove("hide");
+      } else {
+
+        document.getElementById("custom_api_settings").classList.add("hide");
+      }
     }
-    // Go to editor
-    window.location.href = "leafdraw.html";
-}
-</script>
-<style>
-.hide { display:none;}
-div {margin:10px}
-p {margin-bottom:0.2em}
-</style>
-  </head>
-  <body onload="check_custom_api()">
-<form action="#">
-<p>Select API endpoint</p>
-    <label><input onclick="check_custom_api()" name="api" type="radio" value="live" checked="checked" />https://www.openstreetmap.org</label><br /> 
-    <label><input onclick="check_custom_api()" name="api" type="radio" value="dev" />https://master.apis.dev.openstreetmap.org</label><br /> 
-    <label><input onclick="check_custom_api()" name="api" type="radio" value="custom" />Custom settings:</label><br /> 
+
+    function save_settings() {
+      var selection = document.querySelector('input[name="api"]:checked').value;
+      set_cookie("ENV", selection)
+      input_fields = document.getElementById("custom_api_settings").getElementsByTagName('input')
+      for (let item of input_fields) {
+        set_cookie(item.name, item.value)
+      }
+      // Go to editor
+      window.location.href = "leafdraw.html";
+    }
+  </script>
+  <style>
+    .hide {
+      display: none;
+    }
+
+    form>div {
+      margin: 10px
+    }
+
+    p {
+      margin-bottom: 0.2em
+    }
+
+    #elms {
+      max-width: 10em;
+      min-width: 6em;
+    }
+
+    #map {
+      height: 30em;
+      width: 100%;
+    }
+
+    #map_container {
+      display: grid;
+      grid-template-columns: auto max-content;
+    }
+  </style>
+</head>
+
+<body onload="check_custom_api()">
+  <form action="#">
+    <p>Select API endpoint</p>
+    <label><input onclick="check_custom_api()" name="api" type="radio" value="live"
+        checked="checked" />https://www.openstreetmap.org</label><br />
+    <label><input onclick="check_custom_api()" name="api" type="radio"
+        value="dev" />https://master.apis.dev.openstreetmap.org</label><br />
+    <label><input onclick="check_custom_api()" name="api" type="radio" value="custom" />Custom settings:</label><br />
     <div class="hide" id="custom_api_settings">
-    <label>API url: <input name="custom_api_url" type="text" placeholder="https://127.0.0.1:8080"  /> </label><br /> 
-    <label>Website URL (alias): <input name="custom_user_url" type="text" placeholder="https://127.0.0.1:8080"  /> </label><br /> 
-    <label>OAuth consumer key: <input name="custom_oauth_consumer" type="text"/> </label><br /> 
-    <label>OAuth consumer secret: <input name="custom_oauth_secr" type="text"/> </label><br /> 
-    To use this editor with your own API server, visit <a href="#">[API URL]/user/username/oauth_clients/new</a> and register new OAuth consumer.
+      <label>API url: <input name="custom_api_url" type="text" placeholder="https://127.0.0.1:8080" /> </label><br />
+      <label>Website URL (alias): <input name="custom_user_url" type="text" placeholder="https://127.0.0.1:8080" />
+      </label><br />
+      <label>OAuth consumer key: <input name="custom_oauth_consumer" type="text" /> </label><br />
+      <label>OAuth consumer secret: <input name="custom_oauth_secr" type="text" /> </label><br />
+      To use this editor with your own API server, visit <a href="#">[API URL]/user/username/oauth_clients/new</a> and
+      register new OAuth consumer.
     </div>
     <p>Select Overpass server (used only for map below):</p>
-    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="https://overpass-api.de/api/" checked="checked" />https://overpass-api.de/api/</label><br />
-    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="https://overpass.kumi.systems/api/" checked="checked" />https://overpass.kumi.systems/api/</label><br /> 
-    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="custom" />Custom: <input name="custom_overpass_api" placeholder="Omit 'interpreter' part of URL" style="min-width: 15em" type="text"/></label><br /> 
-    
+    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="https://overpass-api.de/api/"
+        checked="checked" />https://overpass-api.de/api/</label><br />
+    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="https://overpass.kumi.systems/api/"
+        checked="checked" />https://overpass.kumi.systems/api/</label><br />
+    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="custom" />Custom: <input
+        name="custom_overpass_api" placeholder="Omit 'interpreter' part of URL" style="min-width: 15em"
+        type="text" /></label><br />
+
     <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Submit">
-</form>
 
-<!--  Bounding box selector -->
-<p>Insert overpass-compatible tags you'd like to query.
-<input id="tags" oninput="update()" type="text"></input> with time limit 
-<input id="timeout" type="number" oninput="update()" value="30" placeholder="30" min="5" max="120" style="width:4em;"></input> sec.
-</p>
-<p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click <button>Here</button>
- and it will add ways found in the region to the queue below.</p>
-    <div id="map" style="height: 30em;width:100%"></div>   
-    <script>
-        // initialize map
-        var map = L.map('map').setView([38, 0], 2);
-        L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-        
-        //  Uses https://github.com/kajic/leaflet-locationfilter/
-        var locationFilter = new L.LocationFilter({
-        bounds:  L.latLngBounds( L.latLng(20, -20),northEast = L.latLng(50, 20)),
-        enable:true
-        }).addTo(map);
-        
-        locationFilter.on("change", function (e) {
-            // Do something when the bounds change.
-            // Bounds are available in `e.bounds`.
-            update();
-        });
+    <!--  Bounding box selector -->
+    <p>Insert overpass-compatible tags you'd like to query.
+      <input id="tags" oninput="update()" type="text"></input> with time limit
+      <input id="timeout" type="number" oninput="update()" value="30" placeholder="30" min="5" max="120"
+        style="width:4em;"></input> sec.
+    </p>
+    <p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click
+      <button onclick="run_query()">Here</button>
+      and it will add ways found in the region to the queue below.</p>
+  </form>
+  <div id="map_container">
+    <div id="map"></div>
 
-        locationFilter.on("enabled", function () {
-            // Do something when enabled.
-        });
+    <select name="elements" id="elms" size="5" multiple="multiple">
+    </select>
+  </div>
 
-        locationFilter.on("disabled", function () {
-            // Do something when disabled.
-        });
-        // Hide bbbox selection box and enable bbox.
-        document.getElementsByClassName("button-container")[0].hidden=true
-        map.setZoom(1);
-        
-        
-        function updateOverpass() {
-            var selection = document.querySelector('input[name="overpass_api"]:checked').value;
-            if (selection=="custom") {
-                selection=document.querySelector('input[name="custom_overpass_api"]').value
-            }
-            console.log(selection)
-            set_cookie("OP_server", selection)
-        }
-        
-        
-        // Setup overpass
-        QUERY_TEMPLATE= `[out:json][timeout:{{time}}];(way[{{tags}}]({{bbox}}););out ids;`
-        function update() {
-            tags=$("#tags")[0].value;
-            if (tags.length==0) {alert("Tag(s) can't be empty");return}
-            timeout = Math.floor($("#timeout")[0].value)
-            if (timeout>300) {$("#timeout")[0].value=120;timeout=120;}
-            if (timeout<5) {$("#timeout")[0].value=5;timeout=5;}
-            bbox = locationFilter.getBounds()
-            bbox=[bbox.getSouth(), bbox.getWest(), bbox.getNorth(), bbox.getEast()].map((x) => Math.round(x*1e6)/1e6).join(",")
-            query=QUERY_TEMPLATE.replace("{{time}}", timeout).replace("{{tags}}", tags).replace("{{bbox}}", bbox)
-            $("#query_field").html(query)
-            updateOverpass()
-        }
-        function query() {
-        
-            $.ajax({
+  <script>
+    // initialize map
+    function getBounds(variable) {
+      var [west, south, east, north] = localStorage.getItem(variable).split(',').map(parseFloat)
+      var bounds = new L.LatLngBounds(new L.LatLng(south, west), new L.LatLng(north, east))
+      return bounds;
+    }
+
+    function setBounds(variable, object) {
+      localStorage.setItem(variable, object.getBounds().toBBoxString())
+    }
+    var map = L.map('map').setView([38, 0], 2);
+    L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    //  Uses https://github.com/kajic/leaflet-locationfilter/
+    var locationFilter = new L.LocationFilter({
+      bounds: getBounds('boxBounds'),
+      enable: true
+    }).addTo(map);
+
+    locationFilter.on("change", function(e) {
+      // Do something when the bounds change.
+      // Bounds are available in `e.bounds`.
+      setBounds('bboxBounds', locationFilter)
+      setBounds('mapBounds', map)
+      update();
+    });
+
+    locationFilter.on("enabled", function() {
+      // Do something when enabled.
+    });
+
+    locationFilter.on("disabled", function() {
+      // Do something when disabled.
+    });
+    // Hide bbbox selection box and enable bbox.
+    document.getElementsByClassName("button-container")[0].hidden = true
+    // Zoom map to previously stored location
+    map.fitBounds(getBounds('mapBounds'));
+    map.on("moveend", function() {
+      setBounds('mapBounds')
+    });
+
+    function updateOverpass() {
+      var selection = document.querySelector('input[name="overpass_api"]:checked').value;
+      if (selection == "custom") {
+        selection = document.querySelector('input[name="custom_overpass_api"]').value
+      }
+      console.log(selection)
+      set_cookie("OP_server", selection)
+    }
+
+    // Setup overpass
+    QUERY_TEMPLATE = `[out:json][timeout:{{time}}];(way[{{tags}}]({{bbox}}););out ids;`
+
+    function update() {
+      tags = $("#tags")[0].value;
+      timeout = Math.floor($("#timeout")[0].value)
+      if (timeout > 300) {
+        $("#timeout")[0].value = 120;
+        timeout = 120;
+      }
+      if (timeout < 5) {
+        $("#timeout")[0].value = 5;
+        timeout = 5;
+      }
+      bbox = locationFilter.getBounds()
+      bbox = [bbox.getSouth(), bbox.getWest(), bbox.getNorth(), bbox.getEast()].map((x) => Math.round(x * 1e6) / 1e6)
+        .join(",")
+      var query = QUERY_TEMPLATE.replace("{{time}}", timeout).replace("{{tags}}", tags).replace("{{bbox}}", bbox)
+      $("#query_field").html(query)
+    }
+
+    function run_query() {
+      updateOverpass()
+      if ($("#tags")[0].value.length == 0) {
+        alert("Tag(s) can't be empty");
+        return
+      }
+
+      $.getJSON({
         type: 'GET',
-        url: get_cookie("OP_server"),
+        url: get_cookie("OP_server") + 'interpreter',
         dataType: 'json',
         async: false,
         processData: false,
         data: $.param({
-            "data": op_query.replace("{id}", id)
+          "data": $("#query_field").html()
         }),
-        success: parse_overpass,
-        error: function() {
-            tags_div.innerHTML = "<p>Unable to download element</p>"
-        }
-    });}
+        success: function(d) {
+          var element_list = $("#elms")[0]
+          var ids = d.elements.map((x) => x.type[0] + x.id);
+          console.log(ids)
+          console.log(element_list)
+          ids.forEach(function(id) {
+            element_list.add(new Option(id));
+          });
 
-    </script>
-  </body>
-  </html>
+          // Remove duplicates
+          var options = []
+
+          element_list.querySelectorAll('option').forEach((option) => {
+            if (options.includes(option.value)) option.remove()
+            else {
+              options.push(option.value);
+              option.remove()
+            }
+          })
+          // Also sort elements
+          options.sort()
+          options.forEach((id) => element_list.add(new Option(id)))
+        },
+        error: function() {
+          tags_div.innerHTML = "<p>Unable to download element</p>"
+        }
+      });
+    }
+  </script>
+
+</body>
+
+</html>
