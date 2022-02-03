@@ -134,21 +134,26 @@
 </head>
 
 <body onload="update_api_forms()">
-  <h2>How to use: <button onclick="$('#instructions').toggleClass('hide')" >Show/hide text</button></h2>
+  <h2>How to use: <button onclick="$('#instructions').toggleClass('hide')">Show/hide text</button></h2>
   <div class="instructions hide" id="instructions">
-  <p>
-    <b>Intro:</b> This tool was created to fill gap between four popular OpenStreetMap editors and combine their unique characteristics to create ultimate tool for specific task: tagging validation process. 
-    Editor enables you to load list of ways via Overpass query (as in Level0 and Josm) and perform easy operations on them one-by-one (StreetComplete) while doing from comfort of your web browser (iD, Level0). 
-    Unlike Level0, this editor is bit more user friendly (by having interactive maps and layers) and from technical perspective this editor relies entirely on Javascript (like iD) without any server-side scripting (as done in Level0).
-  </p><p>
-    What you see here is a setup page for the editor. Before you can start editing, you need to define what are you trying to update and where. For that, type tag portion overpass query into the first textbox (for example 
-    <tt>building=yes</tt>, and then adjust bounding box to the region you'd like to query. If you are expecting lot of results, you can also increase time limit of the request in timeout field. Click button "Here" to run query.
-    
-  </p><p>
-    When Overpass query finishes, it will show the found elements in the listbox on the left side of map.
-  </p>
-</div>
-<div id="bbox_selection_div">
+    <p>
+      <b>Intro:</b> This tool was created to fill gap between four popular OpenStreetMap editors and combine their
+      unique characteristics to create ultimate tool for specific task: tagging validation process. Editor enables you
+      to load list of ways via Overpass query (as in Level0 and Josm) and perform easy operations on them one-by-one
+      (StreetComplete) while doing from comfort of your web browser (iD, Level0). Unlike Level0, this editor is bit more
+      user friendly (by having interactive maps and layers) and from technical perspective this editor relies entirely
+      on Javascript (like iD) without any server-side scripting (as done in Level0).
+    </p>
+    <p>
+      What you see here is a setup page for the editor. Before you can start editing, you need to define what are you
+      trying to update and where. For that, type tag portion overpass query into the first textbox (for example
+      <tt>building=yes</tt>, and then adjust bounding box to the region you'd like to query. If you are expecting lot of
+      results, you can also increase time limit of the request in timeout field. Click button "Here" to run query. </p>
+    <p>
+      When Overpass query finishes, it will show the found elements in the listbox on the left side of map.
+    </p>
+  </div>
+  <div id="bbox_selection_div">
     <!--  Bounding box selector -->
     <p>Insert overpass-compatible tags you'd like to query.
       <input id="tags" oninput="update()" type="text"></input> with time limit
@@ -157,29 +162,30 @@
     </p>
     <p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click
       <button id="OP_button" onclick="run_query()">Here</button>
-      and it will add ways found in the region to the queue below.</p>
-  <div id="map_container">
-    <select name="elements" id="elms" size="5" multiple="multiple">
-    </select>
-    <div id="map"></div>
+      and it will add ways found in the region to the queue below.
+    </p>
+    <div id="map_container">
+      <select name="elements" id="elms" size="5" multiple="multiple">
+      </select>
+      <div id="map"></div>
 
+    </div>
+    <div id="#delete-buttons">
+      <button onclick="delete_listitems(0)">Delete ONLY selected elements</button>
+      <button onclick="delete_listitems(1)">Delete ALL items</button>
+      <button onclick="delete_listitems(2)">Delete NOT selected items</button>
+      <input id="add_wayID_input" placeholder="Add wayID manually"></input>
+      <button onclick="add_wayID()">Add</button>
+      <span id="way_counter"></span>
+    </div>
   </div>
-  <div id="#delete-buttons">
-  <button onclick="delete_listitems(0)">Delete ONLY selected elements</button>
-  <button onclick="delete_listitems(1)">Delete ALL items</button>
-  <button onclick="delete_listitems(2)">Delete NOT selected items</button>
-  <input id="add_wayID_input" placeholder="Add wayID manually"></input>
-  <button onclick="add_wayID()">Add</button>
-  <span id="way_counter"></span>
-  </div></div>
   <h4>Additional settings</h4>
   <form action="#">
     <p>After uploading/saving a way...</p>
-    <label><input  name="after_save" type="radio" value="next"
-        checked="checked" />...load next way.</label><br />
-    <label><input  name="after_save" type="radio" value="same" />...keep same way.  (You need to click "Skip" to move on)</label><br />
-    <p><label><input  name="confirm_skip" type="checkbox"
-        checked="checked" />Confirm skipping an element.</label></p>
+    <label><input name="after_save" type="radio" value="next" checked="checked" />...load next way.</label><br />
+    <label><input name="after_save" type="radio" value="same" />...keep same way. (You need to click "Skip" to move
+      on)</label><br />
+    <p><label><input name="confirm_skip" type="checkbox" checked="checked" />Confirm skipping an element.</label></p>
     <p>Select API endpoint</p>
     <label><input onclick="update_api_forms()" name="api" type="radio" value="live"
         checked="checked" />https://www.openstreetmap.org</label><br />
@@ -198,15 +204,19 @@
     <p>Select Overpass server (used only for map below):</p>
     <label><input onclick="update_api_forms()" name="overpass_api" type="radio" value="https://overpass-api.de/api/"
         checked="checked" />https://overpass-api.de/api/</label><br />
-    <label><input onclick="update_api_forms()" name="overpass_api" type="radio" value="https://overpass.kumi.systems/api/"
-        checked="checked" />https://overpass.kumi.systems/api/</label><br />
+    <label><input onclick="update_api_forms()" name="overpass_api" type="radio"
+        value="https://overpass.kumi.systems/api/" />https://overpass.kumi.systems/api/</label><br />
     <label><input onclick="update_api_forms()" name="overpass_api" type="radio" value="custom" />Custom: <input
         name="custom_overpass_api" placeholder="Omit 'interpreter' part of URL" style="min-width: 15em"
         type="text" /></label><br />
 
   </form>
-    <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Start mapping" style="width: 100%; max-width: 9em; height: 3em; margin: 1em;">
-    <span style="color:red;">Warning: beware of nodes shared between ways when adding or removing nodes!</span>
+  <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Start mapping"
+    style="width: 100%; max-width: 9em; height: 3em; margin: 1em;">
+  <span style="color:red;">Warning: beware of nodes shared between ways when adding or removing nodes!</span>
+  <p align=right><a href="https://github.com/kallejre/geo/tree/main/basic-editor">Source code link.</a><br>
+    <a href="https://kallejre.github.io/geo/basic-editor/">Readme/introduction.</a>
+  </p>
   <script>
     // initialize map
     function getBounds(variable) {
