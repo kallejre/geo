@@ -14,14 +14,28 @@
   <script src="locationfilter.js"></script>
   <link rel="stylesheet" type="text/css" href="locationfilter.css">
   <script>
-    function check_custom_api() {
-      var selection = document.querySelector('input[name="api"]:checked').value;
-      if (selection == "custom") {
+    function update_api_forms() {
+      // Function taking care of custom settings for OSM and Overpass APIs.
+      var api_selection = document.querySelector('input[name="api"]:checked').value;
+      var op_sel = document.querySelector('input[name="overpass_api"]:checked').value;
+      // Disable OP queries, if dev API is selected, because it will lead to conflicts.
+      if (api_selection == "live" || op_sel == "custom") {
+        document.getElementById("OP_button").disabled = false
+      } else {
+        document.getElementById("OP_button").disabled = true
+      }
+      if (api_selection == "custom") {
         document.getElementById("custom_api_settings").classList.remove("hide");
       } else {
-
         document.getElementById("custom_api_settings").classList.add("hide");
       }
+
+      // function updateOverpass() {
+      if (op_sel == "custom") {
+        op_sel = document.querySelector('input[name="custom_overpass_api"]').value
+      }
+      console.log(op_sel)
+      set_cookie("OP_server", op_sel)
     }
 
     function save_settings() {
@@ -54,25 +68,40 @@
     }
 
     #map {
-      height: 30em;
+      height: 100%;
       width: 100%;
     }
 
     #map_container {
       display: grid;
-      grid-template-columns: auto max-content;
+      grid-template-columns: max-content auto;
+      height: 100%;
+      flex-grow: 1; 
+    }
+    #bbox_selection_div{
+      width: 100%;
+      max-width: 950px;
+      height: 30em;
+      display: flex;
+      flex-direction: column;
+      padding: 0em 2% 0.5em 2%;
+      border-radius: 1em;
+      /* Set suble green border around map */
+      box-shadow: inset 0 0 25px #0f04, 0 0 15px #0f04;
     }
   </style>
 </head>
 
-<body onload="check_custom_api()">
+<body onload="update_api_forms()">
+<h2>How to use:</h2>
+<p>
   <form action="#">
     <p>Select API endpoint</p>
-    <label><input onclick="check_custom_api()" name="api" type="radio" value="live"
+    <label><input onclick="update_api_forms()" name="api" type="radio" value="live"
         checked="checked" />https://www.openstreetmap.org</label><br />
-    <label><input onclick="check_custom_api()" name="api" type="radio"
+    <label><input onclick="update_api_forms()" name="api" type="radio"
         value="dev" />https://master.apis.dev.openstreetmap.org</label><br />
-    <label><input onclick="check_custom_api()" name="api" type="radio" value="custom" />Custom settings:</label><br />
+    <label><input onclick="update_api_forms()" name="api" type="radio" value="custom" />Custom settings:</label><br />
     <div class="hide" id="custom_api_settings">
       <label>API url: <input name="custom_api_url" type="text" placeholder="https://127.0.0.1:8080" /> </label><br />
       <label>Website URL (alias): <input name="custom_user_url" type="text" placeholder="https://127.0.0.1:8080" />
@@ -83,16 +112,16 @@
       register new OAuth consumer.
     </div>
     <p>Select Overpass server (used only for map below):</p>
-    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="https://overpass-api.de/api/"
+    <label><input onclick="update_api_forms()" name="overpass_api" type="radio" value="https://overpass-api.de/api/"
         checked="checked" />https://overpass-api.de/api/</label><br />
-    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="https://overpass.kumi.systems/api/"
+    <label><input onclick="update_api_forms()" name="overpass_api" type="radio" value="https://overpass.kumi.systems/api/"
         checked="checked" />https://overpass.kumi.systems/api/</label><br />
-    <label><input onclick="updateOverpass()" name="overpass_api" type="radio" value="custom" />Custom: <input
+    <label><input onclick="update_api_forms()" name="overpass_api" type="radio" value="custom" />Custom: <input
         name="custom_overpass_api" placeholder="Omit 'interpreter' part of URL" style="min-width: 15em"
         type="text" /></label><br />
 
-    <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Submit">
-
+  </form>
+<div id="bbox_selection_div">
     <!--  Bounding box selector -->
     <p>Insert overpass-compatible tags you'd like to query.
       <input id="tags" oninput="update()" type="text"></input> with time limit
@@ -100,16 +129,16 @@
         style="width:4em;"></input> sec.
     </p>
     <p>Following Overpass query would run: <tt id="query_field">&ltSample query will appear here&gt </tt> if you click
-      <button onclick="run_query()">Here</button>
+      <button id="OP_button" onclick="run_query()">Here</button>
       and it will add ways found in the region to the queue below.</p>
-  </form>
   <div id="map_container">
-    <div id="map"></div>
-
     <select name="elements" id="elms" size="5" multiple="multiple">
     </select>
-  </div>
+    <div id="map"></div>
 
+  </div></div>
+
+    <input id="saveForm" class="button_text" type="button" onclick="save_settings();" value="Start mapping" style="width: 100%; max-width: 9em; height: 3em;">
   <script>
     // initialize map
     function getBounds(variable) {
@@ -156,14 +185,6 @@
       setBounds('mapBounds', map)
     });
 
-    function updateOverpass() {
-      var selection = document.querySelector('input[name="overpass_api"]:checked').value;
-      if (selection == "custom") {
-        selection = document.querySelector('input[name="custom_overpass_api"]').value
-      }
-      console.log(selection)
-      set_cookie("OP_server", selection)
-    }
 
     // Setup overpass
     QUERY_TEMPLATE = `[out:json][timeout:{{time}}];(way[{{tags}}]({{bbox}}););out ids;`
