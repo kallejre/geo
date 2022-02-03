@@ -60,6 +60,8 @@
     function load_way(coords) {
       // Clear prev drawing
       editableLayers.removeLayer(editableLayers.getLayers()[0])
+      
+      ///   TODO FIXME: Don't remove layer if imagery is available.
       if (oldlayer + 1) { // if oldlayer is defined,
         map.removeLayer(layers[oldlayer]) // Remove old background imagery
       }
@@ -138,8 +140,8 @@
         // Alternative uses same parameter format as iD uses (way=123)
         console.log("Found ID " + way_id)
         ids=[way_id]
-      } 
-      if (ids.length!==0){
+      }
+      if (ids && ids.length!==0){
         total_ways=ids.length
         ids.unshift(0)  // Add placeholder to be removed by load_next_way
         load_next_way()
@@ -156,6 +158,12 @@
     }
     function load_next_way() {
        // Communication with todo list manager:
+       if (ids == null){
+         // There's no ways defined. Error message is already shown, disable skip button.
+         $("#skip-button")[0].disabled=true
+         $("#reset-button")[0].disabled=true
+         return alert("Nothing to skip")
+       } else
        ids.shift()  // Remove first element
        download_way(ids[0])
         $("#queue-stats").html("Processing element "+(total_ways-ids.length+1)+" of "+total_ways).show()

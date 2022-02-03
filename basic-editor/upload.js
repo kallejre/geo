@@ -208,7 +208,6 @@ function upload_way(data) {
   }
 
   uploadData(OSC_to_upload)
-  load_next_way();
 }
 
 function process_geometry(data) {
@@ -511,12 +510,18 @@ function uploadData(osc) {
     options: XML_HEADER_OPT,
   }, (err, res) => {
     if (err) {
+      console.alert("Error occured while uploading changes")
       console.warn("Error occured while uploading changes")
       console.error(err);
     } else {
       console.log("Upload was successful")
       // To prevent conflicts while uploading next changes, original_data must be updated.
-      download_way(out.id)
+      if (get_cookie("after_save")=="next"){
+        load_next_way();
+      }else {  // set_cookie("after_save")=="same"
+        // Redownload current way.
+        download_way(out.id)
+      }
     }
   });
 }

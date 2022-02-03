@@ -42,6 +42,17 @@
       // Write settings into cookies.
       // API main setting
       set_cookie("ENV", document.querySelector('input[name="api"]:checked').value);
+      // Default behaviour after saving way.
+      after_save = document.querySelector('input[name="after_save"]:checked')
+      if (after_save) {
+        after_save = after_save.value
+      } else {
+        after_save = "next"
+      }
+      set_cookie("after_save", after_save)
+      // Default behaviour after skipping way.
+      set_cookie("after_skip", document.querySelector('input[name="confirm_skip"]').checked)
+      
       // Custom API config
       input_fields = document.getElementById("custom_api_settings").getElementsByTagName('input')
       for (let item of input_fields) {
@@ -159,6 +170,12 @@
   </div></div>
   <h4>Additional settings</h4>
   <form action="#">
+    <p>After uploading/saving a way...</p>
+    <label><input  name="after_save" type="radio" value="next"
+        checked="checked" />...load next way.</label><br />
+    <label><input  name="after_save" type="radio" value="same" />..keep same way.</label><br />
+    <p><label><input  name="confirm_skip" type="checkbox"
+        checked="checked" />Confirm skipping an element.</label></p>
     <p>Select API endpoint</p>
     <label><input onclick="update_api_forms()" name="api" type="radio" value="live"
         checked="checked" />https://www.openstreetmap.org</label><br />

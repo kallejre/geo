@@ -26,10 +26,11 @@ function submit_data(state, id) {
     out.type = "way"
     out.id = id
     if (state == "skip") {
-        if (!confirm("Are you sure you wish to skip this item (way " + out.id + ")?")) {
-            console.log("Skip canceled")
-            return
-        }
+        if (get_cookie("after_skip")==="true"){
+            if (!confirm("Are you sure you wish to skip this item (way " + out.id + ")?")) {
+                console.log("Skip canceled")
+                return
+        }}
         out.skipped = true;
         console.log("Skip demo")
         //alert("This thing can't skip anything (yet) because there's no todo-list where skipping would have effect.")
