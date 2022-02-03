@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Basic OSM editor in Leaflet</title>
+  <title>Basic OSM editor Setup</title>
   <meta charset="utf-8" />
   <!-- Single line to make mobile view usable: -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -81,9 +81,13 @@
 
     .instructions {
       max-width: 950px;
-      font-family: verdana, sans-serif;
       text-align: justify;
       padding: 0em 2% 0.5em 2%;
+    }
+
+    html {
+      font-family: verdana, sans-serif;
+      font-size: 13px;
     }
 
     form>div {
@@ -173,7 +177,7 @@
     <p>After uploading/saving a way...</p>
     <label><input  name="after_save" type="radio" value="next"
         checked="checked" />...load next way.</label><br />
-    <label><input  name="after_save" type="radio" value="same" />..keep same way.</label><br />
+    <label><input  name="after_save" type="radio" value="same" />...keep same way.  (You need to click "Skip" to move on)</label><br />
     <p><label><input  name="confirm_skip" type="checkbox"
         checked="checked" />Confirm skipping an element.</label></p>
     <p>Select API endpoint</p>

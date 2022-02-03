@@ -60,8 +60,6 @@
     function load_way(coords) {
       // Clear prev drawing
       editableLayers.removeLayer(editableLayers.getLayers()[0])
-      
-      ///   TODO FIXME: Don't remove layer if imagery is available.
       if (oldlayer + 1) { // if oldlayer is defined,
         map.removeLayer(layers[oldlayer]) // Remove old background imagery
       }
@@ -76,7 +74,11 @@
       polygon.on('edit', update_used_imagery_list);
       // Don't run if there are no layers downloaded yet.
       if (global_imagery.length && update_imagery) {
+        if (oldlayer+1) {
+        refresh_layer_list(layers[oldlayer].id)
+        } else {
         refresh_layer_list()
+        }
       }
     }
 

@@ -322,12 +322,16 @@ function imagery_to_layers(img_list) {
   return list2; // Return leaflet-compatible list of layers for this location.
 }
 
-function refresh_layer_list() {
+function refresh_layer_list(old_layer_id = null) {
   localayers=get_local_imagery()
   console.log(localayers)
   layers = imagery_to_layers(localayers)
-  
-  // Select OSM carto / Mapnik layer
-  $("#Layers")[0].selectedIndex=list2.indexOf(list2.find(x => x.id === "MAPNIK"))
-  // changeLayer()
+  console.log(old_layer_id, layers.filter((x) => old_layer_id==x.id).length>0)
+  if (layers.filter((x) => old_layer_id==x.id).length>0){
+      $("#Layers")[0].selectedIndex=list2.indexOf(list2.find(x => x.id === old_layer_id))
+      changeLayer()
+  } else {
+    // Select OSM carto / Mapnik layer
+    $("#Layers")[0].selectedIndex=list2.indexOf(list2.find(x => x.id === "MAPNIK"))
+  }
 }
